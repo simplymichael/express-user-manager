@@ -1,0 +1,25 @@
+{
+  "name": "user-management",
+  "version": "0.0.0",
+  "description": "A package for user management: registration, login, get, search",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simplymichael/user-management.git"
+  },
+  "keywords": [
+    "user",
+    "authentication",
+    "registration",
+    "login"
+  ],
+  "author": "simplymichael <simplymichaelorji@gmail.com> (https://github.com/simplymichael)",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/simplymichael/user-management/issues"
+  },
+  "homepage": "https://github.com/simplymichael/user-management#readme"
+}
