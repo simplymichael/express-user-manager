@@ -46,5 +46,8 @@
     "ghooks": {
       "pre-commit": "npm run lint && npm run test:coverage"
     }
+  },
+  "dependencies": {
+    "dotenv": "8.2.0"
   }
 }

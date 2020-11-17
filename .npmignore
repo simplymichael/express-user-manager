@@ -2,6 +2,7 @@
 coverage/
 examples/
 tests/
+.env
 .editorconfig
 .npmignore
 .travis.yml
