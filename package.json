@@ -2,8 +2,9 @@
   "name": "user-management",
   "version": "0.0.0",
   "description": "A package for user management: registration, login, get, search",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
+    "start:dev": "nodemon src/index.js",
     "test": "run-script-os",
     "test:nix": "NODE_ENV=test& mocha __tests__/\"{,/**/}*.test.js\"",
     "test:win32": "set NODE_ENV=test& mocha __tests__/\"{,/**/}*.test.js\"",
@@ -36,6 +37,7 @@
     "eslint": "7.13.0",
     "ghooks": "2.0.4",
     "mocha": "8.2.1",
+    "nodemon": "2.0.6",
     "nyc": "15.1.0",
     "run-script-os": "1.1.3"
   },
