@@ -1,0 +1,15 @@
+{
+  "all": true,
+  "include": [
+    "src/**/*.js"
+  ],
+  "exclude": [
+    "**/*.test.js"
+  ],
+  "reporter": [
+    "json",
+    "lcov",
+    "text-summary",
+    "clover"
+  ]
+}
