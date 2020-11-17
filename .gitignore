@@ -1,0 +1,12 @@
+# Coverage directory
+/coverage
+
+# Dependency directory
+node_modules
+
+# production
+/build
+
+# misc
+.env
+.DS_Store

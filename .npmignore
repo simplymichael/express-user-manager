@@ -1,0 +1,9 @@
+.nyc_output/
+coverage/
+examples/
+tests/
+.editorconfig
+.npmignore
+.travis.yml
+appveyor.yml
+CONTRIBUTING.md
