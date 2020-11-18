@@ -3,7 +3,7 @@ const app = require('../src/app');
 const debugLog = require('../src/config').debugLog;
 const port = process.env.PORT || '3001';
 const { setupDB } = require('./_test-setup');
-setupDB();
+setupDB({ debug: false });
 
 app.set('port', port);
 
