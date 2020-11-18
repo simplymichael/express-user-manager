@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { validationResult } = require('express-validator');
 const emailValidator = require('email-validator');
-const debug = require('../../../config').debug;
+const debugLog = require('../../../config').debugLog;
 const notLoggedIn = require('../../../middlewares/not-logged-in');
 const { statusCodes } = require('../../../utils/http');
 const {
@@ -46,7 +46,7 @@ router.get('/', async function(req, res) {
       errors: [{ msg: 'There was an error retrieving users' }]
     });
 
-    debug(`Error retrieving users: ${err}`);
+    debugLog(`Error retrieving users: ${err}`);
     return;
   }
 });
@@ -123,7 +123,7 @@ router.get('/search', async (req, res) => {
       }
     });
   } catch(err) {
-    debug(`User search error: ${err}`);
+    debugLog(`User search error: ${err}`);
 
     return res.status(statusCodes.serverError).json({
       errors: [{
@@ -215,7 +215,7 @@ router.post('/', notLoggedIn,
             errors: [{ msg: 'There was an error saving the user' }]
           });
 
-          debug(`Error saving the user: ${err}`);
+          debugLog(`Error saving the user: ${err}`);
           return;
         }
       }
@@ -279,7 +279,7 @@ router.post('/login', notLoggedIn, validator.validate('login', 'password'),
         errors: [{ msg: 'There was an error logging in the user' }]
       });
 
-      debug(`Error authenticating user: ${err}`);
+      debugLog(`Error authenticating user: ${err}`);
       return;
     }
   });
