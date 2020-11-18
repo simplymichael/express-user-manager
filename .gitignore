@@ -10,4 +10,5 @@ node_modules
 
 # misc
 .env
+.data
 .DS_Store

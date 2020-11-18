@@ -10,7 +10,11 @@ app.set('port', port);
 
 const server = http.createServer(app);
 
-server.listen(port);
+(async function() {
+  await config.initDb(); // Ensure db is running before binding server to port
+  server.listen(port);
+})();
+
 server.on('error', onError);
 server.on('listening', onListening);
 
