@@ -1,76 +1,70 @@
 #!/usr/bin/env node
 
-const env = ('./dotenv');
+const env = require('./dotenv');
 const config = require('./config');
-const { debugLog } = config;
+const debugLog = require('./utils/debug');
 const app = require('./app');
 const http = require('http');
-const port = normalizePort(env.PORT || '3000');
-app.set('port', port);
+const userModule = {
+  async initDb(opts = {}) {
+    return await config.initDb(opts);
+  },
 
-const server = http.createServer(app);
+  initServer(options = {}) {
+    const port = normalizePort(options.port || env.PORT || '3000');
+    app.set('port', port);
 
-(async function() {
-  await config.initDb(); // Ensure db is running before binding server to port
-  server.listen(port);
-})();
+    const server = http.createServer(app);
 
-server.on('error', onError);
-server.on('listening', onListening);
+    server.listen(port);
+    server.on('error', function onError(error) {
+      const bind = typeof port === 'string' ? `Pipe ${port}` : `Port ${port}`;
+
+      if (error.syscall !== 'listen') {
+        throw error;
+      }
+
+      // handle specific listen errors with friendly messages
+      switch (error.code) {
+      case 'EACCES':
+        console.error(bind + ' requires elevated privileges'); break;
+      case 'EADDRINUSE':
+        console.error(bind + ' is already in use'); break;
+      default:
+        throw error;
+      }
+
+      process.exit(1);
+    });
+    server.on('listening', function onListening() {
+      const addr = server.address();
+      const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
+      const currentEnv = app.get('env') || env.NODE_ENV;
+
+      debugLog(`User Management is running in ${currentEnv} mode`);
+      debugLog(`User Management server listening on ${bind}`);
+    });
+
+    return server;
+  }
+};
 
 /**
- * Normalize a port into a number, string, or false.
+ * Normalize a port into a string, number, or false.
  */
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+  const port = parseInt(val, 10);
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
+  return (isNaN(port) ? val : (port >= 0 ? port : false));
 }
 
-/**
- * Event listener for HTTP server "error" event.
- */
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-  case 'EACCES':
-    console.error(bind + ' requires elevated privileges');
-    process.exit(1);
-    break;
-  case 'EADDRINUSE':
-    console.error(bind + ' is already in use');
-    process.exit(1);
-    break;
-  default:
-    throw error;
-  }
+// If invoked directly, e.g via node index.js
+// Use data from environment variable or .env file for both initialisation tasks
+if(require.main === module) {
+  (async function() {
+    await userModule.initDb(); // Ensure db is running before starting server
+    userModule.initServer();
+  })();
 }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debugLog('Listening on ' + bind);
-}
+module.exports = userModule;

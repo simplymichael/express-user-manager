@@ -1,14 +1,19 @@
-const http = require('http');
-const app = require('../src/app');
-const debugLog = require('../src/config').debugLog;
-const port = process.env.PORT || '3001';
+const env = ('./dotenv'); // Wow! Discovered a short-cut method to 'require('./dotenv')'
+const port = env.PORT || '3001';
+const userModule = require('../src/index');
 const { setupDB } = require('./_test-setup');
-setupDB({ debug: false });
+setupDB({
+  host: env.DB_HOST,
+  port: env.DB_PORT,
+  user: env.DB_USERNAME,
+  pass: env.DB_PASSWORD,
+  dbName: env.DB_DBNAME,
+  debug: env.DB_DEBUG,
+});
 
-app.set('port', port);
+const server = userModule.initServer({
+  port: port,
+});
 
-const server = http.createServer(app);
-
-server.listen(port, () => debugLog(`Test server listening on port ${port}`));
 
 module.exports = server;

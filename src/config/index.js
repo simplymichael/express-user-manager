@@ -1,11 +1,34 @@
+const env = require('../dotenv');
 const util = require('util');
 const mongoose = require('mongoose');
-const config = require('./config');
-const debugLog = require('debug')('user-management');
+const debugLog = require('../utils/debug');
+const config = {};
 
-config.debugLog = debugLog;
+/**
+ * Start a (MongoDB) DB server instance
+ * @param object with members:
+ *   - host string the db server host
+ *   - port number the db server port
+ *   - user string the db server username
+ *   - pass string the db server user password
+ *   - dbName string the name of the database to connect to
+ *   - debug boolean determines whether or not to show debugging output
+ *
+ * @return resource a (mongoose) connection instance
+ */
 config.initDb = async (options = {}) => {
-  const { debug = config.db.debug, dsn = config.db.dsn } = options;
+  const {
+    host = env.DB_HOST,
+    port = env.DB_PORT,
+    user = env.DB_USERNAME,
+    pass = env.DB_PASSWORD,
+    dbName = env.DB_DBNAME,
+    debug = env.DB_DEBUG,
+  } = options;
+
+  const dsn = user.trim().length > 0
+    ? `mongodb://${user}:${pass}@${host}:${port}/${dbName}`
+    : `mongodb://${host}:${port}/${dbName}`;
 
   try {
     mongoose.set('debug', debug);

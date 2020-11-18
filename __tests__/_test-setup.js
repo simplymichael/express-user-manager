@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const config = require('../src/config');
-const { debugLog } = config;
+const debugLog = require('../src/utils/debug');
+const userModule = require('../src/index');
 
 async function removeAllCollections () {
   const collections = Object.keys(mongoose.connection.collections)
@@ -34,11 +35,10 @@ async function dropAllCollections () {
 module.exports = {
   setupDB: (options = {}) => {
     let db;
-    const { debug = config.db.debug, dsn = config.db.dsn } = options;
 
     // Connect to DB
     before(async () => {
-      db = await config.initDb({ debug, dsn });
+      db = await userModule.initDb(options);
     });
 
     // Clean up database between each test
