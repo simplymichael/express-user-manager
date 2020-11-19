@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { validationResult } = require('express-validator');
 const emailValidator = require('email-validator');
-const debugLog = require('../../../config').debugLog;
+const debugLog = require('../../../utils/debug');
 const notLoggedIn = require('../../../middlewares/not-logged-in');
 const { statusCodes } = require('../../../utils/http');
 const {
@@ -10,7 +10,8 @@ const {
   generateAuthToken
 } = require('../../../utils/auth');
 const validator = require('../../../middlewares/validators/_validator');
-const User = require('../../../data/models/user-model');
+const db = require('../../../databases/');
+const User = db.getDriver();
 
 // Fields to return to the client when a new user is created
 // or when user data is requested
@@ -22,10 +23,8 @@ const publicFields = [
 /* GET users listing. */
 router.get('/', async function(req, res) {
   try {
-    const results = await User.generateQuery({})
-      .exec();
-
     const users = [];
+    const results = await User.getUsers({});
 
     results.forEach(user => {
       const currUser = {};
@@ -55,7 +54,6 @@ router.get('/', async function(req, res) {
 router.get('/search', async (req, res) => {
   try {
     let { query, page = 1, limit = 20, sort } = req.query;
-    let orderBy = {};
 
     if(!query || query.trim().length === 0) {
       return res.status(statusCodes.badRequest).json({
@@ -67,44 +65,10 @@ router.get('/search', async (req, res) => {
       });
     }
 
-    // firstname:desc=lastname=email:asc
-    if(sort && sort.trim().length > 0) {
-      sort = sort.trim();
-      const sortData = sort.split('=');
-
-      orderBy = sortData.reduce((acc, val) => {
-        const data = val.split(':');
-        let orderKey = data[0].toLowerCase();
-
-        if(orderKey === 'firstname' || orderKey === 'lastname') {
-          orderKey = (orderKey === 'firstname' ? 'name.first' : 'name.last');
-        }
-
-        acc[orderKey] = ((data.length > 1) ? data[1] : '');
-
-        return acc;
-      }, {});
-    }
-
-    query = query.trim();
-
-    const queryParams = { page, limit, orderBy };
-    const regex = new RegExp(query, 'i');
-    const where = {
-      '$or': [
-        { username: regex },
-        { email: regex },
-        { 'name.first': regex },
-        { 'name.last': regex }
-      ]
-    };
-    const allUsersCount = await User.countUsers(where);
-    const results = await User.generateSearchQuery(query, queryParams)
-      .exec();
-
     const users = [];
+    const results = await User.searchUsers({ query, page, limit, sort});
 
-    results.forEach(user => {
+    results.users.forEach(user => {
       const currUser = {};
 
       // Populate the user variable with values we want to return to the client
@@ -117,7 +81,7 @@ router.get('/search', async (req, res) => {
 
     return res.status(statusCodes.ok).json({
       data: {
-        total: allUsersCount,
+        total: results.total,
         length: results.length,
         users,
       }
@@ -148,7 +112,7 @@ router.post('/', notLoggedIn,
     }
 
     try {
-      if((await User.generateQuery({ where: {email} }).exec()).length) {
+      if(await User.findByEmail(email)) {
         return res.status(statusCodes.conflict).json({
           errors: [{
             value: email,
@@ -159,7 +123,7 @@ router.post('/', notLoggedIn,
         });
       }
 
-      if((await User.generateQuery({ where: {username} }).exec()).length) {
+      if(await User.findByUsername(username)) {
         return res.status(statusCodes.conflict).json({
           errors: [{
             value: username,
@@ -170,15 +134,15 @@ router.post('/', notLoggedIn,
         });
       }
 
-      const hashedPassword = await hashPassword(password);
-      const registrationData = {
-        username: username,
-        name: { first: firstname, last: lastname },
-        email: email,
-        password: hashedPassword,
-      };
-      const data = await User.create(registrationData);
       const user = {};
+      const hashedPassword = await hashPassword(password);
+      const data = await User.create({
+        firstname,
+        lastname,
+        email,
+        username,
+        password: hashedPassword,
+      });
 
       // Populate the user variable with values we want to return to the client
       publicFields.forEach(key => user[key] = data[key]);
@@ -187,7 +151,7 @@ router.post('/', notLoggedIn,
         data: { user }
       });
     } catch(err) {
-      if (err.code === 11000) {
+      if (err.type === 'USER_EXISTS_ERROR') {
         return res.status(statusCodes.conflict).json({
           errors: [{
             value: '',
@@ -196,28 +160,17 @@ router.post('/', notLoggedIn,
             param: 'email or username',
           }]
         });
+      } else if (err.type === 'VALIDATION_ERROR') {
+        return res.status(statusCodes.badRequest).json({
+          errors: err.errors || []
+        });
       } else {
-        if (err.name === 'ValidationError') {
-          const validationErrors = Object.keys(err.errors).map((field) => {
-            return {
-              value: field === 'password' ? password : err.errors[field].value,
-              location: 'body',
-              msg: err.errors[field].message,
-              param: field
-            };
-          });
+        res.status(statusCodes.serverError).json({
+          errors: [{ msg: 'There was an error saving the user' }]
+        });
 
-          return res.status(statusCodes.badRequest).json({
-            errors: validationErrors
-          });
-        } else {
-          res.status(statusCodes.serverError).json({
-            errors: [{ msg: 'There was an error saving the user' }]
-          });
-
-          debugLog(`Error saving the user: ${err}`);
-          return;
-        }
+        debugLog(`Error saving the user: ${err}`);
+        return;
       }
     }
   });
@@ -228,10 +181,6 @@ router.post('/login', notLoggedIn, validator.validate('login', 'password'),
       const errors = validationResult(req);
       const { login, password } = req.body;
       const isEmail = emailValidator.validate(login);
-      const whereField = isEmail ? 'email' : 'username';
-      const where = {
-        [whereField]: login,
-      };
 
       if (!errors.isEmpty()) {
         return res.status(statusCodes.badRequest).json({
@@ -239,17 +188,17 @@ router.post('/login', notLoggedIn, validator.validate('login', 'password'),
         });
       }
 
-      const users = await User.generateQuery({ where }).exec();
+      const userData = isEmail
+        ? await User.findByEmail(login)
+        : await User.findByUsername(login);
 
-      if(!users.length) {
+      if(!userData) {
         return res.status(statusCodes.notFound).json({
           errors: [{
             msg: 'User not found!',
           }]
         });
       }
-
-      const userData = users[0];
 
       if(!(await checkPassword(password, userData.password))) {
         return res.status(statusCodes.notFound).json({

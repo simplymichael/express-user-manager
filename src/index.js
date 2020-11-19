@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-const env = require('./dotenv');
-const config = require('./config');
-const debugLog = require('./utils/debug');
 const app = require('./app');
 const http = require('http');
+const env = require('./dotenv');
+const db = require('./databases');
+const debugLog = require('./utils/debug');
 const userModule = {
   async initDb(opts = {}) {
-    return await config.initDb(opts);
+    return await db.connect(opts);
   },
 
   initServer(options = {}) {

@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const config = require('../src/config');
 const debugLog = require('../src/utils/debug');
 const userModule = require('../src/index');
 
