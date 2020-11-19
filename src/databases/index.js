@@ -10,6 +10,24 @@ function getDriver(key = env.DB_DRIVER) {
   return drivers.getDriver(key.toLowerCase());
 }
 
+/**
+ * Connects to a DB server
+ * @param object with members:
+ *   - driver {string} the db driver
+ *   - host {string} the db server host
+ *   - port {number} the db server port
+ *   - user {string} the db server username
+ *   - pass {string} the db server user password
+ *   - dbName {string} the name of the database to connect to
+ *   - debug {boolean} determines whether or not to show debugging output
+ *
+ * Parameters can be supplied via different methods:
+ *  - By specifying the connection parameters as env variables
+ *     (e.g, using the .env file (default))
+ *  - By specifying them when calling the function (overrides the env variables)
+ *
+ * @return {resource} a database connection instance
+ */
 async function connect(connectionOptions = {}) {
   const driver = connectionOptions.driver || env.DB_DRIVER;
 

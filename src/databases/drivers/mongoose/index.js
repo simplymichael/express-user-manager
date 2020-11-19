@@ -16,19 +16,19 @@ module.exports = {
 /**
  * Start a (MongoDB) DB server instance
  * @param object with members:
- *   - host string the db server host
- *   - port number the db server port
- *   - user string the db server username
- *   - pass string the db server user password
- *   - dbName string the name of the database to connect to
- *   - debug boolean determines whether or not to show debugging output
+ *   - host {string} the db server host
+ *   - port {number} the db server port
+ *   - user {string} the db server username
+ *   - pass {string} the db server user password
+ *   - dbName {string} the name of the database to connect to
+ *   - debug {boolean} determines whether or not to show debugging output
  *
- * Parameters can be supplied ,
- *  - specifying the connection parameters as env variables
+ * Parameters can be supplied via different methods:
+ *  - By specifying the connection parameters as env variables
  *     (e.g, using the .env file (default))
- *  - when calling the function (overrides the env variables)
+ *  - By specifying them when calling the function (overrides the env variables)
  *
- * @return resource a (mongoose) connection instance
+ * @return {resource} a (mongoose) connection instance
  */
 async function connect(options = {}){
   const {

@@ -1,7 +1,7 @@
 const env = ('./dotenv'); // Wow! Discovered a short-cut method to 'require('./dotenv')'
-const port = env.PORT || '3001';
-const userModule = require('../src/index');
+const app = require('../src/app');
 const { setupDB } = require('./_test-setup');
+const { createServer } = require('../src/utils/server');
 setupDB({
   host: env.DB_HOST,
   port: env.DB_PORT,
@@ -11,9 +11,6 @@ setupDB({
   debug: env.DB_DEBUG,
 });
 
-const server = userModule.initServer({
-  port: port,
-});
-
+const server = createServer(app.getDefaultApp(env.PORT || '3001'));
 
 module.exports = server;

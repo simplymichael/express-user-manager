@@ -4,6 +4,7 @@
   "description": "A package for user management: registration, login, get, search",
   "main": "src/index.js",
   "scripts": {
+    "start": "node src/index.js",
     "start:dev": "nodemon src/index.js",
     "test": "run-script-os",
     "test:nix": "NODE_ENV=test& mocha __tests__/\"{,/**/}*.test.js\"",
