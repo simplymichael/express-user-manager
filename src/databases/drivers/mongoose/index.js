@@ -187,12 +187,12 @@ async function searchUsers(options = {}) {
  * @return user object
  */
 async function findByEmail(email) {
-  return await User.generateQuery({ where: {email} }).exec()[0];
+  return (await User.generateQuery({ where: {email} }).exec())[0];
 }
 
 /**
  * @return user object
  */
 async function findByUsername(username) {
-  return await User.generateQuery({ where: {username} }).exec()[0];
+  return (await User.generateQuery({ where: {username} }).exec())[0];
 }
