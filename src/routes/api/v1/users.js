@@ -2,7 +2,7 @@ const handlers = require('./handlers');
 const router = require('express').Router();
 const notLoggedIn = require('../../../middlewares/not-logged-in');
 const validator = require('../../../middlewares/validators/_validator');
-const expressValidatorStatusChecker = require('../../../middlewares/express-validator-status-checker');
+const checkExpressValidatorStatus = require('../../../middlewares/express-validator-status-checker');
 
 /* GET users listing. */
 router.get('/', handlers.get);
@@ -14,7 +14,7 @@ router.get('/search', handlers.search);
 router.post('/',
   notLoggedIn,
   validator.validate('firstname', 'lastname', 'username', 'email', 'password', 'confirmPassword'),
-  expressValidatorStatusChecker,
+  checkExpressValidatorStatus('signupError'),
   handlers.create
 );
 
@@ -22,7 +22,7 @@ router.post('/',
 router.post('/login',
   notLoggedIn,
   validator.validate('login', 'password'),
-  expressValidatorStatusChecker,
+  checkExpressValidatorStatus('loginError'),
   handlers.login
 );
 

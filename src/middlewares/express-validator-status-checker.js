@@ -1,16 +1,23 @@
+const emit = require('../utils/emit');
 const { statusCodes } = require('../utils/http');
 const { validationResult } = require('express-validator');
 
-module.exports = expressValidatorStatusChecker;
+module.exports = checkExpressValidatorStatus;
 
-function expressValidatorStatusChecker(req, res, next) {
-  const errors = validationResult(req);
+function checkExpressValidatorStatus(eventName) {
+  return function expressValidatorStatusChecker(req, res, next) {
+    const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    return res.status(statusCodes.badRequest).json({
-      errors: errors.array()
-    });
-  } else {
-    next();
-  }
+    if (!errors.isEmpty()) {
+      const data = {
+        errors: errors.array()
+      };
+
+      emit(eventName, data);
+
+      return res.status(statusCodes.badRequest).json(data);
+    } else {
+      next();
+    }
+  };
 }

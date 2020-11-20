@@ -1,8 +1,9 @@
 const db = require('../../../../databases/');
-const publicFields = require('./_public-fields');
+const { emit, publicFields } = require('./_utils');
 const debugLog = require('../../../../utils/debug');
 const { statusCodes } = require('../../../../utils/http');
 const User = db.getDriver();
+let responseData;
 
 module.exports = getUsers;
 
@@ -23,13 +24,19 @@ async function getUsers(req, res) {
       users.push(currUser);
     });
 
-    res.status(statusCodes.ok).json({
+    responseData = {
       data: { users }
-    });
+    };
+
+    emit('getAllUsersSuccess', responseData);
+    res.status(statusCodes.ok).json(responseData);
   } catch(err) {
-    res.status(statusCodes.serverError).json({
+    responseData = {
       errors: [{ msg: 'There was an error retrieving users' }]
-    });
+    };
+
+    emit('getAllUsersError', responseData);
+    res.status(statusCodes.serverError).json();
 
     debugLog(`Error retrieving users: ${err}`);
     return;

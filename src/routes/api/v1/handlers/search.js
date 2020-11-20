@@ -1,8 +1,10 @@
 const db = require('../../../../databases/');
-const publicFields = require('./_public-fields');
+const { emit, publicFields } = require('./_utils');
 const debugLog = require('../../../../utils/debug');
 const { statusCodes } = require('../../../../utils/http');
 const User = db.getDriver();
+const errorName = 'searchUsersError';
+let responseData;
 
 module.exports = searchUsers;
 
@@ -12,13 +14,17 @@ async function searchUsers(req, res) {
     let { query, page = 1, limit = 20, sort } = req.query;
 
     if(!query || query.trim().length === 0) {
-      return res.status(statusCodes.badRequest).json({
+      responseData = {
         errors: [{
           location: 'query',
           msg: 'Please specify the query to search by',
           param: 'query'
         }]
-      });
+      };
+
+      emit(errorName, responseData);
+      res.status(statusCodes.badRequest).json(responseData);
+      return;
     }
 
     const users = [];
@@ -28,27 +34,32 @@ async function searchUsers(req, res) {
       const currUser = {};
 
       // Populate the user variable with values we want to return to the client
-      publicFields.forEach(key => {
-        currUser[key] = user[key];
-      });
+      publicFields.forEach(key => currUser[key] = user[key]);
 
       users.push(currUser);
     });
 
-    return res.status(statusCodes.ok).json({
+    responseData = {
       data: {
         total: results.total,
         length: results.length,
         users,
       }
-    });
-  } catch(err) {
-    debugLog(`User search error: ${err}`);
+    };
 
-    return res.status(statusCodes.serverError).json({
+    emit('searchUsersSuccess', responseData);
+    res.status(statusCodes.ok).json(responseData);
+    return;
+  } catch(err) {
+    responseData = {
       errors: [{
         msg: 'There was an error processing your request. Please, try again',
       }]
-    });
+    };
+
+    emit(errorName, responseData);
+    res.status(statusCodes.serverError).json(responseData);
+    debugLog(`User search error: ${err}`);
+    return;
   }
 }
