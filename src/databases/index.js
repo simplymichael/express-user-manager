@@ -19,7 +19,7 @@ function getDriver(key = env.DB_DRIVER) {
  *   - user {string} the db server username
  *   - pass {string} the db server user password
  *   - dbName {string} the name of the database to connect to
- *   - debug {boolean} determines whether or not to show debugging output
+ *   - debug {number (int | 0)} determines whether or not to show debugging output
  *
  * Parameters can be supplied via different methods:
  *  - By specifying the connection parameters as env variables

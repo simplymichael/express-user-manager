@@ -1,10 +1,9 @@
 const chai = require('chai');
-const { should } = chai;
+//const fetch = require('node-fetch');
 const chaiHttp = require('chai-http');
-const server = require('../../../_server');
-const fetch = require('node-fetch');
-const env = require('../../../../src/dotenv');
-const port = env.PORT;
+const { server } = require('../../../_server');
+const { should } = chai;
+
 
 should();
 chai.use(chaiHttp);
@@ -117,10 +116,10 @@ describe('/api/v1/users', () => {
   describe('POST /login', async () => {
     let clonedUser = { ...userData };
 
-    await fetch(`http://localhost:${port}/api/v1/users/login`, {
+    /*await fetch(`http://localhost:${port}/api/v1/users/login`, {
       method: 'post',
       body: JSON.stringify(clonedUser)
-    });
+    });*/
 
     it('should return a 400 status code if login field is missing', (done) => {
       let clonedUser = { ...userData };

@@ -21,7 +21,7 @@ module.exports = {
  *   - user {string} the db server username
  *   - pass {string} the db server user password
  *   - dbName {string} the name of the database to connect to
- *   - debug {boolean} determines whether or not to show debugging output
+ *   - debug {number (int | 0)} determines whether or not to show debugging output
  *
  * Parameters can be supplied via different methods:
  *  - By specifying the connection parameters as env variables
@@ -37,7 +37,7 @@ async function connect(options = {}){
     user = env.DB_USERNAME,
     pass = env.DB_PASSWORD,
     dbName = env.DB_DBNAME,
-    debug = env.DB_DEBUG,
+    debug = !!parseInt(env.DB_DEBUG),
   } = options;
 
   const dsn = user.trim().length > 0

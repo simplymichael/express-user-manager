@@ -5,6 +5,8 @@
 
 const { statusCodes } = require('../utils/http');
 
+module.exports = notLoggedIn;
+
 function notLoggedIn(req, res, next) {
   if (req.session.user) {
     return res.status(statusCodes.forbidden).json({
@@ -16,5 +18,3 @@ function notLoggedIn(req, res, next) {
     next();
   }
 }
-
-module.exports = notLoggedIn;
