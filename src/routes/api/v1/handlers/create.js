@@ -1,9 +1,7 @@
-const db = require('../../../../databases/');
-const { emit, publicFields } = require('./_utils');
+const { appModule, emit, publicFields } = require('./_utils');
 const debugLog = require('../../../../utils/debug');
 const { statusCodes } = require('../../../../utils/http');
 const { hashPassword } = require('../../../../utils/auth');
-const User = db.getDriver();
 const errorName = 'signupError';
 let responseData;
 
@@ -11,10 +9,11 @@ module.exports = createUser;
 
 /* Create (i.e, register) a new user */
 async function createUser(req, res) {
+  const store = appModule.get('store');
   const { firstname, lastname, username, email, password } = req.body;
 
   try {
-    if(await User.findByEmail(email)) {
+    if(await store.findByEmail(email)) {
       responseData = {
         errors: [{
           value: email,
@@ -30,7 +29,7 @@ async function createUser(req, res) {
       return;
     }
 
-    if(await User.findByUsername(username)) {
+    if(await store.findByUsername(username)) {
       responseData = {
         errors: [{
           value: username,
@@ -47,7 +46,7 @@ async function createUser(req, res) {
 
     const user = {};
     const hashedPassword = await hashPassword(password);
-    const data = await User.create({
+    const data = await store.createUser({
       firstname,
       lastname,
       email,

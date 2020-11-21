@@ -3,8 +3,7 @@
  * For example, registration and login routes will use this middleware
  */
 
-const emit = require('../utils/emit');
-const { statusCodes } = require('../utils/http');
+const { emit, statusCodes } = require('./_utils');
 
 module.exports = notLoggedIn;
 

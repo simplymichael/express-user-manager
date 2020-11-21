@@ -1,21 +1,13 @@
 #!/usr/bin/env node
 
 const env = require('./dotenv');
-const db = require('./databases');
 const apiVersion = env.API_VERSION;
 const prepare = require('./utils/prepare');
 const createError = require('http-errors');
 const userModule = require('./user-module');
 const apiRoutes = require(`./routes/api-v${apiVersion}`);
 
-module.exports = {
-  initDb,
-  listen,
-};
-
-async function initDb(opts = {}) {
-  return await db.connect(opts);
-}
+module.exports = { listen };
 
 /**
  * Setup (API) routing table

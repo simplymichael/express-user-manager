@@ -1,10 +1,8 @@
-const db = require('../../../../databases/');
 const emailValidator = require('email-validator');
-const { emit, publicFields } = require('./_utils');
+const { appModule, emit, publicFields } = require('./_utils');
 const debugLog = require('../../../../utils/debug');
 const { statusCodes } = require('../../../../utils/http');
 const { checkPassword, generateAuthToken } = require('../../../../utils/auth');
-const User = db.getDriver();
 const errorName = 'loginError';
 let responseData;
 
@@ -12,11 +10,12 @@ module.exports = login;
 
 async function login(req, res) {
   try {
+    const store = appModule.get('store');
     const { login, password } = req.body;
     const isEmail = emailValidator.validate(login);
     const userData = isEmail
-      ? await User.findByEmail(login)
-      : await User.findByUsername(login);
+      ? await store.findByEmail(login)
+      : await store.findByUsername(login);
 
     if(!userData) {
       responseData = {

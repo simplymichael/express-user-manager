@@ -1,8 +1,6 @@
-const db = require('../../../../databases/');
-const { emit, publicFields } = require('./_utils');
+const { appModule, emit, publicFields } = require('./_utils');
 const debugLog = require('../../../../utils/debug');
 const { statusCodes } = require('../../../../utils/http');
-const User = db.getDriver();
 const errorName = 'searchUsersError';
 let responseData;
 
@@ -11,6 +9,7 @@ module.exports = searchUsers;
 /* Search for users */
 async function searchUsers(req, res) {
   try {
+    const store = appModule.get('store');
     let { query, page = 1, limit = 20, sort } = req.query;
 
     if(!query || query.trim().length === 0) {
@@ -28,7 +27,7 @@ async function searchUsers(req, res) {
     }
 
     const users = [];
-    const results = await User.searchUsers({ query, page, limit, sort});
+    const results = await store.searchUsers({ query, page, limit, sort});
 
     results.users.forEach(user => {
       const currUser = {};

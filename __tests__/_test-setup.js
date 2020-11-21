@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const debugLog = require('../src/utils/debug');
-const userModule = require('../src/index');
+//const userModule = require('../src/index');
 
 async function removeAllCollections () {
   const collections = Object.keys(mongoose.connection.collections)
@@ -32,23 +32,21 @@ async function dropAllCollections () {
 }
 
 module.exports = {
-  setupDB: (options = {}) => {
+  setupDB: (store, connectionOptions) => {
     let db;
 
     // Connect to DB
-    before(async () => {
-      db = await userModule.initDb(options);
-    });
+    before(async () => db = await store.connect(connectionOptions));
 
     // Clean up database between each test
     afterEach(async () => {
       await removeAllCollections()
     });
 
-    // Disconnect from DB
+    // Drop database and disconnect from DB
     after(async () => {
       await dropAllCollections();
-      await db.disconnect();
+      await store.disconnect(); //OR db.disconnect();
       debugLog('Successfully disconnected from MongoDB server');
     });
   }

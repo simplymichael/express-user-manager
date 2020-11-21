@@ -1,10 +1,16 @@
-const env = require('../src/dotenv');
 const http = require('http');
 const express = require('express');
+const env = require('../src/dotenv');
+const userManager = require('../src/index');
 const { setupDB } = require('./_test-setup');
-const prepare = require('../src/utils/prepare');
 
-setupDB({
+const MongooseStore = require('../src/lib/stores/mongoose');
+
+const app = express();
+const userModule = userManager.listen(app);
+userModule.set('store', new MongooseStore());
+
+setupDB(userModule.get('store'), {
   host: env.DB_HOST,
   port: env.DB_PORT,
   user: env.DB_USERNAME,
@@ -13,8 +19,6 @@ setupDB({
   debug: env.DB_DEBUG,
 });
 
-const app = express();
-const userModule = require('../src/index').listen(app);
 const server = http.createServer(app);
 
 module.exports = {

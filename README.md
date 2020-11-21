@@ -52,10 +52,17 @@ A package for user management: registration, login, get, search
 - Mongoose (MongoDB)
 
 ## Emitted events
+### Events emitted by database object
+- dbConnection
+- dbDisconnect
+- createUser
+
+### Events emitted by routers
 - signupError
 - signupSuccess
 - loginError
 - loginSuccess
+- logoutSuccess
 - getAllUsersError
 - getAllUsersSuccess
 - searchUsersError

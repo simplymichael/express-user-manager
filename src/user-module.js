@@ -11,11 +11,22 @@ class UserModule extends EventEmitter {
   constructor(...args) {
     if (!UserModule.instance) {
       super(...args);
+
+      this.store = new Map();
       UserModule.instance = this;
     }
 
     return UserModule.instance;
   }
+
+  set(key, value) {
+    this.store.set(key, value);
+  }
+
+  get(key) {
+    return this.store.has(key) ? this.store.get(key) : null;
+  }
+
 
   static getInstance() {
     return new UserModule();

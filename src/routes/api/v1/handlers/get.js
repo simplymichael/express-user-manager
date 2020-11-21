@@ -1,8 +1,6 @@
-const db = require('../../../../databases/');
-const { emit, publicFields } = require('./_utils');
+const { appModule, emit, publicFields } = require('./_utils');
 const debugLog = require('../../../../utils/debug');
 const { statusCodes } = require('../../../../utils/http');
-const User = db.getDriver();
 let responseData;
 
 module.exports = getUsers;
@@ -10,8 +8,9 @@ module.exports = getUsers;
 /* GET users listing. */
 async function getUsers(req, res) {
   try {
+    const store = appModule.get('store');
     const users = [];
-    const results = await User.getUsers({});
+    const results = await store.getUsers({});
 
     results.forEach(user => {
       const currUser = {};
