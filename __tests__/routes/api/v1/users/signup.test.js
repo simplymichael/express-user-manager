@@ -1,20 +1,21 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const testUsers = require('./_test-users.json');
-const { server } = require('../../../../_server');
+const { apiUrl, server } = require('../../../../_server');
 const { should } = chai;
 const userData = testUsers[0];
+const signupRoute = `${apiUrl}/users`;
 
 should();
 chai.use(chaiHttp);
 
-describe('User Registration: POST /api/v1/users', () => {
+describe(`User Registration: POST ${signupRoute}`, () => {
   it('should return a 400 status code if firstname is missing', (done) => {
     let clonedUser = { ...userData };
     delete clonedUser.firstname;
 
     chai.request(server)
-      .post('/api/v1/users')
+      .post(signupRoute)
       .send(clonedUser)
       .end((err, res) => {
         res.should.have.status(400);
@@ -27,7 +28,7 @@ describe('User Registration: POST /api/v1/users', () => {
     delete clonedUser.lastname;
 
     chai.request(server)
-      .post('/api/v1/users')
+      .post(signupRoute)
       .send(clonedUser)
       .end((err, res) => {
         res.should.have.status(400);
@@ -40,7 +41,7 @@ describe('User Registration: POST /api/v1/users', () => {
     delete clonedUser.username;
 
     chai.request(server)
-      .post('/api/v1/users')
+      .post(signupRoute)
       .send(clonedUser)
       .end((err, res) => {
         res.should.have.status(400);
@@ -53,7 +54,7 @@ describe('User Registration: POST /api/v1/users', () => {
     delete clonedUser.email;
 
     chai.request(server)
-      .post('/api/v1/users')
+      .post(signupRoute)
       .send(clonedUser)
       .end((err, res) => {
         res.should.have.status(400);
@@ -66,7 +67,7 @@ describe('User Registration: POST /api/v1/users', () => {
     delete clonedUser.password;
 
     chai.request(server)
-      .post('/api/v1/users')
+      .post(signupRoute)
       .send(clonedUser)
       .end((err, res) => {
         res.should.have.status(400);
@@ -79,7 +80,7 @@ describe('User Registration: POST /api/v1/users', () => {
     clonedUser.confirmPassword = 'secret';
 
     chai.request(server)
-      .post('/api/v1/users')
+      .post(signupRoute)
       .send(clonedUser)
       .end((err, res) => {
         res.should.have.status(400);
@@ -91,7 +92,7 @@ describe('User Registration: POST /api/v1/users', () => {
     let clonedUser = { ...userData };
 
     chai.request(server)
-      .post('/api/v1/users')
+      .post(signupRoute)
       .send(clonedUser)
       .end((err, res) => {
         res.should.have.status(200);

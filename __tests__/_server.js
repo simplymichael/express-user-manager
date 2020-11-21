@@ -20,5 +20,6 @@ server.listen(3000);
 
 module.exports = {
   server,
-  userModule
+  userModule,
+  apiUrl: '/api/v1'
 }

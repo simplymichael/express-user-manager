@@ -2,14 +2,15 @@ const chai = require('chai');
 //const fetch = require('node-fetch');
 const chaiHttp = require('chai-http');
 const testUsers = require('./_test-users.json');
-const { server } = require('../../../../_server');
+const { apiUrl, server } = require('../../../../_server');
 const { should } = chai;
 const userData = testUsers[0];
+const loginRoute = `${apiUrl}/users/login`;
 
 should();
 chai.use(chaiHttp);
 
-describe('User Login: POST /api/v1/users/login', async () => {
+describe(`User Login: POST ${loginRoute}`, async () => {
   let clonedUser = { ...userData };
 
   /*await fetch(`http://localhost:${port}/api/v1/users/login`, {
@@ -21,7 +22,7 @@ describe('User Login: POST /api/v1/users/login', async () => {
     let clonedUser = { ...userData };
 
     chai.request(server)
-      .post('/api/v1/users/login')
+      .post(loginRoute)
       .send(clonedUser)
       .end((err, res) => {
         res.should.have.status(400);
@@ -34,7 +35,7 @@ describe('User Login: POST /api/v1/users/login', async () => {
     delete clonedUser.password;
 
     chai.request(server)
-      .post('/api/v1/users/login')
+      .post(loginRoute)
       .send(clonedUser)
       .end((err, res) => {
         res.should.have.status(400);
