@@ -1,5 +1,4 @@
 const chai = require('chai');
-//const fetch = require('node-fetch');
 const chaiHttp = require('chai-http');
 const testUsers = require('./_test-users.json');
 const { apiUrl, server } = require('../../../../_server');
@@ -12,11 +11,6 @@ chai.use(chaiHttp);
 
 describe(`User Login: POST ${loginRoute}`, async () => {
   let clonedUser = { ...userData };
-
-  /*await fetch(`http://localhost:${port}/api/v1/users/login`, {
-    method: 'post',
-    body: JSON.stringify(clonedUser)
-  });*/
 
   it('should return a 400 status code if login field is missing', (done) => {
     let clonedUser = { ...userData };
