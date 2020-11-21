@@ -1,38 +1,25 @@
-const mongoose = require('mongoose');
 const debugLog = require('../src/utils/debug');
-//const userModule = require('../src/index');
+const {
+  pruneCollections,
+  dropAllCollections
+} = require('./db-helpers/mongoose-helper');
 
-async function removeAllCollections () {
-  const collections = Object.keys(mongoose.connection.collections)
-  for (const collectionName of collections) {
-    const collection = mongoose.connection.collections[collectionName]
-    await collection.deleteMany()
+async function pruneTables (dbDriver) {
+  switch(dbDriver.toLowerCase()) {
+    case 'mongoose':
+    default        : pruneCollections();
   }
 }
 
-async function dropAllCollections () {
-  const collections = Object.keys(mongoose.connection.collections)
-  for (const collectionName of collections) {
-    const collection = mongoose.connection.collections[collectionName]
-    try {
-      await collection.drop()
-    } catch (error) {
-      // Sometimes this error happens, but you can safely ignore it
-      if (error.message === 'ns not found') {
-        return;
-      }
-
-      // This error occurs when you use it.todo. You can
-      // safely ignore this error too
-      if (error.message.includes('a background operation is currently running')) {
-        return;
-      }
-    }
+async function dropAllTables (dbDriver) {
+  switch(dbDriver.toLowerCase()) {
+    case 'mongoose':
+    default        : dropAllCollections();
   }
 }
 
 module.exports = {
-  setupDB: (store, connectionOptions) => {
+  setupDB: (store, dbDriver, connectionOptions) => {
     let db;
 
     // Connect to DB
@@ -40,12 +27,12 @@ module.exports = {
 
     // Clean up database between each test
     afterEach(async () => {
-      await removeAllCollections()
+      await pruneTables(dbDriver)
     });
 
     // Drop database and disconnect from DB
     after(async () => {
-      await dropAllCollections();
+      await dropAllTables(dbDriver);
       await store.disconnect(); //OR db.disconnect();
       debugLog('Successfully disconnected from MongoDB server');
     });

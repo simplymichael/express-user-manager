@@ -9,8 +9,9 @@ const MongooseStore = require('../src/lib/stores/mongoose');
 const app = express();
 const userModule = userManager.listen(app);
 userModule.set('store', new MongooseStore());
+userModule.set('dbDriver', 'mongoose');
 
-setupDB(userModule.get('store'), {
+setupDB(userModule.get('store'), userModule.get('dbDriver'), {
   host: env.DB_HOST,
   port: env.DB_PORT,
   user: env.DB_USERNAME,
