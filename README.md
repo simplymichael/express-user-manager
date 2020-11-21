@@ -61,3 +61,11 @@ A package for user management: registration, login, get, search
 - searchUsersError
 - searchUsersSuccess
 - permissionError
+
+## Password constraints
+- minimum length of 6
+- maximum length of 20
+- must contain at least one number
+- must contain at least an uppercase character
+- must contain at least a lowercase character
+- must not be either of the following: ['Passw0rd', 'Password123']
