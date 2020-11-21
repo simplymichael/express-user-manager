@@ -3,6 +3,7 @@ const util = require('util');
 const mongoose = require('mongoose');
 const debugLog = require('../../../utils/debug');
 const User = require('./data/models/user-model');
+const { convertToBoolean } = require('../../_utils');
 
 module.exports = {
   connect,
@@ -21,7 +22,7 @@ module.exports = {
  *   - user {string} the db server username
  *   - pass {string} the db server user password
  *   - dbName {string} the name of the database to connect to
- *   - debug {number (int | 0)} determines whether or not to show debugging output
+ *   - debug {boolean | number(int | 0)} determines whether or not to show debugging output
  *
  * Parameters can be supplied via different methods:
  *  - By specifying the connection parameters as env variables
@@ -37,7 +38,7 @@ async function connect(options = {}){
     user = env.DB_USERNAME,
     pass = env.DB_PASSWORD,
     dbName = env.DB_DBNAME,
-    debug = !!parseInt(env.DB_DEBUG),
+    debug = env.DB_DEBUG,
   } = options;
 
   const dsn = user.trim().length > 0
@@ -45,7 +46,7 @@ async function connect(options = {}){
     : `mongodb://${host}:${port}/${dbName}`;
 
   try {
-    mongoose.set('debug', debug);
+    mongoose.set('debug', convertToBoolean(debug));
 
     const db = await mongoose.connect(dsn, {
       useNewUrlParser: true,
