@@ -170,7 +170,7 @@ UserSchema.statics = {
   },
   countUsers: async function(where) {
     if(typeof where === 'object') {
-      return await this.count(where);
+      return await this.countDocuments(where); //this.count(where);
     } else {
       return await this.estimatedDocumentCount();
     }
