@@ -186,27 +186,4 @@ UserSchema.statics = {
   }
 };
 
-UserSchema.methods = {
-  ...UserSchema.methods,
-  getQuestions: async function({ where = {}, page= 1, limit= 0, orderBy= {} }) {
-    where = (typeof where === 'object' ? where : {});
-    where.author = this._id;
-
-    return (
-      await this.model('Question')
-        .getQuestions({ where, page, limit, orderBy })
-    );
-  },
-
-  getAnswers: async function({ where = {}, page= 1, limit= 0, orderBy= {} }) {
-    where = (typeof where === 'object' ? where : {});
-    where.author = this._id;
-
-    return (
-      await this.model('Answer')
-        .getAnswers({ where, page, limit, orderBy })
-    );
-  },
-};
-
 module.exports = UserSchema;
