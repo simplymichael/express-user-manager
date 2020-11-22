@@ -35,7 +35,7 @@ class MongooseStore extends DbInterface {
    *
    * @return {resource} a (mongoose) connection instance
    */
-  async connect (options = {}){
+  async connect (options){
     const { host, port, user, pass, dbName, debug } = options;
 
     const dsn = user.trim().length > 0
@@ -85,7 +85,7 @@ class MongooseStore extends DbInterface {
    *   - length {number} the number of results returned for the current page and limit
    *   - users {array} the actual list of returned users that match the search term
    */
-  async createUser(userData = {}) {
+  async createUser(userData) {
     const { firstname, lastname, email, username, password } = userData;
 
     try {
@@ -126,7 +126,7 @@ class MongooseStore extends DbInterface {
     }
   }
 
-  async getUsers (options = {}){
+  async getUsers (options){
     return await User.generateQuery(options).exec();
   }
 
@@ -143,7 +143,7 @@ class MongooseStore extends DbInterface {
    *   - length {number} the number of results returned for the current page and limit
    *   - users {array} the actual list of returned users that match the search term
    */
-  async searchUsers(options = {}) {
+  async searchUsers(options) {
     let { query, by = '', page = 1, limit = 20, sort = ''} = options;
     by = by.trim();
     sort = sort.trim();
