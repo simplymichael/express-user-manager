@@ -1,7 +1,8 @@
 const chai = require('chai');
+const fetch = require('node-fetch');
 const chaiHttp = require('chai-http');
 const testUsers = require('./_test-users.json');
-const { apiUrl, server } = require('../../../../_server');
+const { apiUrl, apiPort, server } = require('../../../../_server');
 const { should } = chai;
 const userData = testUsers[0];
 const signupRoute = `${apiUrl}/users`;
@@ -182,6 +183,63 @@ describe(`User Registration: POST ${signupRoute}`, () => {
         res.body.should.have.property('data');
         res.body.data.should.have.property('user');
         done();
+    });
+  });
+
+  describe('Already Existing User', () => {
+    beforeEach(async () => {
+      // 1. First create a user
+      server.listen(apiPort); // Get the server running and listening on port
+      const signupRoute = `${apiUrl}/users`;
+      await fetch(`http://localhost:${apiPort}${signupRoute}`, {
+        method: 'post',
+        body: JSON.stringify(userData),
+        headers: { 'Content-Type': 'application/json' },
+      });
+    });
+
+    it('should return a 409 status code if email is taken', (done) => {
+      let clonedUser = { ...userData };
+
+      // Change the username,
+      // so we are sure we are only dealing with duplicate email
+      clonedUser.username = 'newUsername';
+
+      chai.request(server)
+        .post(signupRoute)
+        .send(clonedUser)
+        .end((err, res) => {
+          res.should.have.status(409);
+          done();
+      });
+    });
+
+    it('should return a 409 status code if username is taken', (done) => {
+      let clonedUser = { ...userData };
+
+      // Change the email,
+      // so we are sure we are only dealing with duplicate username
+      clonedUser.email = 'newUserEmail@yahoo.com';
+
+      chai.request(server)
+        .post(signupRoute)
+        .send(clonedUser)
+        .end((err, res) => {
+          res.should.have.status(409);
+          done();
+      });
+    });
+
+    it('should return a 409 status code if both email and username are taken', (done) => {
+      let clonedUser = { ...userData };
+
+      chai.request(server)
+        .post(signupRoute)
+        .send(clonedUser)
+        .end((err, res) => {
+          res.should.have.status(409);
+          done();
+      });
     });
   });
 });

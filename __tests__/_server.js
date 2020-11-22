@@ -26,6 +26,6 @@ module.exports = {
   server,
   userModule,
   apiUrl: '/api/v1',
-  apiPort: 3000, // for now only used in login.test.js and search.test.js
-  env, // for now onlyy used in login.test.js
+  apiPort: 3000, // for now only NOT used in fetch.test.js
+  env, // for now only used in login.test.js
 }
