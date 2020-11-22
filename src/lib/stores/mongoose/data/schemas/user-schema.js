@@ -133,16 +133,38 @@ UserSchema.statics = {
 
     return query;
   },
-  generateSearchQuery: function(str, { page = 1, limit = 0, orderBy = {} }) {
+  generateSearchQuery: function(str, { by = '', page = 1, limit = 0, orderBy = {} }) {
+    by = by.trim();
+
+    // Prepare the searchBy clause
+    let searchBy = [];
     const regex = new RegExp(str, 'i');
-    const where = {
-      '$or': [
+
+    //?by=firstname:lastname:username
+    if(by && by.length > 0) {
+      const byData = by.split(':');
+
+      byData.forEach(key => {
+        key = key.trim();
+
+        if(key) {
+          switch(key.toLowerCase()) {
+          case 'firstname' : searchBy.push({ 'name.first': regex }); break;
+          case 'lastname'  : searchBy.push({ 'name.last': regex }); break;
+          default          : searchBy.push({ [key]: regex }); break;
+          }
+        }
+      });
+    } else {
+      searchBy = [
         { username: regex },
         { email: regex },
         { 'name.first': regex },
         { 'name.last': regex }
-      ]
-    };
+      ];
+    }
+
+    const where = searchBy.length === 1 ? searchBy[0] : { '$or': searchBy };
 
     return this.generateQuery({ where, page, limit, orderBy });
   },

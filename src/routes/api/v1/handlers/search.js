@@ -10,7 +10,7 @@ module.exports = searchUsers;
 async function searchUsers(req, res) {
   try {
     const store = appModule.get('store');
-    let { query, page = 1, limit = 20, sort } = req.query;
+    let { query, by = '', page = 1, limit = 20, sort = '' } = req.query;
 
     if(!query || query.trim().length === 0) {
       responseData = {
@@ -27,7 +27,7 @@ async function searchUsers(req, res) {
     }
 
     const users = [];
-    const results = await store.searchUsers({ query, page, limit, sort});
+    const results = await store.searchUsers({ query, by, page, limit, sort});
 
     results.users.forEach(user => {
       const currUser = {};

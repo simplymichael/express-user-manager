@@ -133,6 +133,7 @@ class MongooseStore extends DbInterface {
   /**
    * @param object with members:
    *   - query {string} the search term (required)
+   *   - by {string} whether to search by firstname, lastname, username, email (optional, default searches by all)
    *   - page {number} the page to return, for pagination purposes (optional, default 1)
    *   - limit {number} the number of results to return, for pagination purposes (optional, default 20)
    *   - sort {string} determines the sort order of returned users (optional)
@@ -143,16 +144,20 @@ class MongooseStore extends DbInterface {
    *   - users {array} the actual list of returned users that match the search term
    */
   async searchUsers(options = {}) {
-    let { query, page = 1, limit = 20, sort } = options;
-    let orderBy = {};
+    let { query, by = '', page = 1, limit = 20, sort = ''} = options;
+    by = by.trim();
+    sort = sort.trim();
+    query = query.trim();
 
-    if(!query || query.trim().length === 0) {
+    if(!query || query.length === 0) {
       throw new Error('Please specify the search term');
     }
 
-    // firstname:desc=lastname=email:asc
-    if(sort && sort.trim().length > 0) {
-      sort = sort.trim();
+    // Prepare the orderBy clause
+    let orderBy = {};
+
+    //?sort=firstname:desc=lastname=email:asc
+    if(sort && sort.length > 0) {
       const sortData = sort.split('=');
 
       orderBy = sortData.reduce((acc, val) => {
@@ -169,17 +174,38 @@ class MongooseStore extends DbInterface {
       }, {});
     }
 
-    query = query.trim();
-    const queryParams = { page, limit, orderBy };
     const regex = new RegExp(query, 'i');
-    const where = {
-      '$or': [
+    const queryParams = { by, page, limit, orderBy };
+
+    // Prepare the searchBy clause
+    let searchBy = [];
+
+    //?by=firstname:lastname:username
+    if(by && by.length > 0) {
+      const byData = by.split(':');
+
+      byData.forEach(key => {
+        key = key.trim();
+
+        if(key) {
+          switch(key.toLowerCase()) {
+          case 'firstname' : searchBy.push({ 'name.first': regex }); break;
+          case 'lastname'  : searchBy.push({ 'name.last': regex }); break;
+          default          : searchBy.push({ [key]: regex }); break;
+          }
+        }
+      });
+    } else {
+      searchBy = [
         { username: regex },
         { email: regex },
         { 'name.first': regex },
         { 'name.last': regex }
-      ]
-    };
+      ];
+    }
+
+
+    const where = searchBy.length === 1 ? searchBy[0] : { '$or': searchBy };
     const allUsersCount = await User.countUsers(where);
     const results = await User.generateSearchQuery(query, queryParams)
       .exec();

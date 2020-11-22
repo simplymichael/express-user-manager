@@ -40,6 +40,7 @@ const DbInterface = {
   /**
    * @param object with members:
    *   - query {string} the search term (required)
+   *   - by {string} whether to search by firstname, lastname, username, email (optional, default searches by all)
    *   - page {number} the page to return, for pagination purposes (optional, default 1)
    *   - limit {number} the number of results to return, for pagination purposes (optional, default 20)
    *   - sort {string} determines the sort order of returned users (optional)
