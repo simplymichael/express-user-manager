@@ -215,31 +215,27 @@ describe(`User Login: POST ${loginRoute}`, async () => {
     });
   });
 
-  // Currently fails because we are using sessions to maintain user's logged-in status
-  // And sessions do not exist/persist on the console
-  /*describe('Already Logged in User', () => {
+  describe('Already Logged in User', () => {
     const loginCredentials = {
       login: userData.email,
       password: userData.password
     };
 
-    beforeEach(async () => {
-      // Login the user
-      await fetch(`http://localhost:${apiPort}${loginRoute}`, {
-        method: 'post',
-        body: JSON.stringify(loginCredentials),
-        headers: { 'Content-Type': 'application/json' },
-      });
-    });
-
     it('should return a 403 status code if user is already signed in', (done) => {
-      chai.request(server)
-        .post(loginRoute)
+      const agent = chai.request.agent(server);
+
+      agent.post(loginRoute)
         .send(loginCredentials)
-        .end((err, res) => {
-          res.should.have.status(403);
-          done();
-      });
+        .then(function (res) {
+          return agent
+            .post(loginRoute)
+            .send(loginCredentials)
+            .then(function (res) {
+              res.should.have.status(403);
+              done();
+              agent.close();
+            });
+          });
     });
-  }); */
+  });
 });
