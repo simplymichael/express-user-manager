@@ -72,7 +72,7 @@ A package for user management: registration, login, get, search
 - dbDisconnect
 - createUser
 
-### Events emitted by routers
+### Events emitted by route handlers
 - signupError
 - signupSuccess
 - loginError
@@ -82,7 +82,13 @@ A package for user management: registration, login, get, search
 - getAllUsersSuccess
 - searchUsersError
 - searchUsersSuccess
-- permissionError
+- getUserSuccess
+
+### Events emitted by middlewares
+- actionNotPermittedError
+- authorizationError
+- authenticationError
+- getUserError
 
 ## Password constraints
 - minimum length of 6

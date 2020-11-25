@@ -181,7 +181,7 @@ UserSchema.statics = {
   updateUsers: async function(where = {}, updateData) {
     return await this.updateMany(where, updateData);
   },
-  userExists: async function(id) {
+  getById: async function(id) {
     return await this.findById(id);
   }
 };

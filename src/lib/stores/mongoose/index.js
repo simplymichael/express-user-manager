@@ -230,6 +230,10 @@ class MongooseStore extends DbInterface {
   async findByUsername(username) {
     return (await User.generateQuery({ where: {username} }).exec())[0];
   }
+
+  async findById(userId) {
+    return await User.getById(userId);
+  }
 }
 
 module.exports = MongooseStore;

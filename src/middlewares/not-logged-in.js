@@ -15,7 +15,7 @@ function notLoggedIn(req, res, next) {
       }]
     };
 
-    emit('permissionError', responseData);
+    emit('actionNotPermittedError', responseData);
     res.status(statusCodes.forbidden).json(responseData);
     return;
   } else {
