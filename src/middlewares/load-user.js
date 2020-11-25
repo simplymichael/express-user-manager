@@ -1,16 +1,18 @@
-const { db, emit, statusCodes } = require('./_utils');
 const debugLog = require('../utils/debug');
+const { appModule, emit, statusCodes } = require('./_utils');
 
 module.exports = loadUser;
 
 async function loadUser(req, res, next) {
+  const db = appModule.get('store');
   const username = req.params.username;
 
   try {
-    const user = db.findByUsername(username);
+    const user = await db.findByUsername(username);
 
     if (!user) {
-      return res.status(statusCodes.notFound).json({});
+      res.status(statusCodes.notFound).json({});
+      return;
     } else {
       req.user = user;
       next();

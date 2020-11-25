@@ -12,7 +12,7 @@ router.get('/', handlers.get);
 router.get('/search', handlers.search);
 
 /* Get a user by username */
-router.get('/:username', loadUser, handlers.getUser);
+router.get('/user/:username', loadUser, handlers.getUser);
 
 /* Create (i.e, register) a new user */
 router.post('/',

@@ -5,5 +5,5 @@ const { statusCodes } = require('../utils/http');
 module.exports = {
   emit,
   statusCodes,
-  db: userModule.get('store'),
+  appModule: userModule,
 };
