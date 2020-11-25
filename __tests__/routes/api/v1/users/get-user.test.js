@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 const chaiHttp = require('chai-http');
 const testUsers = require('./_test-users.json');
 const { apiUrl, apiPort, server } = require('../../../../_server');
-const { expect, should } = chai;
+const { should } = chai;
 const usersRoute = `${apiUrl}/users`;
 
 should();
