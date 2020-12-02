@@ -9,7 +9,7 @@ const apiRoutes = require(`./routes/api-v${apiVersion}`);
 const middlewares = require('./middlewares');
 
 // Augment the userModule with midddlewares
-userModule.middlewares = middlewares;
+userModule.set('middlewares', middlewares);
 
 module.exports = { listen };
 
