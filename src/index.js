@@ -6,6 +6,10 @@ const prepare = require('./utils/prepare');
 const createError = require('http-errors');
 const userModule = require('./user-module');
 const apiRoutes = require(`./routes/api-v${apiVersion}`);
+const middlewares = require('./middlewares');
+
+// Augment the userModule with midddlewares
+userModule.middlewares = middlewares;
 
 module.exports = { listen };
 
