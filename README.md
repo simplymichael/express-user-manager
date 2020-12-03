@@ -9,6 +9,13 @@ A package for user management: registration, login, get, search
     - It MUST NOT be an express server, that is,
       it must not have been passed to `http.createServer(app)`
    `listener.listen(expressApp);`
+   **NOTE**: If your ***expressApp*** has its own custom routing in place,
+   make sure to call `listener.listen(expressApp)` before setting up
+   your app's custom 404 route handler. Setting up your app's 404 route handler
+   before calling `listener.listen()` will lead to every route not in
+   your custom app's route handlers being handled by the
+   404 handler and thus prevent any requests from getting to the
+   routes that are supposed to be handled by calling `listener.listen().`
 3. Create a data store
    A. You can use one of the built-in ones:
    ```

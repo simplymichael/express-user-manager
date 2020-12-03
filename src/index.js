@@ -3,7 +3,6 @@
 const env = require('./dotenv');
 const apiVersion = env.API_VERSION;
 const prepare = require('./utils/prepare');
-const createError = require('http-errors');
 const userModule = require('./user-module');
 const apiRoutes = require(`./routes/api-v${apiVersion}`);
 const middlewares = require('./middlewares');
@@ -31,20 +30,8 @@ function listen(app) {
   app = prepare(app);
 
   for(const route in apiRoutes) {
-    const regexp = route === 'index'
-      ? `/api/v${apiVersion}/?`
-      : `/api/v${apiVersion}/${route}`;
+    const regexp = `/api/v${apiVersion}/${route}`;
 
     app.use(new RegExp(regexp, 'i'), apiRoutes[route]);
   }
-
-  // catch 404 and forward to error handler
-  app.use(function(req, res, next) {
-    next(createError(404));
-  });
-
-  // error handler
-  app.use(function(err, req, res) {
-    res.status(err.status || 500).json({error: err.message});
-  });
 }
