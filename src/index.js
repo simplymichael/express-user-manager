@@ -7,11 +7,18 @@ const createError = require('http-errors');
 const userModule = require('./user-module');
 const apiRoutes = require(`./routes/api-v${apiVersion}`);
 const middlewares = require('./middlewares');
+const db = require('./databases');
 
 // Augment the userModule with midddlewares
 userModule.set('middlewares', middlewares);
 
-module.exports = { listen };
+userModule.listen = listen;
+userModule.getDbDriver = db.getDriver;
+
+// Export userModule singleton instance
+// to enable clients (emit and) respond to events emitted by the route handlers:
+// userModule.on(eventType, data);
+module.exports = userModule;
 
 /**
  * Setup (API) routing table
@@ -40,9 +47,4 @@ function listen(app) {
   app.use(function(err, req, res) {
     res.status(err.status || 500).json({error: err.message});
   });
-
-  // Return userModule singleton instance
-  // to enable clients (emit and) respond to events emitted by the route handlers:
-  // userModule.on(eventType, data);
-  return userModule;
 }

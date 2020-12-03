@@ -1,13 +1,13 @@
 const http = require('http');
 const express = require('express');
 const env = require('../src/dotenv');
-const userManager = require('../src/index');
+const userModule = require('../src/index');
 const { setupDB } = require('./_test-setup');
 
-const MongooseStore = require('../src/lib/stores/mongoose');
+const MongooseStore = userModule.getDbDriver('mongoose');
 
 const app = express();
-const userModule = userManager.listen(app);
+userModule.listen(app);
 userModule.set('store', new MongooseStore());
 userModule.set('dbDriver', 'mongoose');
 
@@ -26,6 +26,6 @@ module.exports = {
   server,
   userModule,
   apiUrl: '/api/v1',
-  apiPort: 3000,
+  apiPort: 3001,
   env, // for now only used in login.test.js
 }

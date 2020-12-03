@@ -2,17 +2,17 @@
 A package for user management: registration, login, get, search
 
 ## Usage
-1. `const userManager = require('user-management');`
+1. `const listener = require('user-management');`
 2. Create the ***/api/v[N]/users/ routes***:
    The `expressApp` parameter has the following constraints:
     - It must be an express app (that is created with `var app = express()`)
     - It MUST NOT be an express server, that is,
       it must not have been passed to `http.createServer(app)`
-   `const listener = userManager.listen(expressApp);`
+   `listener.listen(expressApp);`
 3. Create a data store
    A. You can use one of the built-in ones:
    ```
-   const MongooseStore = require('user-management/src/lib/stores/mongoose');
+   const MongooseStore = userModule.getDbDriver('mongoose');
    const storeObject = new MongooseStore(optionalConnectOptions);
    //await storeObject.connect(connectionOptions); // use this only if optionalConnectionOptions is not specified during instantiation
    ```
