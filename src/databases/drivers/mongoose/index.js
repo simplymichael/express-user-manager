@@ -11,10 +11,19 @@ let db = null;
 
 class MongooseStore extends DbInterface {
   constructor(...args) {
-    super(args);
+    const config = args.length > 0 ? args[0] : {};
 
-    if(args) {
-      this.connect(args);
+    // minimum required: host, port, dbName
+    const shouldConnect = config
+      && typeof config === 'object'
+      && 'host' in config
+      && 'port' in config
+      && 'dbName' in config;
+
+    super(config);
+
+    if(shouldConnect) {
+      this.connect(config);
     }
   }
 
@@ -38,7 +47,7 @@ class MongooseStore extends DbInterface {
   async connect (options){
     const { host, port, user, pass, dbName, debug } = options;
 
-    const dsn = user.trim().length > 0
+    const dsn = user && user.trim().length > 0
       ? `mongodb://${user}:${pass}@${host}:${port}/${dbName}`
       : `mongodb://${host}:${port}/${dbName}`;
 
