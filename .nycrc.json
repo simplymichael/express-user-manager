@@ -1,5 +1,6 @@
 {
   "all": true,
+  "check-coverage": true,
   "include": [
     "src/**/*.js"
   ],
@@ -11,5 +12,9 @@
     "lcov",
     "text-summary",
     "clover"
-  ]
+  ],
+  "branches": 50,
+  "lines": 50,
+  "functions": 50,
+  "statements": 50
 }
