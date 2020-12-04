@@ -122,6 +122,8 @@ This will return an object with the following middlewares:
 - searchUsersError
 - searchUsersSuccess
 - getUserSuccess
+- deleteUserError
+- deleteUserSuccess
 
 ### Events emitted by middlewares
 - actionNotPermittedError

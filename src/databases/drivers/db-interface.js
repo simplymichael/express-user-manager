@@ -66,6 +66,8 @@ const DbInterface = {
    * @return user object
    */
   findById: function(userId) {}, // eslint-disable-line
+
+  deleteUser: function(userId) {}, // eslint-disable-line
 };
 
 module.exports = Interface(DbInterface);

@@ -4,6 +4,7 @@ const login = require('./login');
 const logout = require('./logout');
 const search = require('./search');
 const getUser = require('./getUser');
+const deleteUser = require('./deleteUser');
 
 module.exports = {
   create,
@@ -12,4 +13,5 @@ module.exports = {
   logout,
   search,
   getUser,
+  deleteUser,
 };

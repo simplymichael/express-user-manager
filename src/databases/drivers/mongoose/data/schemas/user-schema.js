@@ -183,7 +183,11 @@ UserSchema.statics = {
   },
   getById: async function(id) {
     return await this.findById(id);
-  }
+  },
+  deleteUser: async function(id) {
+    return await this.findOneAndRemove({ _id: id });
+    //return await this.findByIdAndRemove(id);
+  },
 };
 
 module.exports = UserSchema;
