@@ -39,7 +39,7 @@ router.get('/logout', handlers.logout);
  * This was created so we can delete user we created during tests
  * Use with CAUTION
  */
-router.delete('/delete/user/:userId',
+router.delete('/user/:userId',
   loggedIn,
   authorized,
   handlers.deleteUser

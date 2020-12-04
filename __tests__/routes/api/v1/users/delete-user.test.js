@@ -16,7 +16,7 @@ chai.use(chaiHttp);
 
 describe(`Delete User: DELETE /api/v1/users/user/:userId`, async () => {
   let user = null;
-  let deleteRoute = '/api/v1/users/delete/user/';
+  let deleteRoute = '/api/v1/users/user/';
 
   beforeEach(async () => {
     server.listen(apiPort); // Get the server running and listening on port
@@ -42,7 +42,7 @@ describe(`Delete User: DELETE /api/v1/users/user/:userId`, async () => {
 
   afterEach((done) => {
     user = null;
-    deleteRoute = '/api/v1/users/delete/user/';
+    deleteRoute = '/api/v1/users/user/';
     done();
   });
 
@@ -119,7 +119,7 @@ describe(`Delete User: DELETE /api/v1/users/user/:userId`, async () => {
   it('should return a 404 status code if specified user by "userId" does not exist', (done) => {
     const agent = chai.request.agent(server);
     const reversedUserId = user.id.toString().split('').reverse().join('');
-    deleteRoute = `/api/v1/users/delete/user/${reversedUserId}`;
+    deleteRoute = `/api/v1/users/user/${reversedUserId}`;
 
     agent
       .post(loginRoute)
