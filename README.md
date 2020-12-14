@@ -8,9 +8,7 @@ Set the following environment variables:
     - **SESSION_TOKEN_KEY** (*string*: Session sign key)
     - **AUTH_TOKEN_KEY** (*string*: Authorization tokey sign key)
     - **AUTH_TOKEN_EXPIRY** (*number*: Authorization token expiry (in seconds))
-   We use the **dotenv** package,
-   so these variables can be defined inside a **.env** file
-   and they will automatically be picked up.
+   We use the **dotenv** package, so these variables can be defined inside a **.env** file and they will automatically be picked up.
 
 ### Code setup
 1. `const userManager = require('user-management');`
@@ -175,11 +173,9 @@ This will return an object with the following middlewares:
 ### Testing
 To run the tests,
 - copy the ***.env.example*** file to ***.env*** and edit the values as necessary
-  **Note** The ***.env*** file is only useful for testing during development.
-  It should not be relied upon for production purpose.
+  **Note** The ***.env*** file is only useful for testing during development. It should not be relied upon in production.
   For production purposes, if you need to define your environment variables using a ***.env*** file,
-  you would have to create the file at the root of your project,
-  that is, the project which uses this package as a dependency;
-  and, unless you have to specify env variables specific to your application's needs,
+  you would have to create the file at the root of your project, that is, at the root of the project which uses this package as a dependency;
+  and, unless you have to specify environment variables specific to your application's needs,
   you only need to define the variables listed at the **Prerequisites** section.
 - Run `npm test` (or `npm run test:coverage` to get coverage reports)

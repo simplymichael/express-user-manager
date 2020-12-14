@@ -1,8 +1,8 @@
 const http = require('http');
 const express = require('express');
-const env = require('../src/dotenv');
-const userModule = require('../src/index');
-const { setupDB } = require('./_test-setup');
+const env = require('../../src/dotenv');
+const userModule = require('../../src/index');
+const { setupDB } = require('../_test-setup');
 
 const MongooseStore = userModule.getDbDriver('mongoose');
 
