@@ -5,6 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "mocha __tests__/\"{,/**/}*.test.js\"",
+    "test:routes": "mocha __tests__/routes/\"{,/**/}*.test.js\"",
+    "test:routes:custom": "mocha __tests__/routes-custom/\"{,/**/}*.test.js\"",
     "test:watch": "npm test -- -w",
     "test:coverage": "nyc npm test",
     "commit": "git-cz",

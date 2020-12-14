@@ -1,0 +1,26 @@
+[
+  {
+    "firstname": "Jamie",
+    "lastname": "Lanister",
+    "email": "jamielanister@yahoo.com",
+    "username": "kingslayer",
+    "password": "123sEcrEt",
+    "confirmPassword": "123sEcrEt"
+  },
+  {
+    "firstname": "Tyrion",
+    "lastname": "Lanister",
+    "email": "tyrionlanister@yahoo.com",
+    "username": "tyrion",
+    "password": "1sEcrEt#",
+    "confirmPassword": "1sEcrEt#"
+  },
+  {
+    "firstname": "Arya",
+    "lastname": "Stark",
+    "email": "aryastark@yahoo.com",
+    "username": "arya",
+    "password": "sEcrEt123",
+    "confirmPassword": "sEcrEt123"
+  }
+]

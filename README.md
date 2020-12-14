@@ -178,4 +178,7 @@ To run the tests,
   you would have to create the file at the root of your project, that is, at the root of the project which uses this package as a dependency;
   and, unless you have to specify environment variables specific to your application's needs,
   you only need to define the variables listed at the **Prerequisites** section.
-- Run `npm test` (or `npm run test:coverage` to get coverage reports)
+- Run all tests: `npm test`
+- Run all tests with coverage report: `npm run test:coverage`
+- Run tests for only the default routes settings: `npm run test:routes`
+- Run tests for only the custom routes settings: `npm run test:routes:custom`
