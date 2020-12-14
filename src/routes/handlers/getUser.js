@@ -1,5 +1,4 @@
-const { emit, publicFields } = require('./_utils');
-const { statusCodes } = require('../../../../utils/http');
+const { emit, statusCodes, publicFields } = require('./_utils');
 let responseData;
 
 module.exports = getUser;

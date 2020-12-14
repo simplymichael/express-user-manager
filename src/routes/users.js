@@ -1,11 +1,11 @@
 const handlers = require('./handlers');
 const router = require('express').Router();
-const loadUser = require('../../../middlewares/load-user');
-const loggedIn = require('../../../middlewares/logged-in');
-const authorized = require('../../../middlewares/authorized');
-const notLoggedIn = require('../../../middlewares/not-logged-in');
-const validator = require('../../../middlewares/validators/_validator');
-const checkExpressValidatorStatus = require('../../../middlewares/express-validator-status-checker');
+const loadUser = require('../middlewares/load-user');
+const loggedIn = require('../middlewares/logged-in');
+const authorized = require('../middlewares/authorized');
+const notLoggedIn = require('../middlewares/not-logged-in');
+const validator = require('../middlewares/validators/_validator');
+const checkExpressValidatorStatus = require('../middlewares/express-validator-status-checker');
 
 /* GET users listing. */
 router.get('/', handlers.get);

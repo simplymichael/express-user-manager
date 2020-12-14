@@ -1,6 +1,10 @@
-const { appModule, emit, publicFields } = require('./_utils');
-const debugLog = require('../../../../utils/debug');
-const { statusCodes } = require('../../../../utils/http');
+const {
+  emit,
+  appModule,
+  debugLog,
+  statusCodes,
+  publicFields
+} = require('./_utils');
 const errorName = 'searchUsersError';
 let responseData;
 

@@ -1,6 +1,4 @@
-const { appModule, emit } = require('./_utils');
-const debugLog = require('../../../../utils/debug');
-const { statusCodes } = require('../../../../utils/http');
+const { emit, appModule, debugLog, statusCodes } = require('./_utils');
 const errorName = 'deleteUserError';
 let responseData;
 

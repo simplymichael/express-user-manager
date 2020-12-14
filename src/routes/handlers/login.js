@@ -1,8 +1,12 @@
 const emailValidator = require('email-validator');
-const { appModule, emit, publicFields } = require('./_utils');
-const debugLog = require('../../../../utils/debug');
-const { statusCodes } = require('../../../../utils/http');
-const { checkPassword, generateAuthToken } = require('../../../../utils/auth');
+const {
+  emit,
+  appModule,
+  debugLog,
+  statusCodes,
+  publicFields
+} = require('./_utils');
+const { checkPassword, generateAuthToken } = require('../../utils/auth');
 const errorName = 'loginError';
 let responseData;
 

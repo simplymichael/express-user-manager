@@ -1,5 +1,4 @@
-const { emit } = require('./_utils');
-const { statusCodes } = require('../../../../utils/http');
+const { emit, statusCodes } = require('./_utils');
 
 module.exports = logout;
 

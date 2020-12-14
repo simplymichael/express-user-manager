@@ -1,7 +1,11 @@
-const { appModule, emit, publicFields } = require('./_utils');
-const debugLog = require('../../../../utils/debug');
-const { statusCodes } = require('../../../../utils/http');
-const { hashPassword } = require('../../../../utils/auth');
+const {
+  emit,
+  appModule,
+  debugLog,
+  statusCodes,
+  publicFields
+} = require('./_utils');
+const { hashPassword } = require('../../utils/auth');
 const errorName = 'signupError';
 let responseData;
 
