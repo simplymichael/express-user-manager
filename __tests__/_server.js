@@ -25,7 +25,7 @@ const server = http.createServer(app);
 module.exports = {
   server,
   userModule,
-  apiUrl: '/api/v1',
+  apiUrl: '/api',
   apiPort: 3001,
   env, // for now only used in login.test.js
 }

@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
-const env = require('./dotenv');
-const apiVersion = env.API_VERSION;
+const apiRoutes = require('./routes').api;
 const prepare = require('./utils/prepare');
 const userModule = require('./user-module');
-const apiRoutes = require(`./routes/api-v${apiVersion}`);
 const middlewares = require('./middlewares');
 const db = require('./databases');
 
@@ -30,7 +28,7 @@ function listen(app) {
   app = prepare(app);
 
   for(const route in apiRoutes) {
-    const regexp = `/api/v${apiVersion}/${route}`;
+    const regexp = `/api/${route}`;
 
     app.use(new RegExp(regexp, 'i'), apiRoutes[route]);
   }

@@ -5,7 +5,6 @@ A package for user management: registration, login, get, search
 ### Prerequisites
 Set the following environment variables:
     - **NODE_ENV** (*string*)
-    - **API_VERSION** (*number*: The version of the user-management package to use)
     - **SESSION_TOKEN_KEY** (*string*: Session sign key)
     - **AUTH_TOKEN_KEY** (*string*: Authorization tokey sign key)
     - **AUTH_TOKEN_EXPIRY** (*number*: Authorization token expiry (in seconds))

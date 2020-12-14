@@ -14,9 +14,9 @@ const loginCredentials = {
 should();
 chai.use(chaiHttp);
 
-describe(`Delete User: DELETE /api/v1/users/user/:userId`, async () => {
+describe(`Delete User: DELETE /api/users/user/:userId`, async () => {
   let user = null;
-  let deleteRoute = '/api/v1/users/user/';
+  let deleteRoute = `${apiUrl}/users/user/`;
 
   beforeEach(async () => {
     server.listen(apiPort); // Get the server running and listening on port
@@ -42,7 +42,7 @@ describe(`Delete User: DELETE /api/v1/users/user/:userId`, async () => {
 
   afterEach((done) => {
     user = null;
-    deleteRoute = '/api/v1/users/user/';
+    deleteRoute = `${apiUrl}/users/user/`;
     done();
   });
 
@@ -119,7 +119,7 @@ describe(`Delete User: DELETE /api/v1/users/user/:userId`, async () => {
   it('should return a 404 status code if specified user by "userId" does not exist', (done) => {
     const agent = chai.request.agent(server);
     const reversedUserId = user.id.toString().split('').reverse().join('');
-    deleteRoute = `/api/v1/users/user/${reversedUserId}`;
+    deleteRoute = `${apiUrl}/users/user/${reversedUserId}`;
 
     agent
       .post(loginRoute)
@@ -170,7 +170,7 @@ describe(`Delete User: DELETE /api/v1/users/user/:userId`, async () => {
             res.body.data.user.should.be.an('object');
 
             return agent
-              .get(`/api/v1/users/user/${user.username}`)
+              .get(`${apiUrl}/users/user/${user.username}`)
               .send()
               .then(function(res) {
                 res.should.have.status(404);

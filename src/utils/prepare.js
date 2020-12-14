@@ -26,12 +26,3 @@ function prepare(app) {
 
   return app;
 }
-
-/*
-// Credits: https://stackoverflow.com/a/26305831/1743192
-function middlewareExists(app, name) {
-    return !!app._router.stack.filter(function (layer) {
-        return layer && layer.handle && layer.handle.name === name;
-    }).length;
-}
-*/
