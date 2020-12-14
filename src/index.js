@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-const apiRoutes = require('./routes').api;
+const db = require('./databases');
+const setupRouting = require('./routes');
 const prepare = require('./utils/prepare');
 const userModule = require('./user-module');
 const middlewares = require('./middlewares');
-const db = require('./databases');
 
 // Augment the userModule with midddlewares
 userModule.set('middlewares', middlewares);
@@ -24,12 +24,9 @@ module.exports = userModule;
  * This allows us to automatically create user routes for the client
  * that works on the client's (host and) port.
  */
-function listen(app, baseApiRoute = '/api') {
+function listen(app, baseApiRoute = '/api/users', customRoutes = {}) {
+  const routeListener = setupRouting(customRoutes);
+
   app = prepare(app);
-
-  for(const route in apiRoutes) {
-    const regexp = `${baseApiRoute}/${route}`;
-
-    app.use(new RegExp(regexp, 'i'), apiRoutes[route]);
-  }
+  app.use(new RegExp(`${baseApiRoute}`, 'i'), routeListener);
 }

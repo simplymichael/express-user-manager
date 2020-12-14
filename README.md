@@ -14,13 +14,15 @@ Set the following environment variables:
 
 ### Code setup
 1. `const userManager = require('user-management');`
-2. Bind the routes under /users (***/api/v[N]/users/***):
-   `userManager.listen(expressApp, baseApiRoute = '/api');`
-   The `expressApp` parameter has the following constraints:
-    - It must be an express app (that is created with `var app = express()`)
-    - It MUST NOT be an express server, that is, it must not have been passed to `http.createServer(app)`
-   The `baseApiRoute` parameter allows you to specify the base API route.
-   Every request to the API will be relative to this base route. The default is `/api`;
+2. Bind the routes under [baseApiRoute] (default: ***/api/users***):
+   `userManager.listen(expressApp, baseApiRoute = '/api/users', customRoutes = {});`
+    - The `expressApp` parameter has the following constraints:
+        - It must be an express app (that is created with `var app = express()`)
+        - It MUST NOT be an express server, that is, it must not have been passed to `http.createServer(app)`
+    - The `baseApiRoute` parameter allows you to specify the base API route.
+      Every request to the API will be relative to this base route. The default is `/api/users`.
+    - The `customRoutes` parameter is an object that allows customization of the routes.
+      (See the section on **Specifying custom routes** for more)
    **NOTE**: If your ***expressApp*** has its own custom routing in place,
    make sure to call `userManager.listen(expressApp)` before setting up
    your app's custom 404 route handler. Setting up your app's 404 route handler
@@ -35,6 +37,7 @@ Set the following environment variables:
       const store = new MongooseStore(optionalConnectOptions);
       //await store.connect(connectionOptions); // use this only if optionalConnectionOptions is not specified during instantiation
       ```
+      (See the `connect()` method in the section on **Methods and parameters of the store object** below for the expected `connectionOptions`)
     - Use a custom store object.
       The store object should implement the following (asynchronous) methods
       (See section on **Methods and parameters of the store object** below):
@@ -61,9 +64,37 @@ Set the following environment variables:
    });
    ```
 
+### Specifying custom routes
+The last parameter to `userManager.listen()` represents an object that lets you customize the routes.
+The default object has a number of properties, each holding to a request path:
+- **list**: Specifies the path to get users listing
+- **search**: Specifies the path to search for users
+- **getUser**: Specifies the path to get a user by username (a `/:username` is automatically appended to the end of this route)
+- **signup**: Specifies the path for creating (i.e., registering) a new user
+- **login**: Specifies the path for logging in a user (an authorization key is returned on successful login)
+- **logout**: Specifies the path to log out a user
+- **deleteUser**: Specifies the path for deleting user by id (a `/:userId` is automatically appended to the end of this route)
+
+To customize the request paths,
+pass an object (with the above properties as keys, and the custom paths as values)
+as the third argument of the `userManager.listen()` call:
+```
+const customRoutes = {
+  list       : '/',       // Resolves to [baseApiRoute]/
+  search     : '/search', // Resolves to [baseApiRoute]/search
+  getUser    : '/user',   // Resolves to [baseApiRoute]/user/:username
+  signup     : '/',       // Resolves to [baseApiRoute]/
+  login      : '/login',  // Resolves to [baseApiRoute]/login
+  logout     : '/logout', // Resolves to [baseApiRoute]/logout
+  deleteUser : '/user',   // Resolves to [baseApiRoute]/user/:userId
+};
+
+userManager.listen(expressApp, baseApiRoute, customRoutes);`
+```
+
 ### Using the middlewares
 The **userManager** module provides some middlewares.
-You can get them by calling: `userModule.get('middlewares');`.
+You can get them by calling: `userManager.get('middlewares');`.
 This will return an object with the following middlewares:
 - **authorized**:
   For protected resources.
@@ -146,8 +177,9 @@ To run the tests,
 - copy the ***.env.example*** file to ***.env*** and edit the values as necessary
   **Note** The ***.env*** file is only useful for testing during development.
   It should not be relied upon for production purpose.
-  For production purposes, if you need to define your enviroment variables using a ***.env*** file,
-  you would have to create the file at the root of your project;
-  and for that, you only need to define the variables listed at the **Prerequisites** section.
-  that is, the project which uses this package as a dependency.
+  For production purposes, if you need to define your environment variables using a ***.env*** file,
+  you would have to create the file at the root of your project,
+  that is, the project which uses this package as a dependency;
+  and, unless you have to specify env variables specific to your application's needs,
+  you only need to define the variables listed at the **Prerequisites** section.
 - Run `npm test` (or `npm run test:coverage` to get coverage reports)
