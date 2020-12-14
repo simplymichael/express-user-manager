@@ -24,11 +24,11 @@ module.exports = userModule;
  * This allows us to automatically create user routes for the client
  * that works on the client's (host and) port.
  */
-function listen(app) {
+function listen(app, baseApiRoute = '/api') {
   app = prepare(app);
 
   for(const route in apiRoutes) {
-    const regexp = `/api/${route}`;
+    const regexp = `${baseApiRoute}/${route}`;
 
     app.use(new RegExp(regexp, 'i'), apiRoutes[route]);
   }

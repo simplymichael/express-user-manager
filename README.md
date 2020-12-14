@@ -15,10 +15,12 @@ Set the following environment variables:
 ### Code setup
 1. `const userManager = require('user-management');`
 2. Bind the routes under /users (***/api/v[N]/users/***):
-   `userManager.listen(expressApp);`
+   `userManager.listen(expressApp, baseApiRoute = '/api');`
    The `expressApp` parameter has the following constraints:
     - It must be an express app (that is created with `var app = express()`)
     - It MUST NOT be an express server, that is, it must not have been passed to `http.createServer(app)`
+   The `baseApiRoute` parameter allows you to specify the base API route.
+   Every request to the API will be relative to this base route. The default is `/api`;
    **NOTE**: If your ***expressApp*** has its own custom routing in place,
    make sure to call `userManager.listen(expressApp)` before setting up
    your app's custom 404 route handler. Setting up your app's 404 route handler
