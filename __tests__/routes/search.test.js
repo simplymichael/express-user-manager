@@ -2,7 +2,7 @@ const chai = require('chai');
 const fetch = require('node-fetch');
 const chaiHttp = require('chai-http');
 const testUsers = require('./_test-users.json');
-const { apiUrl, apiPort, server } = require('../../../../_server');
+const { apiUrl, apiPort, server } = require('../_server');
 const searchRoute = `${apiUrl}/users/search`;
 const { should } = chai;
 
