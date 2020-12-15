@@ -6,6 +6,18 @@ module.exports = deleteUser;
 
 async function deleteUser(req, res) {
   try {
+    if(!req.params.userId || !req.body.userId) {
+      responseData = {
+        errors: [{
+          msg: 'The user id must be specified in the request url and request body!',
+        }]
+      };
+
+      emit(errorName, responseData);
+      res.status(statusCodes.badRequest).json(responseData);
+      return;
+    }
+
     if(req.params.userId.toString() !== req.body.userId.toString()) {
       responseData = {
         errors: [{
@@ -38,11 +50,7 @@ async function deleteUser(req, res) {
 
     req.session.user = null; // Kill the user's session
 
-    responseData = {
-      data: {
-        user: userData,
-      }
-    };
+    responseData = {};
 
     emit('deleteUserSuccess', responseData);
     res.status(statusCodes.ok).json(responseData);

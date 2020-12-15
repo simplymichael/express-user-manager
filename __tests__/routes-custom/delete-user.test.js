@@ -164,10 +164,7 @@ describe(`Delete User: DELETE ${apiUrl}${customRoutes.deleteUser}/:userId`, asyn
             res.should.have.property('body');
             res.body.should.be.an('object');
             res.body.should.not.have.property('errors');
-            res.body.should.have.property('data');
-            res.body.data.should.be.an('object');
-            res.body.data.should.have.property('user');
-            res.body.data.user.should.be.an('object');
+            res.body.should.be.empty;
 
             return agent
               .get(`${apiUrl}/users/user/${user.username}`)
