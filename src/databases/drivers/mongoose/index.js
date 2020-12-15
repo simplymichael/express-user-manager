@@ -36,6 +36,7 @@ class MongooseStore extends DbInterface {
    *   - pass {string} the db server user password
    *   - dbName {string} the name of the database to connect to
    *   - debug {boolean | number(int | 0)} determines whether or not to show debugging output
+   *   - exitOnFail {boolean} specifies whether to exit the program if DB connection fails
    *
    * Parameters can be supplied via different methods:
    *  - By specifying the connection parameters as env variables
@@ -45,7 +46,7 @@ class MongooseStore extends DbInterface {
    * @return {resource} a (mongoose) connection instance
    */
   async connect (options){
-    const { host, port, user, pass, dbName, debug } = options;
+    const { host, port, user, pass, dbName, debug, exitOnFail = false } = options;
 
     const dsn = user && user.trim().length > 0
       ? `mongodb://${user}:${pass}@${host}:${port}/${dbName}`
@@ -72,7 +73,9 @@ class MongooseStore extends DbInterface {
       reason: ${util.format(err.reason)}
       `);
 
-      process.exit(1);
+      if(convertToBoolean(exitOnFail)) {
+        process.exit(1);
+      }
     }
   }
 
