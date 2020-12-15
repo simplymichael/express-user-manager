@@ -185,16 +185,130 @@ The package comes with a built-in express server that allows you run it as a sta
 
 To run it as a stand-alone server, do the following:  
 - copy the ***.env.example*** file to ***.env*** and edit the values as necessary
-- Start the server, using one of two methods:
+- start the server, using one of two methods:
     - run `npm run serve` to start the server
     - run `npm run serve:watch` to start the server in watch mode.
-      This automatically restarts the server with the latest changes when you edit the source files.
+      This watches the `src/` directory's files and
+      automatically restarts the server with the latest changes when you edit the source files.
 
 **Note**: The built-in server runs using the default settings. That means:
 - it runs under the `/api/users` base route.
 - it uses the default request paths. (See the section on **Requests and responses**)
 
 ## Requests and responses
+Every route below is assumed to begin (i.e., prefixed) with the base API route.
+The default base API route is **`/api/users`**.
+
+- **Create user**
+    - route: `POST /`
+    - protected: `false`
+    - request headers: none
+    - request parameters: none
+    - request body: `{ firstname, lastname, username, email, password, confirmPassword }`
+    - response: ```{
+        "data": {
+          "user": { id, firstname, lastname, fullname, email, username, signupDate }
+        }
+      }
+      ```
+- **Get user details by username**
+    - route: `GET /user/USERNAME`
+    - protected: false
+    - request headers: none
+    - request parameters: none
+    - request body: none
+    - response: ```{
+        "data": {
+          "user": { id, firstname, lastname, fullname, email, username, signupDate }
+        }
+      }
+      ```
+- **Retrieve list of users**
+    - route: `GET /`
+    - protected: `false`
+    - request headers: none
+    - request parameters: none
+    - request body: none
+    - response: ```{
+        "data": {
+          "users": [
+            { id, firstname, lastname, fullname, email, username, signupDate },
+            { id, firstname, lastname, fullname, email, username, signupDate },
+            ...
+          ]
+        }
+      }
+      ```
+- **Search for users**
+    - route: `GET /search?query=SEARCH_TERM`
+    - protected: `false`
+    - request headers: none
+    - request parameters:
+        - `query` (string, required)
+        - `sort` (string, optional)
+        - `by` (string, optional)
+        - `page` (number, optional, default = 1)
+        - `limit` (number, optional, default = 20)
+    - request body: none
+    - response: ```{
+        "data": {
+          "total": TOTAL_COUNT_OF_MATCHING_RESULTS,
+          "length": COUNT_OF_CURRENT_RESULTS_RETURNED, // determined by "page" and "limit"
+          "users": [
+            { id, firstname, lastname, fullname, email, username, signupDate },
+            { id, firstname, lastname, fullname, email, username, signupDate },
+            ...
+          ]
+        }
+      }
+      ```
+    - examples:  
+        - Search for users with "james" in their firstname, lastname, username, or email:
+          `HOST:PORT/api/users/search?query=james`
+        - Search for users with "james" in their username or email:
+          `HOST:PORT/api/users/search?query=james&by=username:email`
+        - Sort by firstname (asc), lastname (asc), email (desc), creationDate (asc)
+          `HOST:PORT/api/users/search?query=james&sort=firstname:asc=lastname=email:desc=creationDate`
+        - Return the 3rd page of results and limit returned results to a maximum of 15 users
+          `HOST:PORT/api/users/search?query=james&page=3&limit=15`
+- **Login**
+    - route: `POST /login`
+    - protected: `false`
+    - request headers: none
+    - request parameters: none
+    - request body: ```{
+        "login": EMAIL | USERNAME,
+        "password": USER_PASSWORD,
+      }
+      ```
+    - response: ```{
+        "data": {
+          "user": { id, firstname, lastname, fullname, email, username, signupDate },
+          "authorization": {
+            "token": "Bearer TOKEN_STRING",
+            "expiresIn": "86400s"
+          }
+        }
+      }
+      ```
+- **Logout**
+    - route: `GET /logout`
+    - protected: `false`
+    - request headers: none
+    - request body: none
+    - request parameters: none
+    - response: `{}`
+- **Delete user by ID**
+    - route: `DELETE /user/USER_ID`
+    - protected: `true`
+    - request headers: ```{
+        "Authorization": "Bearer TOKEN_STRING"
+      }
+      ```
+    - request body: ```{
+        "userId": USER_ID
+      }
+      ```
 
 ## Development
 ### Testing
