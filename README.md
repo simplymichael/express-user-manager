@@ -182,3 +182,19 @@ To run the tests,
 - Run all tests with coverage report: `npm run test:coverage`
 - Run tests for only the default routes settings: `npm run test:routes`
 - Run tests for only the custom routes settings: `npm run test:routes:custom`
+
+
+### Viewing debug output
+To see debug output, set an *appName*:
+`userManager.set('appName', YOUR_APP_NAME_USED_FOR_DEBUG_LOGGING);`
+
+The default *appName*
+(when you don't explicitly call `userManager.set('appName')` to set the *appName*)
+is *user-manager*.
+
+To see debug output, on the console,
+set the `DEBUG` environment variable to your app's name before starting the server:
+
+- `set DEBUG=YOUR_APP_NAME_USED_FOR_DEBUG_LOGGING`
+- `npm run start` on production
+- `npm run start:dev` on development

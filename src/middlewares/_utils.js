@@ -1,5 +1,4 @@
-const { emit } = require('../utils');
-const userModule = require('../user-module');
+const { emit, userModule } = require('../utils');
 const { statusCodes } = require('../utils/http');
 
 module.exports = {

@@ -15,5 +15,6 @@ function convertToBoolean(data) {
 
 module.exports = {
   emit,
+  userModule,
   convertToBoolean,
 };

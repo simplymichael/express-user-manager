@@ -1,6 +1,5 @@
 const handlers = require('./handlers');
 const express = require('express');
-//const router = require('express').Router();
 const loadUser = require('../middlewares/load-user');
 const loggedIn = require('../middlewares/logged-in');
 const authorized = require('../middlewares/authorized');
