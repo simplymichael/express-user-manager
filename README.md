@@ -205,7 +205,9 @@ The default base API route is **`/api/users`**.
     - request headers: none
     - request parameters: none
     - request body: `{ firstname, lastname, username, email, password, confirmPassword }`
-    - response: ```{
+    - response:
+      ```
+      {
         "data": {
           "user": { id, firstname, lastname, fullname, email, username, signupDate }
         }
@@ -217,7 +219,9 @@ The default base API route is **`/api/users`**.
     - request headers: none
     - request parameters: none
     - request body: none
-    - response: ```{
+    - response:
+      ```
+      {
         "data": {
           "user": { id, firstname, lastname, fullname, email, username, signupDate }
         }
@@ -229,7 +233,9 @@ The default base API route is **`/api/users`**.
     - request headers: none
     - request parameters: none
     - request body: none
-    - response: ```{
+    - response:
+      ```
+      {
         "data": {
           "users": [
             { id, firstname, lastname, fullname, email, username, signupDate },
@@ -250,7 +256,9 @@ The default base API route is **`/api/users`**.
         - `page` (number, optional, default = 1)
         - `limit` (number, optional, default = 20)
     - request body: none
-    - response: ```{
+    - response:
+      ```
+      {
         "data": {
           "total": TOTAL_COUNT_OF_MATCHING_RESULTS,
           "length": COUNT_OF_CURRENT_RESULTS_RETURNED, // determined by "page" and "limit"
@@ -263,25 +271,29 @@ The default base API route is **`/api/users`**.
       }
       ```
     - examples:  
-        - Search for users with "james" in their firstname, lastname, username, or email:
-          `HOST:PORT/api/users/search?query=james`
-        - Search for users with "james" in their username or email:
-          `HOST:PORT/api/users/search?query=james&by=username:email`
-        - Sort by firstname (asc), lastname (asc), email (desc), creationDate (asc)
-          `HOST:PORT/api/users/search?query=james&sort=firstname:asc=lastname=email:desc=creationDate`
-        - Return the 3rd page of results and limit returned results to a maximum of 15 users
-          `HOST:PORT/api/users/search?query=james&page=3&limit=15`
+        - Search for users with **james** in their firstname, lastname, username, or email:
+          `GET HOST:PORT/api/users/search?query=james`
+        - Search for users with **james** in their username or email:
+          `GET HOST:PORT/api/users/search?query=james&by=username:email`
+        - Sort by firstname (asc), lastname (asc), email (desc), creationDate (asc):
+          `GET HOST:PORT/api/users/search?query=james&sort=firstname:asc=lastname=email:desc=creationDate`
+        - Return the 3rd page of results and limit returned results to a maximum of 15 users:
+          `GET HOST:PORT/api/users/search?query=james&page=3&limit=15`
 - **Login**
     - route: `POST /login`
     - protected: `false`
     - request headers: none
     - request parameters: none
-    - request body: ```{
+    - request body:
+      ```
+      {
         "login": EMAIL | USERNAME,
         "password": USER_PASSWORD,
       }
       ```
-    - response: ```{
+    - response:
+      ```
+      {
         "data": {
           "user": { id, firstname, lastname, fullname, email, username, signupDate },
           "authorization": {
@@ -301,11 +313,15 @@ The default base API route is **`/api/users`**.
 - **Delete user by ID**
     - route: `DELETE /user/USER_ID`
     - protected: `true`
-    - request headers: ```{
+    - request headers:
+      ```
+      {
         "Authorization": "Bearer TOKEN_STRING"
       }
       ```
-    - request body: ```{
+    - request body:
+      ```
+      {
         "userId": USER_ID
       }
       ```
