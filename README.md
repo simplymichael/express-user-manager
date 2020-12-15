@@ -180,13 +180,32 @@ This will return an object with the following middlewares:
 - must contain at least a lowercase character
 - must not be either of the following: ['Passw0rd', 'Password123']
 
+## Usage as stand-alone server
+The package comes with a built-in express server that allows you run it as a stand-alone server.
+
+To run it as a stand-alone server, do the following:  
+- copy the ***.env.example*** file to ***.env*** and edit the values as necessary
+- Start the server, using one of two methods:
+    - run `npm run serve` to start the server
+    - run `npm run serve:watch` to start the server in watch mode.
+      This automatically restarts the server with the latest changes when you edit the source files.
+
+**Note**: The built-in server runs using the default settings. That means:
+- it runs under the `/api/users` base route.
+- it uses the default request paths. (See the section on **Requests and responses**)
+
+## Requests and responses
+
 ## Development
 ### Testing
 To run the tests,
 - copy the ***.env.example*** file to ***.env*** and edit the values as necessary.
 
-  **Note** The ***.env*** file is only useful for testing during development. It should not be relied upon in production.
+  **Note** The ***.env*** file is only useful for two scenarios:
+    - For running the tests (during development)
+    - For running as a stand-alone server
 
+  It should not be relied upon in production.
   For production purposes, if you need to define your environment variables using a ***.env*** file,
   you would have to create the file at the root of your project, that is, at the root of the project which uses this package as a dependency;
   and, unless you have to specify environment variables specific to your application's needs,
@@ -195,7 +214,6 @@ To run the tests,
 - Run all tests with coverage report: `npm run test:coverage`
 - Run tests for only the default routes settings: `npm run test:routes`
 - Run tests for only the custom routes settings: `npm run test:routes:custom`
-
 
 ### Viewing debug output
 To see debug output, on the console,

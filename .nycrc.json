@@ -5,7 +5,8 @@
     "src/**/*.js"
   ],
   "exclude": [
-    "**/*.test.js"
+    "**/*.test.js",
+    "src/server"
   ],
   "reporter": [
     "json",

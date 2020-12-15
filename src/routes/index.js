@@ -1,20 +1,12 @@
-const handlers = require('./handlers');
 const express = require('express');
+const handlers = require('./handlers');
+const apiPaths = require('./defaults').paths;
 const loadUser = require('../middlewares/load-user');
 const loggedIn = require('../middlewares/logged-in');
 const authorized = require('../middlewares/authorized');
 const notLoggedIn = require('../middlewares/not-logged-in');
 const validator = require('../middlewares/validators/_validator');
 const checkExpressValidatorStatus = require('../middlewares/express-validator-status-checker');
-const apiPaths = {
-  list: '/',
-  search: '/search',
-  getUser: '/user',
-  signup: '/',
-  login: '/login',
-  logout: '/logout',
-  deleteUser: '/user',
-};
 
 function setupRouting(customRoutes = {}) {
   const router = express.Router();
