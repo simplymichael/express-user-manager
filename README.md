@@ -4,11 +4,14 @@ A package for user management: registration, login, get, search
 ## Usage
 ### Prerequisites
 Set the following environment variables:
-    - **NODE_ENV** (*string*)
-    - **SESSION_TOKEN_KEY** (*string*: Session sign key)
-    - **AUTH_TOKEN_KEY** (*string*: Authorization tokey sign key)
-    - **AUTH_TOKEN_EXPIRY** (*number*: Authorization token expiry (in seconds))
-   We use the **dotenv** package, so these variables can be defined inside a **.env** file and they will automatically be picked up.
+
+- **NODE_ENV** (*string*)
+- **SESSION_TOKEN_KEY** (*string*: Session sign key)
+- **AUTH_TOKEN_KEY** (*string*: Authorization token sign key)
+- **AUTH_TOKEN_EXPIRY** (*number*: Authorization token expiry (in seconds))
+
+**Note**: We use the **dotenv** package,
+so these variables can be defined inside a **.env** file and they will automatically be picked up.
 
 ### Code setup
 1. `const userManager = require('user-management');`
@@ -74,13 +77,11 @@ The default object has a number of properties, each corresponding to a request p
 - **list** : Specifies the path to get users listing
 - **search** : Specifies the path to search for users
 - **getUser** : Specifies the path to get a user by username
-
 (a `/:username` is automatically appended to the end of this route)
 - **signup** : Specifies the path for creating (i.e., registering) a new user
 - **login** : Specifies the path for logging in a user (an authorization key is returned on successful login)
 - **logout** : Specifies the path to log out a user
 - **deleteUser** : Specifies the path for deleting user by id
-
 (a `/:userId` is automatically appended to the end of this route)
 
 To customize the request paths,
