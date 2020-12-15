@@ -272,12 +272,16 @@ The default base API route is **`/api/users`**.
       ```
     - examples:  
         - Search for users with **james** in their firstname, lastname, username, or email:
+
           `GET HOST:PORT/api/users/search?query=james`
         - Search for users with **james** in their username or email:
+
           `GET HOST:PORT/api/users/search?query=james&by=username:email`
         - Sort by firstname (asc), lastname (asc), email (desc), creationDate (asc):
+
           `GET HOST:PORT/api/users/search?query=james&sort=firstname:asc=lastname=email:desc=creationDate`
         - Return the 3rd page of results and limit returned results to a maximum of 15 users:
+
           `GET HOST:PORT/api/users/search?query=james&page=3&limit=15`
 - **Login**
     - route: `POST /login`
@@ -325,6 +329,7 @@ The default base API route is **`/api/users`**.
         "userId": USER_ID
       }
       ```
+    - response `{}`
 
 ## Development
 ### Testing
