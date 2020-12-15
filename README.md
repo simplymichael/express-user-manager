@@ -13,17 +13,21 @@ Set the following environment variables:
 ### Code setup
 1. `const userManager = require('user-management');`
 2. Bind the routes under [baseApiRoute] (default: ***/api/users***):
+
    `userManager.listen(expressApp, baseApiRoute = '/api/users', customRoutes = {});`
+
     - The `expressApp` parameter has the following constraints:
         - It must be an express app (that is created with `var app = express()`)
         - It MUST NOT be an express server, that is, it must not have been passed to `http.createServer(app)`
     - The `baseApiRoute` parameter allows you to specify the base API route.
       Every request to the API will be relative to this base route. The default is `/api/users`.
     - The `customRoutes` parameter is an object that allows customization of the routes.
+
       (See the section on **Specifying custom routes** for more)
+
    **NOTE**: If your ***expressApp*** has its own custom routing in place,
    make sure to call `userManager.listen(expressApp)` before setting up
-   your app's custom 404 route handler. Setting up your app's 404 route handler
+   your app's custom 404 route handler. This is because setting up your app's 404 route handler
    before calling `userManager.listen()` will lead to every route not in
    your custom app's route handlers being handled by the
    404 handler and thus prevent any requests from getting to the
@@ -33,11 +37,14 @@ Set the following environment variables:
       ```
       const MongooseStore = userManager.getDbDriver('mongoose');
       const store = new MongooseStore(optionalConnectOptions);
-      //await store.connect(connectionOptions); // use this only if optionalConnectionOptions is not specified during instantiation
+
+      // use this only if optionalConnectionOptions is not specified during instantiation
+      //await store.connect(connectionOptions);
       ```
       (See the `connect()` method in the section on **Methods and parameters of the store object** below for the expected `connectionOptions`)
     - Use a custom store object.
-      The store object should implement the following (asynchronous) methods
+      The store object should implement the following (asynchronous) methods.
+
       (See section on **Methods and parameters of the store object** below):
         - *connect(options)*
         - *disconnect()*
@@ -46,8 +53,7 @@ Set the following environment variables:
         - *searchUsers(options)*
         - *findByEmail(email)*
         - *findByUsername(username)*
-4. Set the datastore:
-   `userManager.set('store', store);`
+4. Set the datastore: `userManager.set('store', store);`
 5. Proceed with normal server initialization, e.g:
    ```
    const server = http.createServer(app);
@@ -64,14 +70,18 @@ Set the following environment variables:
 
 ### Specifying custom routes
 The last parameter to `userManager.listen()` represents an object that lets you customize the routes.
-The default object has a number of properties, each holding to a request path:
-- **list**: Specifies the path to get users listing
-- **search**: Specifies the path to search for users
-- **getUser**: Specifies the path to get a user by username (a `/:username` is automatically appended to the end of this route)
-- **signup**: Specifies the path for creating (i.e., registering) a new user
-- **login**: Specifies the path for logging in a user (an authorization key is returned on successful login)
-- **logout**: Specifies the path to log out a user
-- **deleteUser**: Specifies the path for deleting user by id (a `/:userId` is automatically appended to the end of this route)
+The default object has a number of properties, each corresponding to a request path:
+- **list** : Specifies the path to get users listing
+- **search** : Specifies the path to search for users
+- **getUser** : Specifies the path to get a user by username
+
+(a `/:username` is automatically appended to the end of this route)
+- **signup** : Specifies the path for creating (i.e., registering) a new user
+- **login** : Specifies the path for logging in a user (an authorization key is returned on successful login)
+- **logout** : Specifies the path to log out a user
+- **deleteUser** : Specifies the path for deleting user by id
+
+(a `/:userId` is automatically appended to the end of this route)
 
 To customize the request paths,
 pass an object (with the above properties as keys, and the custom paths as values)
@@ -172,8 +182,10 @@ This will return an object with the following middlewares:
 ## Development
 ### Testing
 To run the tests,
-- copy the ***.env.example*** file to ***.env*** and edit the values as necessary
+- copy the ***.env.example*** file to ***.env*** and edit the values as necessary.
+
   **Note** The ***.env*** file is only useful for testing during development. It should not be relied upon in production.
+
   For production purposes, if you need to define your environment variables using a ***.env*** file,
   you would have to create the file at the root of your project, that is, at the root of the project which uses this package as a dependency;
   and, unless you have to specify environment variables specific to your application's needs,
@@ -185,16 +197,9 @@ To run the tests,
 
 
 ### Viewing debug output
-To see debug output, set an *appName*:
-`userManager.set('appName', YOUR_APP_NAME_USED_FOR_DEBUG_LOGGING);`
-
-The default *appName*
-(when you don't explicitly call `userManager.set('appName')` to set the *appName*)
-is *user-manager*.
-
 To see debug output, on the console,
-set the `DEBUG` environment variable to your app's name before starting the server:
+set the `DEBUG` environment variable to *user-manager*:
 
-- `set DEBUG=YOUR_APP_NAME_USED_FOR_DEBUG_LOGGING`
+- `set DEBUG=user-manager`
 - `npm run start` on production
 - `npm run start:dev` on development
