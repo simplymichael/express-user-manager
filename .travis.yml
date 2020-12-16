@@ -15,7 +15,7 @@ cache: npm
 before_script:
   - npm prune
   - cp ./.env.example ./.env
-  - docker run -d -it --rm --name mongodb -p 27017:27017 -v .\.data\mongo:/etc/mongo mongo
+  - docker run -d -it --rm --name mongodb -p 27017:27017 mongo
 
 script:
   - npm run test:coverage
