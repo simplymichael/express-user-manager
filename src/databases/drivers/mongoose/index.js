@@ -46,7 +46,15 @@ class MongooseStore extends DbInterface {
    * @return {resource} a (mongoose) connection instance
    */
   async connect (options){
-    const { host, port, user, pass, dbName, debug, exitOnFail = false } = options;
+    const {
+      host = 'localhost',
+      port = 27017,
+      user = '',
+      pass = '',
+      dbName = 'users',
+      debug = false,
+      exitOnFail = true
+    } = options;
 
     const dsn = user && user.trim().length > 0
       ? `mongodb://${user}:${pass}@${host}:${port}/${dbName}`
