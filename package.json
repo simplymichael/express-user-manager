@@ -27,7 +27,7 @@
     "login"
   ],
   "author": "simplymichael <simplymichaelorji@gmail.com> (https://github.com/simplymichael)",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/simplymichael/user-management/issues"
   },

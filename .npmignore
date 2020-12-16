@@ -2,6 +2,7 @@
 coverage/
 examples/
 tests/
+test-directory/
 .env
 .editorconfig
 .npmignore
