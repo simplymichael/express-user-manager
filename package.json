@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/simplymichael/user-management.git"
+    "url": "git+https://github.com/simplymichael/express-user-manager.git"
   },
   "keywords": [
     "user",
@@ -29,9 +29,9 @@
   "author": "simplymichael <simplymichaelorji@gmail.com> (https://github.com/simplymichael)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/simplymichael/user-management/issues"
+    "url": "https://github.com/simplymichael/express-user-manager/issues"
   },
-  "homepage": "https://github.com/simplymichael/user-management#readme",
+  "homepage": "https://github.com/simplymichael/express-user-manager#readme",
   "devDependencies": {
     "chai": "4.2.0",
     "chai-http": "4.3.0",
