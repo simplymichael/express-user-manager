@@ -50,7 +50,7 @@ so these variables can be defined inside a **.env** file and they will automatic
       Every request to the API will be relative to this base route. The default is `/api/users`.
     - The `customRoutes` parameter is an object that allows customization of the routes.
 
-      (See the section on **Specifying custom routes** for more)
+      (See the section on **[Specifying custom routes](#specifying-custom-routes)** for more)
 
    **NOTE**: If your ***expressApp*** has its own custom routing in place,
    make sure to call `userManager.listen(expressApp)` before setting up
@@ -68,11 +68,12 @@ so these variables can be defined inside a **.env** file and they will automatic
       // use this only if optionalConnectionOptions is not specified during instantiation
       //await store.connect(connectionOptions);
       ```
-      (See the `connect()` method in the section on **Methods and parameters of the store object** below for the expected `connectionOptions`)
+      (See the `connect()` method in the section on
+      **[Methods and parameters of the store object](#methods-and-parameters-of-the-store-object)**
+      for the expected `connectionOptions`)
     - Use a custom store object.
-      The store object should implement the following (asynchronous) methods.
+      The store object should implement the following (asynchronous) methods:
 
-      (See section on **Methods and parameters of the store object** below):
         - *connect(options)*
         - *disconnect()*
         - *createUser(userData)*
@@ -80,6 +81,8 @@ so these variables can be defined inside a **.env** file and they will automatic
         - *searchUsers(options)*
         - *findByEmail(email)*
         - *findByUsername(username)*
+
+      (See section on **[Methods and parameters of the store object](#methods-and-parameters-of-the-store-object)** for more)
 4. Set the datastore: `userManager.set('store', store);`
 5. Proceed with normal server initialization, e.g:
    ```
@@ -383,7 +386,7 @@ To run the tests,
   For production purposes, if you need to define your environment variables using a ***.env*** file,
   you would have to create the file at the root of your project, that is, at the root of the project which uses this package as a dependency;
   and, unless you have to specify environment variables specific to your application's needs,
-  you only need to define the variables listed at the **Prerequisites** section.
+  you only need to define the variables listed at the **[Prerequisites](#prerequisites)** section.
 - Run all tests: `npm test`
 - Run all tests with coverage report: `npm run test:coverage`
 - Run tests for only the default routes settings: `npm run test:routes`
