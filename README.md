@@ -1,12 +1,24 @@
-# User Management
-A package for user management: registration, login, get, search
+# Express User Manager
+A user management and authentication library for Express apps.
+
+It automatically creates and adds the following (customizable) API endpoints to an Express app:
+
+- user registration
+- user login
+- user logout
+- user retrieval
+- users listing
+- user searching
+- account deletion
 
 # Table of Contents
 
+- **[Installation](#installation)**
+- **[Quick start](#quick-start)**
 - **[Usage](#usage)**
     - **[Prerequisites](#prerequisites)**
     - **[Code setup](#code-setup)**
-    - **[Specifying custom routes](#specifying-custom-routes)**
+    - **[Specifying custom API endpoints](#specifying-custom-api-endpoints)**
     - **[Using the middlewares](#using-the-middlewares)**
 - **[Built-in data stores (database drivers)](#built-in-data-stores)**
 - **[Methods and parameters of the `store` object](#methods-and-parameters-of-the-store-object)**
@@ -20,6 +32,43 @@ A package for user management: registration, login, get, search
 - **[Developing](#developing)**
     - **[Testing](#testing)**
     - **[Viewing debug output](#viewing-debug-output)**
+
+<a name="installation"></a>
+## Installation
+`npm install --save express-user-manager`
+
+<a name="quick-start"></a>
+## Quick start
+- Set environment variables: **SESSION_TOKEN_KEY**, **AUTH_TOKEN_KEY**, **AUTH_TOKEN_EXPIRY**.
+- ```
+  const express = require('express');
+  const userManager = require('express-user-manager');
+  const app = express();
+  const MongooseStore = userManager.getDbDriver('mongoose');
+  const store = new MongooseStore();
+
+  userManager.set('store', store);
+  userManager.listen(app);
+
+  (async function() {
+    const server = http.createServer(app);
+
+    // Ensure the db is connected before binding the server to the port
+    await store.connect({
+      host: DB_HOST, // optional, default: 'localhost'
+      port: DB_PORT, // optional, default: 27017
+      user: DB_USERNAME, // optional
+      pass: DB_PASSWORD, // optional
+      dbName: DB_DBNAME, // optional, default: 'users'
+      debug: DB_DEBUG, // optional, default: false
+      exitOnFail: env.EXIT_ON_DB_CONNECT_FAIL // optional, default: true
+    });
+
+    server.listen(PORT);
+    server.on('error', onError);
+    server.on('listening', onListening);
+  })();
+  ```
 
 <a name="usage"></a>
 ## Usage
@@ -38,7 +87,7 @@ so these variables can be defined inside a **.env** file and they will automatic
 
 <a name="code-setup"></a>
 ### Code setup
-1. `const userManager = require('user-management');`
+1. `const userManager = require('express-user-manager');`
 2. Bind the routes under [baseApiRoute] (default: ***/api/users***):
 
    `userManager.listen(expressApp, baseApiRoute = '/api/users', customRoutes = {});`
@@ -50,7 +99,7 @@ so these variables can be defined inside a **.env** file and they will automatic
       Every request to the API will be relative to this base route. The default is `/api/users`.
     - The `customRoutes` parameter is an object that allows customization of the routes.
 
-      (See the section on **[Specifying custom routes](#specifying-custom-routes)** for more)
+      (See the section on **[Specifying custom routes](#specifying-custom-api-endpoints)** for more)
 
    **NOTE**: If your ***expressApp*** has its own custom routing in place,
    make sure to call `userManager.listen(expressApp)` before setting up
@@ -98,9 +147,9 @@ so these variables can be defined inside a **.env** file and they will automatic
    });
    ```
 
-<a name="specifying-custom-routes"></a>
-### Specifying custom routes
-The last parameter to `userManager.listen()` represents an object that lets you customize the routes.
+<a name="specifying-custom-api-endpoints"></a>
+### Specifying custom API endpoints
+The last parameter to `userManager.listen()` represents an object that lets you customize the API endpoints.
 The default object has a number of properties, each corresponding to a request path:
 - **list** : Specifies the path to get users listing
 - **search** : Specifies the path to search for users
