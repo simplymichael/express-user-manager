@@ -1,4 +1,7 @@
 # Express User Manager
+[![Travis (.com)](https://img.shields.io/travis/com/simplymichael/express-user-manager)](https://travis-ci.com/github/simplymichael/express-user-manager)
+[![Codecov](https://img.shields.io/codecov/c/github/simplymichael/express-user-manager)](https://codecov.io/gh/simplymichael/express-user-manager)
+
 A user management and authentication library for Express apps.
 
 It automatically creates and adds the following (customizable) API endpoints to an Express app:
