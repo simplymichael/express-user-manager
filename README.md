@@ -1,7 +1,30 @@
 # User Management
 A package for user management: registration, login, get, search
 
+# Table of Contents
+
+- **[Usage](#usage)**
+    - **[Prerequisites](#prerequisites)**
+    - **[Code setup](#code-setup)**
+    - **[Specifying custom routes](#specifying-custom-routes)**
+    - **[Using the middlewares](#using-the-middlewares)**
+- **[Built-in data stores (database drivers)](#built-in-data-stores)**
+- **[Methods and parameters of the `store` object](#methods-and-parameters-of-the-store-object)**
+- **[Emitted events](#emitted-events)**
+    - **[Events emitted by the database](#events-emitted-by-the-database)**
+    - **[Events emitted by request handlers](#events-emitted-by-request-handlers)**
+    - **[Events emitted by middlewares](#events-emitted-by-middlewares)**
+- **[Password constraints](#password-constraints)**
+- **[Usage as a stand-alone server](#usage-as-a-standalone-server)**
+- **[Requests and responses](#requests-and-responses)**
+- **[Developing](#developing)**
+    - **[Testing](#testing)**
+    - **[Viewing debug output](#viewing-debug-output)**
+
+<a name="usage"></a>
 ## Usage
+
+<a name="prerequisites"></a>
 ### Prerequisites
 Set the following environment variables:
 
@@ -13,6 +36,7 @@ Set the following environment variables:
 **Note**: We use the **dotenv** package,
 so these variables can be defined inside a **.env** file and they will automatically be picked up.
 
+<a name="code-setup"></a>
 ### Code setup
 1. `const userManager = require('user-management');`
 2. Bind the routes under [baseApiRoute] (default: ***/api/users***):
@@ -71,6 +95,7 @@ so these variables can be defined inside a **.env** file and they will automatic
    });
    ```
 
+<a name="specifying-custom-routes"></a>
 ### Specifying custom routes
 The last parameter to `userManager.listen()` represents an object that lets you customize the routes.
 The default object has a number of properties, each corresponding to a request path:
@@ -101,6 +126,7 @@ const customRoutes = {
 userManager.listen(expressApp, baseApiRoute, customRoutes);`
 ```
 
+<a name="using-the-middlewares"></a>
 ### Using the middlewares
 The **userManager** module provides some middlewares.
 You can get them by calling: `userManager.get('middlewares');`.
@@ -122,9 +148,11 @@ This will return an object with the following middlewares:
 - **restrictUserToSelf**:
   Constrains a user to performing certain actions only on their own account.
 
+<a name="built-in-data-stores"></a>
 ## Built-in data stores (database drivers)
 - Mongoose (MongoDB)
 
+<a name="methods-and-parameters-of-the-store-object"></a>
 ## Methods and parameters of the store object
 - `async connect(options)`: `options` should be an object with members:
     - host {string} the db server host
@@ -146,13 +174,17 @@ This will return an object with the following middlewares:
 - `async findByEmail(email)`
 - `findByUsername(username)`
 
+<a name="emitted-events"></a>
 ## Emitted events
-### Events emitted by database object
+
+<a name="events-emitted-by-the-database"></a>
+### Events emitted by the database
 - dbConnection
 - dbDisconnect
 - createUser
 
-### Events emitted by route handlers
+<a name="events-emitted-by-request-handlers"></a>
+### Events emitted by request handlers
 - signupError
 - signupSuccess
 - loginError
@@ -166,12 +198,14 @@ This will return an object with the following middlewares:
 - deleteUserError
 - deleteUserSuccess
 
+<a name="events-emitted-by-middlewares"></a>
 ### Events emitted by middlewares
 - actionNotPermittedError
 - authorizationError
 - authenticationError
 - getUserError
 
+<a name="password-constraints"></a>
 ## Password constraints
 - minimum length of 6
 - maximum length of 20
@@ -180,7 +214,8 @@ This will return an object with the following middlewares:
 - must contain at least a lowercase character
 - must not be either of the following: ['Passw0rd', 'Password123']
 
-## Usage as stand-alone server
+<a name="usage-as-a-standalone-server"></a>
+## Usage as a stand-alone server
 The package comes with a built-in express server that allows you run it as a stand-alone server.
 
 To run it as a stand-alone server, do the following:  
@@ -195,6 +230,7 @@ To run it as a stand-alone server, do the following:
 - it runs under the `/api/users` base route.
 - it uses the default request paths. (See the section on **Requests and responses**)
 
+<a name="requests-and-responses"></a>
 ## Requests and responses
 Every route below is assumed to begin (i.e., prefixed) with the base API route.
 The default base API route is **`/api/users`**.
@@ -331,7 +367,10 @@ The default base API route is **`/api/users`**.
       ```
     - response `{}`
 
-## Development
+<a name="developing"></a>
+## Developing
+
+<a name="testing"></a>
 ### Testing
 To run the tests,
 - copy the ***.env.example*** file to ***.env*** and edit the values as necessary.
@@ -350,6 +389,7 @@ To run the tests,
 - Run tests for only the default routes settings: `npm run test:routes`
 - Run tests for only the custom routes settings: `npm run test:routes:custom`
 
+<a name="viewing-debug-output"></a>
 ### Viewing debug output
 To see debug output, on the console,
 set the `DEBUG` environment variable to *user-manager*:
