@@ -1,0 +1,24 @@
+language: node_js
+
+sudo: false
+
+os:
+  - linux
+  - windows
+
+node_js:
+  - "10"
+  - "12"
+
+cache: npm
+
+before_script:
+  - npm prune
+  - cp ./.env.example ./.env
+  - docker run -d -it --rm --name mongodb -p 27017:27017 -v .\.data\mongo:/etc/mongo mongo
+
+script:
+  - npm run test:coverage
+
+after_success:
+  - npm run codecov
