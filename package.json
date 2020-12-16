@@ -1,5 +1,5 @@
 {
-  "name": "user-management",
+  "name": "express-user-manager",
   "version": "1.0.0",
   "description": "A package for user management: registration, login, get, search",
   "main": "src/index.js",
