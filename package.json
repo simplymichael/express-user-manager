@@ -4,11 +4,13 @@
   "description": "A user management and authentication library for Express apps.",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha __tests__/\"{,/**/}*.test.js\"",
+    "test": "npm run test:mongoose",
+    "test:all": "mocha __tests__/\"{,/**/}*.test.js\"",
     "test:routes": "mocha __tests__/routes/\"{,/**/}*.test.js\"",
     "test:routes:custom": "mocha __tests__/routes-custom/\"{,/**/}*.test.js\"",
     "test:watch": "npm test -- -w",
     "test:coverage": "nyc npm test",
+    "test:mongoose": "set DB_DRIVER=mongoose& set DB_PORT=27017& npm run test:all",
     "serve": "node ./src/server/index.js",
     "serve:watch": "nodemon ./src/server/index.js",
     "commit": "git-cz",
@@ -64,7 +66,9 @@
     "jsonwebtoken": "8.5.1",
     "mongoose": "5.10.15",
     "morgan": "1.10.0",
+    "mysql2": "2.2.5",
     "nodemon": "2.0.6",
-    "random-bytes": "1.0.0"
+    "random-bytes": "1.0.0",
+    "sequelize": "6.3.5"
   }
 }

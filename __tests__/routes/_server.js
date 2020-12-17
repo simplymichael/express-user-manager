@@ -3,13 +3,13 @@ const express = require('express');
 const env = require('../../src/dotenv');
 const userModule = require('../../src/index');
 const { setupDB } = require('../_test-setup');
-
-const MongooseStore = userModule.getDbDriver('mongoose');
+const dbDriver = env.DB_DRIVER;
+const DataStore = userModule.getDbDriver(dbDriver);
 
 const app = express();
 userModule.listen(app);
-userModule.set('store', new MongooseStore());
-userModule.set('dbDriver', 'mongoose');
+userModule.set('store', new DataStore());
+userModule.set('dbDriver', dbDriver);
 
 setupDB(userModule.get('store'), userModule.get('dbDriver'), {
   host: env.DB_HOST,
@@ -18,6 +18,7 @@ setupDB(userModule.get('store'), userModule.get('dbDriver'), {
   pass: env.DB_PASSWORD,
   dbName: env.DB_DBNAME,
   debug: env.DB_DEBUG,
+  exitOnFail: env.EXIT_ON_DB_CONNECT_FAIL,
 });
 
 const server = http.createServer(app);

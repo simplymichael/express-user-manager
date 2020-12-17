@@ -6,15 +6,15 @@ const {
 
 async function pruneTables (dbDriver) {
   switch(dbDriver.toLowerCase()) {
-    case 'mongoose':
-    default        : pruneCollections();
+    case 'mongoose': pruneCollections();
+    default        : '';
   }
 }
 
 async function dropAllTables (dbDriver) {
   switch(dbDriver.toLowerCase()) {
-    case 'mongoose':
-    default        : dropAllCollections();
+    case 'mongoose': dropAllCollections();
+    default        : '';
   }
 }
 
@@ -27,12 +27,17 @@ module.exports = {
 
     // Clean up database between each test
     afterEach(async () => {
-      await pruneTables(dbDriver)
+      if(process.env.NODE_ENV !== 'production') {
+        await pruneTables(dbDriver);
+      }
     });
 
     // Drop database and disconnect from DB
     after(async () => {
-      await dropAllTables(dbDriver);
+      if(process.env.NODE_ENV !== 'production') {
+        await dropAllTables(dbDriver);
+      }
+
       await store.disconnect(); //OR db.disconnect();
       debugLog('Successfully disconnected from MongoDB server');
     });
