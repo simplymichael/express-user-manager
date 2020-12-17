@@ -1,6 +1,8 @@
 # Express User Manager
 [![Travis (.com)](https://img.shields.io/travis/com/simplymichael/express-user-manager)](https://travis-ci.com/github/simplymichael/express-user-manager)
 [![Codecov](https://img.shields.io/codecov/c/github/simplymichael/express-user-manager)](https://codecov.io/gh/simplymichael/express-user-manager)
+[![npm](https://img.shields.io/npm/dw/express-user-manager)](https://npm.im/express-user-manager)
+[![GitHub](https://img.shields.io/github/license/simplymichael/express-user-manager)](https://github.com/simplymichael/express-user-manager/LICENSE.md)
 
 A user management and authentication library for Express apps.
 
