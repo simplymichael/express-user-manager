@@ -66,7 +66,7 @@ It automatically creates and adds the following (customizable) API endpoints to 
       pass: DB_PASSWORD, // optional
       dbName: DB_DBNAME, // optional, default: 'users'
       debug: DB_DEBUG, // optional, default: false
-      exitOnFail: env.EXIT_ON_DB_CONNECT_FAIL // optional, default: true
+      exitOnFail: EXIT_ON_DB_CONNECT_FAIL // optional, default: true
     });
 
     server.listen(PORT);
@@ -449,8 +449,8 @@ To run the tests,
 <a name="viewing-debug-output"></a>
 ### Viewing debug output
 To see debug output, on the console,
-set the `DEBUG` environment variable to *user-manager*:
+set the `DEBUG` environment variable to *express-user-manager*:
 
-- `set DEBUG=user-manager`
+- `set DEBUG=express-user-manager`
 - `npm run start` on production
 - `npm run start:dev` on development

@@ -1,3 +1,3 @@
-const debug = require('debug')('user-manager');
+const debug = require('debug')('express-user-manager');
 
 module.exports = debug;
