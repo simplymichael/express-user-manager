@@ -452,5 +452,4 @@ To see debug output, on the console,
 set the `DEBUG` environment variable to *express-user-manager*:
 
 - `set DEBUG=express-user-manager`
-- `npm run start` on production
-- `npm run start:dev` on development
+- `npm run serve` (or `npm run serve:watch` to watch the source files and automatically restart the server on file update)
