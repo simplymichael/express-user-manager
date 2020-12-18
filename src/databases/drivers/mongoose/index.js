@@ -1,4 +1,3 @@
-const util = require('util');
 const mongoose = require('mongoose');
 const DbInterface = require('../db-interface');
 const debugLog = require('../../../utils/debug');
@@ -76,10 +75,7 @@ class MongooseStore extends DbInterface {
 
       return db;
     } catch(err) {
-      debugLog(`Failed to connect to MongoDB server:
-      message: ${err.message}
-      reason: ${util.format(err.reason)}
-      `);
+      debugLog(`Failed to connect to MongoDB server: ${err}`);
 
       if(convertToBoolean(exitOnFail)) {
         process.exit(1);
