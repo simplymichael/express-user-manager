@@ -1,6 +1,6 @@
 {
   "name": "express-user-manager",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A user management and authentication library for Express apps.",
   "main": "src/index.js",
   "scripts": {
