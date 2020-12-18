@@ -13,10 +13,10 @@
     "test:mongoose": "run-script-os",
     "test:mysql": "run-script-os",
 
-    "test:mysql:nix": "DB_DRIVER=mysql DB_PORT=3306 DB_USERNAME=root npm run test:all",
+    "test:mysql:nix": "DB_DRIVER=mysql DB_PORT=3307 DB_USERNAME=root npm run test:all",
     "test:mongoose:nix": "DB_DRIVER=mongoose DB_PORT=27017 DB_USERNAME='' npm run test:all",
 
-    "test:mysql:win32": "set DB_DRIVER=mysql& set DB_PORT=3306& set DB_USERNAME=root& npm run test:all",
+    "test:mysql:win32": "set DB_DRIVER=mysql& set DB_PORT=3307& set DB_USERNAME=root& npm run test:all",
     "test:mongoose:win32": "set DB_DRIVER=mongoose& set DB_PORT=27017& set DB_USERNAME=& npm run test:all",
 
     "serve": "node ./src/server/index.js",
