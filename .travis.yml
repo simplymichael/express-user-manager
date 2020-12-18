@@ -11,6 +11,9 @@ branches:
 services:
   - mysql
 
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS users;'
+
 os:
   - linux
   - windows
