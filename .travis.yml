@@ -6,6 +6,7 @@ branches:
   only:
     - master
     - develop
+    - "mysql-datastore"
 
 os:
   - linux
