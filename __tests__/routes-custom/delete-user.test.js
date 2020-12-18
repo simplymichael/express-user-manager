@@ -2,6 +2,7 @@ const chai = require('chai');
 const fetch = require('node-fetch');
 const chaiHttp = require('chai-http');
 const testUsers = require('./_test-users.json');
+const { getValidUserId } = require('../_utils');
 const { env, apiUrl, apiPort, server, customRoutes } = require('./_server');
 const { should } = chai;
 const userData = testUsers[0];
@@ -90,6 +91,7 @@ describe(`Delete User: DELETE ${apiUrl}${customRoutes.deleteUser}/:userId`, asyn
 
   it('should return a 400 status code if "userId" in request url and request body do not match', (done) => {
     const agent = chai.request.agent(server);
+    const userId = getValidUserId(user.id);
 
     agent
       .post(loginRoute)
@@ -100,7 +102,7 @@ describe(`Delete User: DELETE ${apiUrl}${customRoutes.deleteUser}/:userId`, asyn
         return agent
           .delete(deleteRoute)
           .set('Authorization', token)
-          .send({ userId: user.id.toString().split('').reverse().join('') })
+          .send({ userId: userId.toString().split('').reverse().join('') })
           .then(function (res) {
             res.should.have.status(400);
             res.should.have.property('body');
@@ -118,7 +120,8 @@ describe(`Delete User: DELETE ${apiUrl}${customRoutes.deleteUser}/:userId`, asyn
 
   it('should return a 404 status code if specified user by "userId" does not exist', (done) => {
     const agent = chai.request.agent(server);
-    const reversedUserId = user.id.toString().split('').reverse().join('');
+    const reversedUserId = getValidUserId(user.id).toString()
+      .split('').reverse().join('');
     deleteRoute = `${apiUrl}${customRoutes.deleteUser}/${reversedUserId}`;
 
     agent

@@ -1,20 +1,32 @@
 const debugLog = require('../src/utils/debug');
-const {
-  pruneCollections,
-  dropAllCollections
-} = require('./db-helpers/mongoose-helper');
+const mongooseHelper = require('./db-helpers/mongoose-helper');
+const mysqlHelper = require('./db-helpers/mysql-helper');
 
-async function pruneTables (dbDriver) {
+async function pruneTables (dbDriver, db) {
+  let helper;
+
   switch(dbDriver.toLowerCase()) {
-    case 'mongoose': pruneCollections();
-    default        : '';
+    case 'mongoose': helper = mongooseHelper; break;
+    case 'mysql'   : helper = mysqlHelper; break;
+    default        : helper = null; break;
+  }
+
+  if(helper) {
+    return await helper.pruneCollections(db);
   }
 }
 
-async function dropAllTables (dbDriver) {
+async function dropAllTables (dbDriver, db) {
+  let helper;
+
   switch(dbDriver.toLowerCase()) {
-    case 'mongoose': dropAllCollections();
-    default        : '';
+    case 'mongoose': helper = mongooseHelper; break;
+    case 'mysql'   : helper = mysqlHelper; break;
+    default        : helper = null; break;
+  }
+
+  if(helper) {
+    return await helper.dropAllCollections(db);
   }
 }
 
@@ -27,19 +39,19 @@ module.exports = {
 
     // Clean up database between each test
     afterEach(async () => {
-      if(process.env.NODE_ENV !== 'production') {
-        await pruneTables(dbDriver);
+      if(process.env.NODE_ENV.toLowerCase() !== 'production') {
+        await pruneTables(dbDriver, db);
       }
     });
 
     // Drop database and disconnect from DB
     after(async () => {
-      if(process.env.NODE_ENV !== 'production') {
-        await dropAllTables(dbDriver);
+      if(process.env.NODE_ENV.toLowerCase() !== 'production') {
+        await dropAllTables(dbDriver, db);
+        store.disconnect().then(() => {
+          debugLog(`Successfully disconnected from "${dbDriver}" server`);
+        });
       }
-
-      await store.disconnect(); //OR db.disconnect();
-      debugLog('Successfully disconnected from MongoDB server');
     });
   }
 };

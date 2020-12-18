@@ -49,8 +49,15 @@ It automatically creates and adds the following (customizable) API endpoints to 
   const express = require('express');
   const userManager = require('express-user-manager');
   const app = express();
-  const MongooseStore = userManager.getDbDriver('mongoose');
-  const store = new MongooseStore();
+
+  /**
+   * Setup the datastore using any of the currently supported database engines:
+   *   - mysql
+   *   - mongoose
+   */
+  const dbEngine = 'mongoose'; // OR 'mysql'
+  const DataStore = userManager.getDbDriver(dbEngine);
+  const store = new DataStore();
 
   userManager.set('store', store);
   userManager.listen(app);
@@ -116,8 +123,9 @@ so these variables can be defined inside a **.env** file and they will automatic
 3. Create a data store. This can be done in one of two ways:
     - You can use one of the built-in ones:
       ```
-      const MongooseStore = userManager.getDbDriver('mongoose');
-      const store = new MongooseStore(optionalConnectOptions);
+      const DataStore = userManager.getDbDriver('mongoose');
+      // const DataStore = userManager.getDbDriver('mysql'); // if you database engine is mysql
+      const store = new DataStore(optionalConnectOptions);
 
       // use this only if optionalConnectionOptions is not specified during instantiation
       //await store.connect(connectionOptions);
@@ -206,8 +214,9 @@ This will return an object with the following middlewares:
   Constrains a user to performing certain actions only on their own account.
 
 <a name="built-in-data-stores"></a>
-## Built-in data stores (database drivers)
-- Mongoose (MongoDB)
+## Built-in data stores (database engines)
+- MongoDB (`mongoose`, Adapter: [Mongoose](https://www.npmjs.com/package/mongoose))
+- MysQL (`mysql`, Adapter: [Sequelize](https://www.npmjs.com/package/sequelize))
 
 <a name="methods-and-parameters-of-the-store-object"></a>
 ## Methods and parameters of the store object

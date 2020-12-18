@@ -2,6 +2,7 @@ const chai = require('chai');
 const fetch = require('node-fetch');
 const chaiHttp = require('chai-http');
 const testUsers = require('./_test-users.json');
+const { getValidUserId } = require('../_utils');
 const { env, apiUrl, apiPort, server } = require('./_server');
 const { should } = chai;
 const userData = testUsers[0];
@@ -100,7 +101,7 @@ describe(`Delete User: DELETE /api/users/user/:userId`, async () => {
         return agent
           .delete(deleteRoute)
           .set('Authorization', token)
-          .send({ userId: user.id.toString().split('').reverse().join('') })
+          .send({ userId: getValidUserId(user.id).split('').reverse().join('') })
           .then(function (res) {
             res.should.have.status(400);
             res.should.have.property('body');
@@ -118,7 +119,8 @@ describe(`Delete User: DELETE /api/users/user/:userId`, async () => {
 
   it('should return a 404 status code if specified user by "userId" does not exist', (done) => {
     const agent = chai.request.agent(server);
-    const reversedUserId = user.id.toString().split('').reverse().join('');
+    const reversedUserId = getValidUserId(user.id).toString()
+      .split('').reverse().join('');
     deleteRoute = `${apiUrl}/users/user/${reversedUserId}`;
 
     agent
