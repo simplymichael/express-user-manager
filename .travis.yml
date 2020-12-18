@@ -8,9 +8,6 @@ branches:
     - develop
     - "mysql-datastore"
 
-services:
-  - mysql
-
 os:
   - linux
   - windows
@@ -18,6 +15,8 @@ os:
 node_js:
   - "10"
   - "12"
+
+cache: npm
 
 before_script:
   - npm prune
