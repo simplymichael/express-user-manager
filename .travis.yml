@@ -8,9 +8,6 @@ branches:
     - develop
     - "mysql-datastore"
 
-services:
-  - mysql
-
 os:
   - linux
   - windows
