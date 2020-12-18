@@ -23,7 +23,7 @@ before_script:
   - npm prune
   - cp ./.env.example ./.env
   - docker run -d -it --rm --name mongodb -p 27017:27017 mongo:4.4.1
-  - docker run -d -it --rm --name mysql -p 3307:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=true mysql:5.7 --default-authentication-plugin=mysql_native_password
+  - docker run -d -it --rm --name mysql -p 3306:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=true mysql:5.7 --default-authentication-plugin=mysql_native_password
   - docker exec -it mysql mysql -h localhost -u root -e "CREATE DATABASE IF NOT EXISTS users"
 
 script:
