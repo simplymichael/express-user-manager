@@ -5,13 +5,14 @@ const userModule = require('../index');
 const serverMethods = require('./server-methods');
 const { onError, onListening, normalizePort } = serverMethods;
 const port = normalizePort(env.PORT);
-const MongooseStore = userModule.getDbDriver('mongoose');
+const dbDriver = env.DB_DRIVER || 'mongoose';
+const DataStore = userModule.getDbDriver(dbDriver);
 const defaultRoutes = require('../routes/defaults');
 
 const app = express();
 const apiUrl = defaultRoutes.base;
 const customRoutes = defaultRoutes.paths;
-const store = new MongooseStore();
+const store = new DataStore();
 userModule.set('store', store);
 userModule.listen(app, apiUrl, customRoutes);
 
