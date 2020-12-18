@@ -16,8 +16,6 @@ node_js:
   - "10"
   - "12"
 
-cache: npm
-
 before_script:
   - npm prune
   - cp ./.env.example ./.env
