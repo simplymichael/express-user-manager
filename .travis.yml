@@ -9,14 +9,13 @@ branches:
     - "mysql-datastore"
 
 services:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mysql; fi
+  - mysql
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mysql -e 'CREATE DATABASE users;'; fi
+  - mysql -e 'CREATE DATABASE users;'
 
 os:
   - linux
-  - windows
 
 node_js:
   - "10"
@@ -26,8 +25,6 @@ before_script:
   - npm prune
   - cp ./.env.example ./.env
   - docker run -d -it --rm --name mongodb -p 27017:27017 mongo:4.4.1
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then docker run -d -it --rm --name mysql -p 3306:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=true amd64/mysql:5.7 --default-authentication-plugin=mysql_native_password; fi
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then docker exec -it mysql mysql -h localhost -u root -e "CREATE DATABASE IF NOT EXISTS users"; fi
 
 script:
   - npm run test:coverage
