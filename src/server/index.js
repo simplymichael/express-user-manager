@@ -5,8 +5,7 @@ const userModule = require('../index');
 const serverMethods = require('./server-methods');
 const { onError, onListening, normalizePort } = serverMethods;
 const port = normalizePort(env.PORT);
-const dbDriver = env.DB_DRIVER || 'mongoose';
-const DataStore = userModule.getDbDriver(dbDriver);
+const DataStore = userModule.getDbAdapter(env.DB_ADAPTER);
 const defaultRoutes = require('../routes/defaults');
 
 const app = express();
@@ -25,7 +24,9 @@ userModule.listen(app, apiUrl, customRoutes);
     port: env.DB_PORT,
     user: env.DB_USERNAME,
     pass: env.DB_PASSWORD,
+    engine: env.DB_ENGINE,
     dbName: env.DB_DBNAME,
+    storagePath: env.DB_STORAGE_PATH,
     debug: env.DB_DEBUG,
     exitOnFail: env.EXIT_ON_DB_CONNECT_FAIL,
   });

@@ -1,5 +1,4 @@
 const { Op, Sequelize } = require('sequelize');
-const DbInterface = require('../db-interface');
 const debugLog = require('../../../utils/debug');
 const createUserModel = require('./user-model');
 const { emit, convertToBoolean } = require('../../_utils');
@@ -9,23 +8,9 @@ const { emit, convertToBoolean } = require('../../_utils');
 let db = null;
 let User = null;
 
-class MySqlStore extends DbInterface {
-  constructor(...args) {
-    const config = args.length > 0 ? args[0] : {};
-
-    // minimum required: host, port, user, dbName
-    const shouldConnect = config
-      && typeof config === 'object'
-      && 'host' in config
-      && 'port' in config
-      && 'user' in config
-      && 'dbName' in config;
-
-    super(config);
-
-    if(shouldConnect) {
-      this.connect(config);
-    }
+class MySqlStore {
+  constructor() {
+    this.emit = emit;
   }
 
   /**
@@ -35,6 +20,11 @@ class MySqlStore extends DbInterface {
    *   - port {number} the db server port
    *   - user {string} the db server username
    *   - pass {string} the db server user password
+   *   - engine {string} the database engine to use
+   *       Possible values are: memory | mariadb | mssql | mysql | postgres | sqlite
+   *       Not required when using the `mongoose` adapter
+   *   - storagePath {string} The storage location when the `engine` is set to `postgres`.
+   *       The value is combined with the `dbName` option to set the storage: `${storagePath}/${dbName}.sqlite`
    *   - dbName {string} the name of the database to connect to
    *   - debug {boolean | number(int | 0)} determines whether or not to show debugging output
    *   - exitOnFail {boolean} specifies whether to exit the program if DB connection fails
@@ -47,39 +37,38 @@ class MySqlStore extends DbInterface {
    * @return {resource} a (mongoose) connection instance
    */
   async connect (options) {
+    let sequelize = null;
     let {
       host = 'localhost',
       port = 3306,
       user = 'root',
       pass = '',
+      engine = 'memory',
       dbName = 'users',
+      storagePath = '', // for sqlite engines
       debug = false,
       exitOnFail = true
     } = options;
 
-    host = typeof host === 'string' && host.trim().length
-      ? host.trim()
-      : 'localhost';
-    port = typeof parseInt(port) === 'number' ? parseInt(port) : 3306;
-    user = typeof user === 'string' && user.trim().length
-      ? user.trim()
-      : 'root';
+    engine = engine.toLowerCase();
+    const logger = convertToBoolean(debug) ? console.log : false;
 
     try {
-      const sequelize = new Sequelize({
-        host,
-        port,
-        database: dbName,
-        dialect: 'mysql',
-        username: user,
-        password: pass,
-        logging: convertToBoolean(debug) ? console.log : false,
-      });
+      switch(engine) {
+      case 'sqlite'   : sequelize = connectSqlite(storagePath); break;
+      case 'mariadb'  :
+      case 'mssql'    :
+      case 'mysql'    :
+      case 'postgres' : sequelize = connectGeneric(engine); break;
+      case 'memory'   :
+      default         : engine = 'in:memory';
+        sequelize = connectMemory(); break;
+      }
 
       await sequelize.authenticate();
 
       db = sequelize;
-      debugLog('Successfully connected to MySQL server');
+      debugLog(`Successfully connected to "${engine}" database server`);
       emit('dbConnection', db);
 
       User = await createUserModel(db, 'users');
@@ -91,6 +80,40 @@ class MySqlStore extends DbInterface {
       if(convertToBoolean(exitOnFail)) {
         process.exit(1);
       }
+    }
+
+    function connectMemory() {
+      return new Sequelize('sqlite::memory:', {
+        logging: logger,
+      });
+    }
+
+    function connectSqlite(storagePath) {
+      storagePath = storagePath.trim();
+
+      if(storagePath.length === 0) {
+        throw new Error(
+          'The "storagePath" must be specified when using the "sqlite" engine'
+        );
+      }
+
+      return new Sequelize({
+        dialect: 'sqlite',
+        storage: `${storagePath}/${dbName}.sqlite`,
+        logging: logger,
+      });
+    }
+
+    function connectGeneric(engine) {
+      return new Sequelize({
+        host,
+        port,
+        database: dbName,
+        dialect: engine,
+        username: user,
+        password: pass,
+        logging: logger,
+      });
     }
   }
 

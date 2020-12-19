@@ -34,9 +34,10 @@ It automatically creates and adds the following (customizable) API endpoints to 
 - **[Password constraints](#password-constraints)**
 - **[Usage as a stand-alone server](#usage-as-a-standalone-server)**
 - **[Requests and responses](#requests-and-responses)**
-- **[Developing](#developing)**
+- **[Development](#development)**
     - **[Testing](#testing)**
     - **[Viewing debug output](#viewing-debug-output)**
+- **[CHANGELOG](#changelog)**
 
 <a name="installation"></a>
 ## Installation
@@ -51,12 +52,13 @@ It automatically creates and adds the following (customizable) API endpoints to 
   const app = express();
 
   /**
-   * Setup the datastore using any of the currently supported database engines:
-   *   - mysql
+   * Setup the datastore using any of the currently supported database adapters:
    *   - mongoose
+   *   - sequelize (with in-memory storage or any supported database engine)
+   *       (See the section on "Built-in data stores" for supported database engines)
    */
-  const dbEngine = 'mongoose'; // OR 'mysql'
-  const DataStore = userManager.getDbDriver(dbEngine);
+  const dbAdapter = 'mongoose'; // OR 'sequelize'
+  const DataStore = userManager.getDbAdapter(dbEngine);
   const store = new DataStore();
 
   userManager.set('store', store);
@@ -71,7 +73,9 @@ It automatically creates and adds the following (customizable) API endpoints to 
       port: DB_PORT, // optional, default: 27017
       user: DB_USERNAME, // optional
       pass: DB_PASSWORD, // optional
+      engine: DB_ENGINE, // optional if the adapter is mongoose or the adapter is sequelize with in-memory storage; required otherwise
       dbName: DB_DBNAME, // optional, default: 'users'
+      storagePath: DB_STORAGE_PATH, // optional, required if "engine" is set to "sqlite"
       debug: DB_DEBUG, // optional, default: false
       exitOnFail: EXIT_ON_DB_CONNECT_FAIL // optional, default: true
     });
@@ -119,16 +123,16 @@ so these variables can be defined inside a **.env** file and they will automatic
    before calling `userManager.listen()` will lead to every route not in
    your custom app's route handlers being handled by the
    404 handler and thus prevent any requests from getting to the
-   routes that are supposed to be handled by calling `userManager.listen().`
+   routes that are supposed to be handled by calling `userManager.listen().`s
 3. Create a data store. This can be done in one of two ways:
     - You can use one of the built-in ones:
       ```
-      const DataStore = userManager.getDbDriver('mongoose');
-      // const DataStore = userManager.getDbDriver('mysql'); // if you database engine is mysql
-      const store = new DataStore(optionalConnectOptions);
+      const DataStore = userManager.getDbAdapter('mongoose'); // for MongoDB
+      // OR
+      const DataStore = userManager.getDbAdapter('sequelize'); // for one of: MySQL | MariaDB | SQLite | Microsoft SQL Server | Postgres | In-memory DB
 
-      // use this only if optionalConnectionOptions is not specified during instantiation
-      //await store.connect(connectionOptions);
+      const store = new DataStore();
+      await store.connect(connectionOptions);
       ```
       (See the `connect()` method in the section on
       **[Methods and parameters of the store object](#methods-and-parameters-of-the-store-object)**
@@ -214,9 +218,15 @@ This will return an object with the following middlewares:
   Constrains a user to performing certain actions only on their own account.
 
 <a name="built-in-data-stores"></a>
-## Built-in data stores (database engines)
-- MongoDB (`mongoose`, Adapter: [Mongoose](https://www.npmjs.com/package/mongoose))
-- MysQL (`mysql`, Adapter: [Sequelize](https://www.npmjs.com/package/sequelize))
+## Built-in data stores (database adapters and engines)
+- In-memory (Adapter: `[sequelize](https://www.npmjs.com/package/sequelize)`)
+    - **Note**: In-memory storage should be used solely for quick prototyping and testing purposes. It is not recommended for use in production.
+- MariaDB (Adapter: `[sequelize](https://www.npmjs.com/package/sequelize)`, Engine: `mariadb`)
+- Microsoft SQL Server (Adapter: `[sequelize](https://www.npmjs.com/package/sequelize)`, Engine: `mssql`)
+- MongoDB (Adapter: `[mongoose](https://www.npmjs.com/package/mongoose)`)
+- MysQL (Adapter: `[sequelize](https://www.npmjs.com/package/sequelize)`, Engine: `mysql`)
+- Postgres (Adapter: `[sequelize](https://www.npmjs.com/package/sequelize)`, Engine: `postgres`)
+- SQLite (Adapter: `[sequelize](https://www.npmjs.com/package/sequelize)`, Engine: `sqlite`)
 
 <a name="methods-and-parameters-of-the-store-object"></a>
 ## Methods and parameters of the store object
@@ -225,6 +235,11 @@ This will return an object with the following middlewares:
     - port {number} the db server port
     - user {string} the db server username
     - pass {string} the db server user password
+    - engine {string} the database engine to use.
+        - Possible values are: `memory, mariadb, mssql, mysql, postgres, sqlite`
+        - This parameter is not required when using the `mongoose` adapter: `userManager.getDbAdapter('mongoose')`.
+    - storagePath {string} The storage location when the `engine` is set to `postgres`.
+        - The value is combined with the `dbName` option to set the storage: `${storagePath}/${dbName}.sqlite`
     - dbName {string} the name of the database to connect to
     - debug {boolean | number(int | 0)} determines whether or not to show debugging output
 - `async disconnect()`
@@ -433,13 +448,15 @@ The default base API route is **`/api/users`**.
       ```
     - response `{}`
 
-<a name="developing"></a>
-## Developing
+<a name="development"></a>
+## Development
 
 <a name="testing"></a>
 ### Testing
 To run the tests,
-- copy the ***.env.example*** file to ***.env*** and edit the values as necessary.
+- Ensure you have a MongoDB server running on the **default port (27017)**
+- Ensure you have a MySQL server running on the **default port (3306)**
+- Copy the ***.env.example*** file to ***.env*** and edit the values as necessary.
 
   **Note** The ***.env*** file is only useful for two scenarios:
     - For running the tests (during development)
@@ -462,3 +479,7 @@ set the `DEBUG` environment variable to *express-user-manager*:
 
 - `set DEBUG=express-user-manager`
 - `npm run serve` (or `npm run serve:watch` to watch the source files and automatically restart the server on file update)
+
+<a name="changelog"></a>
+## CHANGELOG
+See [CHANGELOG](changelog.md)

@@ -1,14 +1,15 @@
+const env = require('../src/dotenv');
 const debugLog = require('../src/utils/debug');
 const mongooseHelper = require('./db-helpers/mongoose-helper');
-const mysqlHelper = require('./db-helpers/mysql-helper');
+const sequelizeHelper = require('./db-helpers/sequelize-helper');
 
-async function pruneTables (dbDriver, db) {
+async function pruneTables (dbAdapter, db) {
   let helper;
 
-  switch(dbDriver.toLowerCase()) {
-    case 'mongoose': helper = mongooseHelper; break;
-    case 'mysql'   : helper = mysqlHelper; break;
-    default        : helper = null; break;
+  switch(dbAdapter.toLowerCase()) {
+    case 'mongoose'  : helper = mongooseHelper; break;
+    case 'sequelize' : helper = sequelizeHelper; break;
+    default          : helper = null; break;
   }
 
   if(helper) {
@@ -16,13 +17,13 @@ async function pruneTables (dbDriver, db) {
   }
 }
 
-async function dropAllTables (dbDriver, db) {
+async function dropAllTables (dbAdapter, db) {
   let helper;
 
-  switch(dbDriver.toLowerCase()) {
-    case 'mongoose': helper = mongooseHelper; break;
-    case 'mysql'   : helper = mysqlHelper; break;
-    default        : helper = null; break;
+  switch(dbAdapter.toLowerCase()) {
+    case 'mongoose'  : helper = mongooseHelper; break;
+    case 'sequelize' : helper = sequelizeHelper; break;
+    default          : helper = null; break;
   }
 
   if(helper) {
@@ -31,7 +32,7 @@ async function dropAllTables (dbDriver, db) {
 }
 
 module.exports = {
-  setupDB: (store, dbDriver, connectionOptions) => {
+  setupDB: (store, dbAdapter, connectionOptions) => {
     let db;
 
     // Connect to DB
@@ -39,18 +40,28 @@ module.exports = {
 
     // Clean up database between each test
     afterEach(async () => {
-      if(process.env.NODE_ENV.toLowerCase() !== 'production') {
-        await pruneTables(dbDriver, db);
+      if(env.NODE_ENV.toLowerCase() !== 'production') {
+        await pruneTables(dbAdapter, db);
       }
     });
 
     // Drop database and disconnect from DB
     after(async () => {
-      if(process.env.NODE_ENV.toLowerCase() !== 'production') {
-        await dropAllTables(dbDriver, db);
-        store.disconnect().then(() => {
-          debugLog(`Successfully disconnected from "${dbDriver}" server`);
-        });
+      if(env.NODE_ENV.toLowerCase() !== 'production') {
+        await dropAllTables(dbAdapter, db);
+        await store.disconnect();
+        const dbServer = env.DB_ADAPTER === 'sequelize'
+          ? env.DB_ENGINE
+          : 'mongodb';
+
+        debugLog(`Successfully disconnected from "${dbServer}" server`);
+        /*store.disconnect().then(() => {
+          const dbServer = env.DB_ADAPTER === 'sequelize'
+            ? env.DB_ENGINE
+            : 'mongodb';
+
+          debugLog(`Successfully disconnected from "${dbServer}" server`);
+        });*/
       }
     });
   }

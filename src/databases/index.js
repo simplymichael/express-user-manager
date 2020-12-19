@@ -1,9 +1,9 @@
-const drivers = require('./drivers/');
+const adapters = require('./adapters/');
 
 module.exports = {
-  getDriver,
+  getAdapter,
 };
 
-function getDriver(key) {
-  return drivers.getDriver(key.toLowerCase());
+function getAdapter(key) {
+  return adapters.getAdapter(key.toLowerCase());
 }

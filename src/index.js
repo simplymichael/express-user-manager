@@ -10,11 +10,16 @@ const middlewares = require('./middlewares');
 userModule.set('middlewares', middlewares);
 
 userModule.listen = listen;
-userModule.getDbDriver = db.getDriver;
+userModule.getDbAdapter = db.getAdapter;
 
-// Export userModule singleton instance
-// to enable clients (emit and) respond to events emitted by the route handlers:
-// userModule.on(eventType, data);
+// Deprecated since v2.0.0, to be removed in an upcoming release
+userModule.getDbDriver = db.getAdapter;
+
+/**
+ * Export userModule singleton instance
+ * to enable clients (emit and) respond to events emitted by the route handlers:
+ * userModule.on(eventType, data);
+ */
 module.exports = userModule;
 
 /**

@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const DbInterface = require('../db-interface');
 const debugLog = require('../../../utils/debug');
 const User = require('./data/models/user-model');
 const { emit, convertToBoolean } = require('../../_utils');
@@ -8,23 +7,8 @@ const { emit, convertToBoolean } = require('../../_utils');
 // to avoid accidentally overriding it outside the class
 let db = null;
 
-class MongooseStore extends DbInterface {
-  constructor(...args) {
-    const config = args.length > 0 ? args[0] : {};
-
-    // minimum required: host, port, dbName
-    const shouldConnect = config
-      && typeof config === 'object'
-      && 'host' in config
-      && 'port' in config
-      && 'dbName' in config;
-
-    super(config);
-
-    if(shouldConnect) {
-      this.connect(config);
-    }
-  }
+class MongooseStore {
+  constructor() {}
 
   /**
    * Start a (MongoDB) DB server instance
