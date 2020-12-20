@@ -556,4 +556,4 @@ before running the tests or starting the built-in server: `set DEBUG=express-use
 
 <a name="changelog"></a>
 ## CHANGELOG
-See [CHANGELOG](changelog.md)
+See [CHANGELOG](https://github.com/simplymichael/express-user-manager/blob/master/CHANGELOG.md)
