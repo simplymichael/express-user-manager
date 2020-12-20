@@ -35,7 +35,9 @@ It automatically creates and adds the following (customizable) API endpoints to 
 - **[Usage as a stand-alone server](#usage-as-a-standalone-server)**
 - **[Requests and responses](#requests-and-responses)**
 - **[Development](#development)**
-    - **[Testing](#testing)**
+    - **[Automated testing](#automated-testing)**
+    - **[Manual testing (with Postman or cURL)](#manual-testing)**
+    - **[Setting up test databases (with docker)](#setting-up-test-databases)**
     - **[Viewing debug output](#viewing-debug-output)**
 - **[CHANGELOG](#changelog)**
 
@@ -300,12 +302,54 @@ This will return an object with the following middlewares:
 The package comes with a built-in express server that allows you run it as a stand-alone server.
 
 To run it as a stand-alone server, do the following:  
-- copy the ***.env.example*** file to ***.env*** and edit the values as necessary
-- start the server, using one of two methods:
-    - run `npm run serve` to start the server
-    - run `npm run serve:watch` to start the server in watch mode.
-      This watches the `src/` directory's files and
-      automatically restarts the server with the latest changes when you edit the source files.
+- Ensure you have a server running for your preferred database engine.
+  (See **[Setting up test databases](#setting-up-test-databases)** for some examples)
+- Define the environment variables listed in the **[Quick start](#quick-start)** section.
+- In addition, define the following environment variables:
+    - **PORT**: The port on which the server should run
+    - **DB_ENGINE**: The database engine to use. Should be one of the supported databases.
+      (See **[Built-in data stores (database drivers)](#built-in-data-stores)**)
+    - **DB_ADAPTER**: The adapter to use. Set it to `mongoose` if using MongoDB; Set it to `sequelize` otherwise.
+    - **DB_STORAGE_PATH**: Define this only when the **DB_ENGINE** is set to `sqlite`.
+    - **DB_HOST**: The database host
+    - **DB_USERNAME**: The database user
+    - **DB_PASSWORD**: The database user's password
+    - **DB_DBNAME**: The name of the database
+    - **DB_PORT**: The port on which the database is running
+    - **DB_DEBUG**: Set this to `true` or a non-zero integer to display debug output for the database.
+    - **EXIT_ON_DB_CONNECT_FAIL**: Set this to `true` or a non-zero integer if the app should exit if it is unable to establish a connection to the database.
+
+  **Note**: A quick and easy way to define the above variables is to create a *.env* file at the root of your project directory, and add them to it.
+  For example:
+  ```
+  NODE_ENV=development
+  PORT=3000
+
+  # Database
+  DB_ENGINE=
+  DB_ADAPTER=
+  DB_STORAGE_PATH=
+  DB_HOST=localhost
+  DB_USERNAME=
+  DB_PASSWORD=
+  DB_DBNAME=users
+  DB_PORT=
+  DB_DEBUG=false
+  EXIT_ON_DB_CONNECT_FAIL=true
+
+  # Security
+  SESSION_TOKEN_KEY=secret
+
+  # Access/Authorization token sign key
+  AUTH_TOKEN_KEY=secret
+
+  # Access/Authorization token expiry (in seconds)
+  AUTH_TOKEN_EXPIRY="60 * 60 * 24"
+  ```
+- start the server, using one of these two methods:
+    - Run `node express-user-manager/src/server` from within the parent directory containing the express-user-manager package.
+    - `require('express-user-manager/src/server')();` from within a `node.js` script. For example, inside an `index.js` file.
+      Then run the file using node: `node index.js`.
 
 **Note**: The built-in server runs using the default settings. That means:
 - it runs under the `/api/users` base route.
@@ -451,34 +495,64 @@ The default base API route is **`/api/users`**.
 <a name="development"></a>
 ## Development
 
-<a name="testing"></a>
-### Testing
+<a name="automated-testing"></a>
+### Automated testing
 To run the tests,
 - Ensure you have a MongoDB server running on the **default port (27017)**
-- Ensure you have a MySQL server running on the **default port (3306)**
-- Copy the ***.env.example*** file to ***.env*** and edit the values as necessary.
-
-  **Note** The ***.env*** file is only useful for two scenarios:
-    - For running the tests (during development)
-    - For running as a stand-alone server
-
-  It should not be relied upon in production.
-  For production purposes, if you need to define your environment variables using a ***.env*** file,
-  you would have to create the file at the root of your project, that is, at the root of the project which uses this package as a dependency;
-  and, unless you have to specify environment variables specific to your application's needs,
-  you only need to define the variables listed at the **[Prerequisites](#prerequisites)** section.
+  (See **[Setting up test databases](#setting-up-test-databases)** for an example of how to do this)
+- Ensure you have a MySQL server running on the **default port (3306)** and ensure the `users` table exists in the database.
+  (See **[Setting up test databases](#setting-up-test-databases)** for an example of how to do this)
+- `cd` into the *express-user-manager* directory.
+- Copy the *.env.example* file to *.env* and edit the values for the following variables:
+    - `DB_HOST=localhost`
+    - `DB_DBNAME=users`
+    - `DB_DEBUG=false`
+    - `EXIT_ON_DB_CONNECT_FAIL=true`
+    - `SESSION_TOKEN_KEY=secret`
+    - `AUTH_TOKEN_KEY=secret`
+    - `AUTH_TOKEN_EXPIRY="60 * 60 * 24"`
 - Run all tests: `npm test`
 - Run all tests with coverage report: `npm run test:coverage`
-- Run tests for only the default routes settings: `npm run test:routes`
-- Run tests for only the custom routes settings: `npm run test:routes:custom`
+- Run only the database tests: `npm run test:db:all`
+- Run only the end-to-end tests: `npm run test:e2e:all`
+
+**Notes**:
+- All non-database-engine-specific tests run the tests on the following databases: **in-memory**, **MongoDB**, **MySQL**, **SQLite**.
+- You can run database-engine-specific tests by replacing the `:all` postfix with `:DB_ENGINE` in the database and end-to-end tests. For example:
+    - `npm run test:db:memory` will run the database tests using only the **in-memory** database.
+    - `npm run test:e2e:mongoose` will run the end-to-end tests using only the **mongoose** database.
+
+  The following post-fixes are supported: `:memory`, `:mongoose`, `:mysql`, `:sqlite`.
+
+<a name="manual-testing"></a>
+### Manual testing (with Postman or cURL)
+You can run end-to-end tests on the routes using Postman or cURL. To do this,
+- Start the built-in server. You can start the built-in server in one of two ways:
+    1. Follow the steps listed in the **[Usage as a standalone server](#usage-as-a-standalone-server)** section to start the server.
+    2. Run `npm` scripts to start the server:
+        - `cd` into the *express-user-manager* directory.
+        - If you are using a MongoDB or MySQL server, ensure the server is up and running on the port you specified.
+        - run `npm run serve` to start the server
+        - run `npm run serve:watch` to start the server in watch mode. This watches the `src/` directory's files and
+          automatically restarts the server with the latest changes when you edit or update the source files.
+- Make http requests to the (default) API routes using Postman or cURL.
+
+<a name="setting-up-test-databases"></a>
+### Setting up test databases (with docker)
+- Setup a MongoDB database:
+    - Create a container: `docker run -d -it --rm -p 27017:27017 mongo:4.4.1`
+    - If you wish to name the container, use the `--name` flag, for example: `docker run -d -it --rm --name mongodb -p 27017:27017 mongo:4.4.1`
+    - You can also create volume mappings between your OS and the container using the `-v` flag: `-v path/on/your/host/system:/etc/mongo`
+- Setup a MySQL database:
+    - Create the container:
+      `docker run -d -it --rm --name mysql -p 3306:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=true mysql:5.7 --default-authentication-plugin=mysql_native_password`
+    - Log into the container and create the *users* database: `docker exec -it mysql mysql -h localhost -u root -e "CREATE DATABASE IF NOT EXISTS users"`
+    - You can also create volume mappings between your OS and the container as follows: `-v path/on/your/host/system:/var/lib/mysql`
 
 <a name="viewing-debug-output"></a>
 ### Viewing debug output
-To see debug output, on the console,
-set the `DEBUG` environment variable to *express-user-manager*:
-
-- `set DEBUG=express-user-manager`
-- `npm run serve` (or `npm run serve:watch` to watch the source files and automatically restart the server on file update)
+To see debug output on the console, set the `DEBUG` environment variable to *express-user-manager*
+before running the tests or starting the built-in server: `set DEBUG=express-user-manager`
 
 <a name="changelog"></a>
 ## CHANGELOG
