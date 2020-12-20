@@ -127,7 +127,58 @@ class MongooseStore {
   }
 
   async getUsers (options){
-    return await User.generateQuery(options).exec();
+    options = options || {};
+    let {
+      firstname = '',
+      lastname = '',
+      page = 1,
+      limit = 20,
+      sort = ''
+    } = options;
+
+    firstname = firstname.trim();
+    lastname = lastname.trim();
+    sort = sort.trim();
+
+    let where = {};
+    let orderBy = {};
+    const searchBy = [];
+
+    if(firstname.length > 0 && lastname.length > 0) {
+      searchBy.push({ 'name.first': firstname });
+      searchBy.push({ 'name.last': lastname });
+    } else if(firstname.length > 0) {
+      searchBy.push({ 'name.first': firstname });
+    } else if(lastname.length > 0) {
+      searchBy.push({ 'name.last': lastname });
+    }
+
+    // Prepare the orderBy clause
+    //?sort=firstname:desc=lastname=email:asc
+    if(sort && sort.length > 0) {
+      const sortData = sort.split('=');
+
+      orderBy = sortData.reduce((acc, val) => {
+        const data = val.split(':');
+        let orderKey = data[0].toLowerCase();
+
+        if(orderKey === 'firstname' || orderKey === 'lastname') {
+          orderKey = (orderKey === 'firstname' ? 'name.first' : 'name.last');
+        }
+
+        acc[orderKey] = ((data.length > 1) ? data[1] : '');
+
+        return acc;
+      }, {});
+    }
+
+    if(searchBy.length > 0) {
+      where = searchBy.length === 1 ? searchBy[0] : { '$or': searchBy };
+    }
+
+    const queryParams = { where, page, limit, orderBy };
+    const results = await User.generateQuery(queryParams).exec();
+    return results;
   }
 
   /**
