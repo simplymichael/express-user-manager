@@ -195,10 +195,11 @@ class MongooseStore {
    *   - users {array} the actual list of returned users that match the search term
    */
   async searchUsers(options) {
+    options = options || {};
     let { query, by = '', page = 1, limit = 20, sort = ''} = options;
-    by = by.trim();
-    sort = sort.trim();
-    query = query.trim();
+    by = (typeof by === 'string' ? by : '').trim();
+    sort = (typeof sort === 'string' ? sort : '').trim();
+    query = (typeof query === 'string' ? query : '').trim();
 
     if(!query || query.length === 0) {
       throw new Error('Please specify the search term');

@@ -166,10 +166,11 @@ class MySqlStore {
    *   - users {array} the actual list of returned users that match the search term
    */
   async searchUsers(options) {
+    options = options || {};
     let { query, by = '', page = 1, limit = 20, sort = ''} = options;
-    by = by.trim();
-    sort = sort.trim();
-    query = query.trim();
+    by = (typeof by === 'string' ? by : '').trim();
+    sort = (typeof sort === 'string' ? sort : '').trim();
+    query = (typeof query === 'string' ? query : '').trim();
     page = parseInt(page, 10);
     limit = parseInt(limit, 10);
 
@@ -190,7 +191,7 @@ class MySqlStore {
       orderBy = sortData.reduce((acc, val) => {
         const data = val.split(':');
         const key = data[0].toLowerCase();
-        const orderKey = key === 'creationdate' ? 'createdAt' : key;
+        const orderKey = key === 'signupdate' ? 'createdAt' : key;
         const orderValue = data.length > 1 ? data[1].toUpperCase() : 'DESC';
 
         acc.push([ orderKey, orderValue ]);
