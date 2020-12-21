@@ -146,10 +146,89 @@ class MySqlStore {
     }
   }
 
+  /**
+   * @param object with members:
+   *   - firstname {string} filter by users with matching firstnames (optional)
+   *   - lastname {string} get users with matching lastnames (optional)
+   *   - page {number} the page to return, for pagination purposes (optional, default 1)
+   *   - limit {number} the number of results to return, for pagination purposes (optional, default 20)
+   *   - sort {string} determines the sort order of returned users (optional)
+   *
+   * @return object with members:
+   *   - total {number} the total number of users that match the specified firstname and/or lastname filters
+   *   - length {number} the number of results returned for the current page and limit
+   *   - users {array} the actual list of returned users that match the search term
+   */
   async getUsers (options){
-    return await User.findAll({
-      where: options,
-    });
+    options = options || {};
+
+    let {
+      firstname = '',
+      lastname = '',
+      page = 1,
+      limit = 20,
+      sort = ''
+    } = options;
+
+    firstname = (typeof firstname === 'string' ? firstname : '').trim();
+    lastname = (typeof lastname === 'string' ? lastname : '').trim();
+    sort = (typeof sort === 'string' ? sort : '').trim();
+    page = parseInt(page, 10);
+    limit = parseInt(limit, 10);
+
+    const OFFSET = ((typeof page === 'number' && page > 0) ? page - 1 : 0);
+    const LIMIT = ((typeof limit === 'number' && limit > 0) ? limit : 0);
+    const orderBy = MySqlStore.generateOrderBy(sort);
+
+    // Prepare the searchBy clause
+    let where = {};
+    const searchBy = [];
+    const firstnameRegex = `%${firstname}%`;
+    const lastnameRegex = `%${lastname}%`;
+
+    if(firstname.length > 0 && lastname.length > 0) {
+      searchBy.push({
+        firstname: { [Op.like]: firstnameRegex }
+      });
+
+      searchBy.push({
+        lastname: { [Op.like]: lastnameRegex }
+      });
+    } else if(firstname.length > 0) {
+      searchBy.push({
+        firstname: { [Op.like]: firstnameRegex }
+      });
+    } else if(lastname.length > 0) {
+      searchBy.push({
+        lastname: { [Op.like]: lastnameRegex }
+      });
+    }
+
+    if(searchBy.length > 0) {
+      where = searchBy.length === 1 ? searchBy[0] : { [Op.or]: searchBy };
+    }
+
+    const queryParams = {
+      where,
+      offset: OFFSET,
+    };
+
+    if(orderBy.length > 0) {
+      queryParams.order = orderBy;
+    }
+
+    if(LIMIT > 0) {
+      queryParams.limit = LIMIT;
+    }
+
+    const allUsersCount = await User.count({ where });
+    const results = await User.findAll(queryParams);
+
+    return{
+      total: allUsersCount,
+      length: results.length,
+      users: results,
+    };
   }
 
   /**
@@ -181,26 +260,7 @@ class MySqlStore {
       throw new Error('Please specify the search term');
     }
 
-    // Prepare the orderBy clause
-    let orderBy = [];
-
-    //?sort=firstname:desc=lastname=email:asc
-    if(sort && sort.length > 0) {
-      const sortData = sort.split('=');
-
-      orderBy = sortData.reduce((acc, val) => {
-        const data = val.split(':');
-        const key = data[0].toLowerCase();
-        const orderKey = key === 'signupdate' ? 'createdAt' : key;
-        const orderValue = data.length > 1 ? data[1].toUpperCase() : 'DESC';
-
-        acc.push([ orderKey, orderValue ]);
-
-        return acc;
-      }, []);
-    }
-
-    //const regex = new RegExp(query, 'i');
+    const orderBy = MySqlStore.generateOrderBy(sort);
     const regex = `%${query}%`;
 
     // Prepare the searchBy clause
@@ -291,6 +351,32 @@ class MySqlStore {
 
   async deleteUser(userId) {
     return await User.destroy({ where: { id: userId } });
+  }
+
+  // Private helper methods
+  static generateOrderBy(sort) {
+    // Prepare the orderBy clause
+    let orderBy = [];
+
+    sort = (typeof sort === 'string' ? sort : '').trim();
+
+    //?sort=firstname:desc=lastname=email:asc
+    if(sort && sort.length > 0) {
+      const sortData = sort.split('=');
+
+      orderBy = sortData.reduce((acc, val) => {
+        const data = val.split(':');
+        const key = data[0].toLowerCase();
+        const orderKey = key === 'signupdate' ? 'createdAt' : key;
+        const orderValue = data.length > 1 ? data[1].toUpperCase() : 'DESC';
+
+        acc.push([ orderKey, orderValue ]);
+
+        return acc;
+      }, []);
+    }
+
+    return orderBy;
   }
 }
 

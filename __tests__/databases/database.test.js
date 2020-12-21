@@ -173,12 +173,18 @@ describe('Users', () => {
       const lastnames = usersBackup.map(user => user.lastname);
       const usernames = usersBackup.map(user => user.username);
       const emails = usersBackup.map(user => user.email);
-      const users = await db.getUsers();
+      const result = await db.getUsers();
 
-      expect(users).to.be.an('array');
-      expect(users.length).to.equal(usersBackup.length);
+      expect(result).to.be.an('object');
+      expect(result).to.have.property('total').to.equal(users.length);
+      expect(result).to.have.property('length').to.equal(users.length);
+      expect(result).to.have.property('users').to.be.an('array');
 
-      users.forEach(user => {
+      const fetchedUsers = result.users;
+
+      expect(fetchedUsers.length).to.equal(users.length);
+
+      fetchedUsers.forEach(user => {
         expect(user).to.be.an('object');
         expect(user).to.have.property('id');
         expect(user).to.have.property('firstname').to.be.a('string');
@@ -197,8 +203,14 @@ describe('Users', () => {
       const user = getRandomData(users);
       const firstname = user.firstname;
       const matches = users.filter(user => user.firstname === firstname);
+      const result = await db.getUsers({ firstname });
 
-      const fetchedUsers = await db.getUsers({ firstname });
+      expect(result).to.be.an('object');
+      expect(result).to.have.property('total').to.equal(matches.length);
+      expect(result).to.have.property('length').to.equal(matches.length);
+      expect(result).to.have.property('users').to.be.an('array');
+
+      const fetchedUsers = result.users;
 
       expect(fetchedUsers).to.be.an('array');
       expect(fetchedUsers.length).to.equal(matches.length);
@@ -219,8 +231,14 @@ describe('Users', () => {
       const user = getRandomData(users);
       const lastname = user.lastname;
       const matches = users.filter(user => user.lastname === lastname);
+      const result =await db.getUsers({ lastname });
 
-      const fetchedUsers = await db.getUsers({ lastname });
+      expect(result).to.be.an('object');
+      expect(result).to.have.property('total').to.equal(matches.length);
+      expect(result).to.have.property('length').to.equal(matches.length);
+      expect(result).to.have.property('users').to.be.an('array');
+
+      const fetchedUsers = result.users;
 
       expect(fetchedUsers).to.be.an('array');
       expect(fetchedUsers.length).to.equal(matches.length);

@@ -282,8 +282,8 @@ This will return an object with the following middlewares:
 - loginError
 - loginSuccess
 - logoutSuccess
-- getAllUsersError
-- getAllUsersSuccess
+- getUsersError
+- getUsersSuccess
 - searchUsersError
 - searchUsersSuccess
 - getUserSuccess

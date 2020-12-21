@@ -15,9 +15,9 @@ async function getUsers(req, res) {
   try {
     const store = appModule.get('store');
     const users = [];
-    const results = await store.getUsers({});
+    const results = await store.getUsers(req.query);
 
-    results.forEach(user => {
+    results.users.forEach(user => {
       const currUser = {};
 
       // Populate the user variable with values we want to return to the client
@@ -29,17 +29,21 @@ async function getUsers(req, res) {
     });
 
     responseData = {
-      data: { users }
+      data: {
+        total: results.total,
+        length: results.length,
+        users,
+      }
     };
 
-    emit('getAllUsersSuccess', responseData);
+    emit('getUsersSuccess', responseData);
     res.status(statusCodes.ok).json(responseData);
   } catch(err) {
     responseData = {
       errors: [{ msg: 'There was an error retrieving users' }]
     };
 
-    emit('getAllUsersError', responseData);
+    emit('getUsersError', responseData);
     res.status(statusCodes.serverError).json();
 
     debugLog(`Error retrieving users: ${err}`);

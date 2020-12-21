@@ -31,6 +31,10 @@ describe(`Fetch Users: ${usersRoute}`, () => {
         res.should.have.status(200);
         res.body.should.be.a('object');
         res.body.should.have.property('data');
+        res.body.data.should.have.property('total');
+        res.body.data.total.should.equal(testUsers.length);
+        res.body.data.should.have.property('length');
+        res.body.data.length.should.equal(testUsers.length);
         res.body.data.should.have.property('users');
         res.body.data.users.should.be.a('array');
         res.body.data.users.should.have.lengthOf(testUsers.length);
@@ -46,6 +50,151 @@ describe(`Fetch Users: ${usersRoute}`, () => {
           user.should.not.have.property('password');
         });
 
+        done();
+    });
+  });
+
+  it('should return get users case-insensitively', (done) => {
+    chai.request(server)
+      .get(`${usersRoute}?lastname=lanister`)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        res.body.should.have.property('data');
+        res.body.data.should.have.property('total');
+        res.body.data.total.should.equal(2); // total count of users matching search query
+        res.body.data.should.have.property('length');
+        res.body.data.length.should.equal(2); // total count of returned users (dictated by page and/or limit)
+        res.body.data.should.have.property('users');
+        res.body.data.users.should.be.a('array');
+        res.body.data.users.length.should.equal(res.body.data.length);
+        done();
+    });
+  });
+
+  it('should return a maximum of LIMIT users when "limit" is specified', (done) => {
+    const LIMIT = 1;
+    chai.request(server)
+      .get(`${usersRoute}?limit=${LIMIT}`)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        res.body.should.have.property('data');
+        res.body.data.should.have.property('total');
+        res.body.data.total.should.equal(testUsers.length);
+        res.body.data.should.have.property('length');
+        res.body.data.length.should.equal(LIMIT);
+        res.body.data.should.have.property('users');
+        res.body.data.users.should.be.a('array');
+        res.body.data.users.length.should.equal(res.body.data.length);
+        done();
+    });
+  });
+
+  it('should return no results if get by non-existent firstname', (done) => {
+    chai.request(server)
+      .get(`${usersRoute}?firstname=Lanister`)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        res.body.should.have.property('data');
+        res.body.data.should.have.property('total');
+        res.body.data.total.should.equal(0);
+        res.body.data.should.have.property('length');
+        res.body.data.length.should.equal(0);
+        res.body.data.should.have.property('users');
+        res.body.data.users.should.be.a('array');
+        res.body.data.users.length.should.equal(res.body.data.length);
+        done();
+    });
+  });
+
+  it('should return matching success data if get by existing firstname', (done) => {
+    chai.request(server)
+      .get(`${usersRoute}?firstname=Jamie`)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        res.body.should.have.property('data');
+        res.body.data.should.have.property('total');
+        res.body.data.total.should.equal(1);
+        res.body.data.should.have.property('length');
+        res.body.data.length.should.equal(1);
+        res.body.data.should.have.property('users');
+        res.body.data.users.should.be.a('array');
+        res.body.data.users.length.should.equal(res.body.data.length);
+        done();
+    });
+  });
+
+  it('should return no results if get by non-existent lastname', (done) => {
+    chai.request(server)
+      .get(`${usersRoute}?lastname=Jamie`)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        res.body.should.have.property('data');
+        res.body.data.should.have.property('total');
+        res.body.data.total.should.equal(0);
+        res.body.data.should.have.property('length');
+        res.body.data.length.should.equal(0);
+        res.body.data.should.have.property('users');
+        res.body.data.users.should.be.a('array');
+        res.body.data.users.length.should.equal(res.body.data.length);
+        done();
+    });
+  });
+
+  it('should return matching success data if get by existing lastname', (done) => {
+    chai.request(server)
+      .get(`${usersRoute}?lastname=Lanister`)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        res.body.should.have.property('data');
+        res.body.data.should.have.property('total');
+        res.body.data.total.should.equal(2);
+        res.body.data.should.have.property('length');
+        res.body.data.length.should.equal(2);
+        res.body.data.should.have.property('users');
+        res.body.data.users.should.be.a('array');
+        res.body.data.users.length.should.equal(res.body.data.length);
+        done();
+    });
+  });
+
+  it('should return matching success data if get by first and last names, at least one matching', (done) => {
+    chai.request(server)
+      .get(`${usersRoute}?firstname=bibi&lastname=Lanister`)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        res.body.should.have.property('data');
+        res.body.data.should.have.property('total');
+        res.body.data.total.should.equal(2);
+        res.body.data.should.have.property('length');
+        res.body.data.length.should.equal(2);
+        res.body.data.should.have.property('users');
+        res.body.data.users.should.be.a('array');
+        res.body.data.users.length.should.equal(res.body.data.length);
+        done();
+    });
+  });
+
+  it('should return no results if get by first and last names, none matching', (done) => {
+    chai.request(server)
+      .get(`${usersRoute}?firstname=Johnson&lastname=Bibi`)
+      .end((err, res) => {
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        res.body.should.have.property('data');
+        res.body.data.should.have.property('total');
+        res.body.data.total.should.equal(0);
+        res.body.data.should.have.property('length');
+        res.body.data.length.should.equal(0);
+        res.body.data.should.have.property('users');
+        res.body.data.users.should.be.a('array');
+        res.body.data.users.length.should.equal(res.body.data.length);
         done();
     });
   });
