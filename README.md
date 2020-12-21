@@ -41,11 +41,7 @@ Additional features include:
 - **[Password constraints](#password-constraints)**
 - **[Usage as a stand-alone server](#usage-as-a-standalone-server)**
 - **[Requests and responses](#requests-and-responses)**
-- **[Development](#development)**
-    - **[Automated testing](#automated-testing)**
-    - **[Manual testing (with Postman or cURL)](#manual-testing)**
-    - **[Setting up test databases (with docker)](#setting-up-test-databases)**
-    - **[Viewing debug output](#viewing-debug-output)**
+- **[Contributing](#contributing)**
 - **[CHANGELOG](#changelog)**
 
 <a name="installation"></a>
@@ -510,70 +506,9 @@ The default base API route is **`/api/users`**.
       ```
     - response `{}`
 
-<a name="development"></a>
-## Development
-
-<a name="automated-testing"></a>
-### Automated testing
-To run the tests,
-- Ensure you have a MongoDB server running on the **default port (27017)**
-  (See **[Setting up test databases](#setting-up-test-databases)** for an example of how to do this)
-- Ensure you have a MySQL server running on the **default port (3306)** and ensure the `users` table exists in the database.
-  (See **[Setting up test databases](#setting-up-test-databases)** for an example of how to do this)
-- `cd` into the *express-user-manager* directory.
-- Copy the *.env.example* file to *.env* and edit the values for the following variables:
-    - `DB_HOST=localhost`
-    - `DB_DBNAME=users`
-    - `DB_DEBUG=false`
-    - `EXIT_ON_DB_CONNECT_FAIL=true`
-    - `SESSION_TOKEN_KEY=secret`
-    - `AUTH_TOKEN_KEY=secret`
-    - `AUTH_TOKEN_EXPIRY="60 * 60 * 24"`
-    - `PASSWORD_MIN_LENGTH=6`
-    - `PASSWORD_MAX_LENGTH=20`
-    - `PASSWORD_BLACK_LIST=password,passw0Rd,secret,Passw0rd,Password123`
-- Run all tests: `npm test`
-- Run all tests with coverage report: `npm run test:coverage`
-- Run only the database tests: `npm run test:db:all`
-- Run only the end-to-end tests: `npm run test:e2e:all`
-
-**Notes**:
-- All non-database-engine-specific tests run the tests on the following databases: **in-memory**, **MongoDB**, **MySQL**, **SQLite**.
-- You can run database-engine-specific tests by replacing the `:all` postfix with `:DB_ENGINE` in the database and end-to-end tests. For example:
-    - `npm run test:db:memory` will run the database tests using only the **in-memory** database.
-    - `npm run test:e2e:mongoose` will run the end-to-end tests using only the **mongoose** database.
-
-  The following post-fixes are supported: `:memory`, `:mongoose`, `:mysql`, `:sqlite`.
-
-<a name="manual-testing"></a>
-### Manual testing (with Postman or cURL)
-You can run end-to-end tests on the routes using Postman or cURL. To do this,
-- Start the built-in server. You can start the built-in server in one of two ways:
-    1. Follow the steps listed in the **[Usage as a standalone server](#usage-as-a-standalone-server)** section to start the server.
-    2. Run `npm` scripts to start the server:
-        - `cd` into the *express-user-manager* directory.
-        - If you are using a MongoDB or MySQL server, ensure the server is up and running on the port you specified.
-        - run `npm run serve` to start the server
-        - run `npm run serve:watch` to start the server in watch mode. This watches the `src/` directory's files and
-          automatically restarts the server with the latest changes when you edit or update the source files.
-- Make http requests to the (default) API routes using Postman or cURL.
-
-<a name="setting-up-test-databases"></a>
-### Setting up test databases (with docker)
-- Setup a MongoDB database:
-    - Create a container: `docker run -d -it --rm -p 27017:27017 mongo:4.4.1`
-    - If you wish to name the container, use the `--name` flag, for example: `docker run -d -it --rm --name mongodb -p 27017:27017 mongo:4.4.1`
-    - You can also create volume mappings between your OS and the container using the `-v` flag: `-v path/on/your/host/system:/etc/mongo`
-- Setup a MySQL database:
-    - Create the container:
-      `docker run -d -it --rm --name mysql -p 3306:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=true mysql:5.7 --default-authentication-plugin=mysql_native_password`
-    - Log into the container and create the *users* database: `docker exec -it mysql mysql -h localhost -u root -e "CREATE DATABASE IF NOT EXISTS users"`
-    - You can also create volume mappings between your OS and the container as follows: `-v path/on/your/host/system:/var/lib/mysql`
-
-<a name="viewing-debug-output"></a>
-### Viewing debug output
-To see debug output on the console, set the `DEBUG` environment variable to *express-user-manager*
-before running the tests or starting the built-in server: `set DEBUG=express-user-manager`
+<a name="contributing"></a>
+## Contributing
+See the [Contributing guide](https://github.com/simplymichael/express-user-manager/blob/master/CONTRIBUTING.md)
 
 <a name="changelog"></a>
 ## CHANGELOG
