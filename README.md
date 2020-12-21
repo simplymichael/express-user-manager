@@ -6,7 +6,7 @@
 
 A user management and authentication library for Express apps.
 
-It automatically creates and adds the following (customizable) API endpoints to an Express app:
+It automatically creates and adds the following API endpoints to an Express app:
 
 - user registration
 - user login
@@ -15,6 +15,13 @@ It automatically creates and adds the following (customizable) API endpoints to 
 - users listing
 - user searching
 - account deletion
+
+Additional features include:
+
+- customizable API endpoints
+- support for multiple database engines and data-storage mechanisms
+- customization (via environment variables) of the minimum and maximum length of passwords
+- specification (via environment variable) of non-secure passwords blacklist
 
 # Table of Contents
 
@@ -47,7 +54,13 @@ It automatically creates and adds the following (customizable) API endpoints to 
 
 <a name="quick-start"></a>
 ## Quick start
-- Set environment variables: **SESSION_TOKEN_KEY**, **AUTH_TOKEN_KEY**, **AUTH_TOKEN_EXPIRY**.
+- Set environment variables:
+    - **SESSION_TOKEN_KEY**
+    - **AUTH_TOKEN_KEY**
+    - **AUTH_TOKEN_EXPIRY**
+    - **PASSWORD_MIN_LENGTH**
+    - **PASSWORD_MAX_LENGTH**
+    - **PASSWORD_BLACK_LIST**: A comma-separated list of weak/non-secure passwords
 - ```
   const express = require('express');
   const userManager = require('express-user-manager');
@@ -221,14 +234,14 @@ This will return an object with the following middlewares:
 
 <a name="built-in-data-stores"></a>
 ## Built-in data stores (database adapters and engines)
-- In-memory (Adapter: `[sequelize](https://www.npmjs.com/package/sequelize)`)
+- In-memory (Adapter: [sequelize](https://www.npmjs.com/package/sequelize))
     - **Note**: In-memory storage should be used solely for quick prototyping and testing purposes. It is not recommended for use in production.
-- MariaDB (Adapter: `[sequelize](https://www.npmjs.com/package/sequelize)`, Engine: `mariadb`)
-- Microsoft SQL Server (Adapter: `[sequelize](https://www.npmjs.com/package/sequelize)`, Engine: `mssql`)
-- MongoDB (Adapter: `[mongoose](https://www.npmjs.com/package/mongoose)`)
-- MysQL (Adapter: `[sequelize](https://www.npmjs.com/package/sequelize)`, Engine: `mysql`)
-- Postgres (Adapter: `[sequelize](https://www.npmjs.com/package/sequelize)`, Engine: `postgres`)
-- SQLite (Adapter: `[sequelize](https://www.npmjs.com/package/sequelize)`, Engine: `sqlite`)
+- MariaDB (Adapter: [sequelize](https://www.npmjs.com/package/sequelize), Engine: `mariadb`)
+- Microsoft SQL Server (Adapter: [sequelize](https://www.npmjs.com/package/sequelize), Engine: `mssql`)
+- MongoDB (Adapter: [mongoose](https://www.npmjs.com/package/mongoose))
+- MysQL (Adapter: [sequelize](https://www.npmjs.com/package/sequelize), Engine: `mysql`)
+- Postgres (Adapter: [sequelize](https://www.npmjs.com/package/sequelize), Engine: `postgres`)
+- SQLite (Adapter: [sequelize](https://www.npmjs.com/package/sequelize), Engine: `sqlite`)
 
 <a name="methods-and-parameters-of-the-store-object"></a>
 ## Methods and parameters of the store object
@@ -290,12 +303,12 @@ This will return an object with the following middlewares:
 
 <a name="password-constraints"></a>
 ## Password constraints
-- minimum length of 6
-- maximum length of 20
+- minimum length of `PASSWORD_MIN_LENGTH` environment variable
+- maximum length of `PASSWORD_MAX_LENGTH` environment variable
 - must contain at least one number
 - must contain at least an uppercase character
 - must contain at least a lowercase character
-- must not be either of the following: ['Passw0rd', 'Password123']
+- must not be among the values specified in the `PASSWORD_BLACK_LIST` environment variable
 
 <a name="usage-as-a-standalone-server"></a>
 ## Usage as a stand-alone server
@@ -345,6 +358,11 @@ To run it as a stand-alone server, do the following:
 
   # Access/Authorization token expiry (in seconds)
   AUTH_TOKEN_EXPIRY="60 * 60 * 24"
+
+  # Password customization
+  PASSWORD_MIN_LENGTH=6
+  PASSWORD_MAX_LENGTH=20
+  PASSWORD_BLACK_LIST=password,passw0Rd,secret,Passw0rd,Password123
   ```
 - start the server, using one of these two methods:
     - Run `node express-user-manager/src/server` from within the parent directory containing the express-user-manager package.
@@ -511,6 +529,9 @@ To run the tests,
     - `SESSION_TOKEN_KEY=secret`
     - `AUTH_TOKEN_KEY=secret`
     - `AUTH_TOKEN_EXPIRY="60 * 60 * 24"`
+    - `PASSWORD_MIN_LENGTH=6`
+    - `PASSWORD_MAX_LENGTH=20`
+    - `PASSWORD_BLACK_LIST=password,passw0Rd,secret,Passw0rd,Password123`
 - Run all tests: `npm test`
 - Run all tests with coverage report: `npm run test:coverage`
 - Run only the database tests: `npm run test:db:all`

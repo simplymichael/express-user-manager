@@ -6,7 +6,6 @@ branches:
   only:
     - master
     - develop
-    - "more-datastores"
 
 services:
   - mysql

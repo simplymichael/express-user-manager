@@ -1,12 +1,15 @@
 const chai = require('chai');
 const fetch = require('node-fetch');
 const chaiHttp = require('chai-http');
+const { getRandomData } = require('../_utils');
 const testUsers = require('./_test-users.json');
-const { apiUrl, apiPort, server } = require('./_server');
+const { env, apiUrl, apiPort, server } = require('./_server');
 const { should } = chai;
 const userData = testUsers[0];
 const signupRoute = `${apiUrl}/users`;
-const forbiddedPasswords = ['Passw0rd', 'Password123'];
+const passwordMinLen = env.PASSWORD_MIN_LENGTH;
+const passwordMaxLen = env.PASSWORD_MAX_LENGTH;
+const forbiddenPasswords = env.PASSWORD_BLACK_LIST.split(',').map(str => str.trim());
 
 should();
 chai.use(chaiHttp);
@@ -77,7 +80,7 @@ describe(`User Registration: POST ${signupRoute}`, () => {
     });
   });
 
-  it('should return a 400 status code if password length is less than 6', (done) => {
+  it(`should return a 400 status code if password length is less than ${passwordMinLen}`, (done) => {
     let clonedUser = { ...userData };
     clonedUser.password = 'h3Llo';
 
@@ -90,11 +93,13 @@ describe(`User Registration: POST ${signupRoute}`, () => {
     });
   });
 
-  it('should return a 400 status code if password length is greater than 20', (done) => {
+  it(`should return a 400 status code if password length is greater than ${passwordMaxLen}`, (done) => {
     let clonedUser = { ...userData };
     clonedUser.password = 'h3Llo';
 
-    for(let i = 0; i < 5; i++) clonedUser.password += clonedUser.password;
+    for(let i = 0; i < Math.floor(passwordMaxLen/2); i++) {
+      clonedUser.password += clonedUser.password;
+    }
 
     chai.request(server)
       .post(signupRoute)
@@ -144,10 +149,9 @@ describe(`User Registration: POST ${signupRoute}`, () => {
     });
   });
 
-  it('should return a 400 status code if password is a common word', (done) => {
+  it('should return a 400 status code if password is in password blacklist', (done) => {
     let clonedUser = { ...userData };
-    const fp = forbiddedPasswords;
-    clonedUser.password = fp[Math.round(Math.random() * fp.length)];
+    clonedUser.password = getRandomData(forbiddenPasswords);
 
     chai.request(server)
       .post(signupRoute)
