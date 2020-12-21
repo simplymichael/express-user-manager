@@ -33,7 +33,7 @@ To make pull requests:
 - [setup the project](#project-setup) locally
 - make your changes;
   Please try to follow the [development](#development) guidelines while making your changes
-- [commit and push](#committing) the changes
+- [commit and push](#committing-and-pushing-changes) the changes
 - [submit the pull request][pr]
 
 ## Project setup
@@ -54,24 +54,24 @@ To make pull requests:
 > ```
 >
 > This does the following:
-> 1. add the original repository as a "remote" called "upstream"
+> 1. adds the original repository as a "remote" called "upstream"
 >
-> 2. fetch the git information from that remote
+> 2. fetches the git information from that remote
 >
-> 3. set your local `master` branch to pull the latest changes from the upstream master branch whenever you run `git pull`.
+> 3. sets your local `master` branch to pull the latest changes from the upstream master branch whenever you run `git pull`.
 >
 > Now you can make all of your pull request branches based on this local `master` branch.
 >
 > Whenever you want to update your local `master` branch, do a regular `git pull`.
-> You can push the updated changes to your remote origin master by running `git` push.
+> You can push the updated changes to your remote origin master by running `git push`.
 
 ## Development
 
 ### Automated testing
 To run the tests,
-- Ensure you have a MongoDB server running on the **default port (27017)**
+- Ensure you have a MongoDB server running on the **default port (27017)**.
   (See **[Setting up test databases](#setting-up-test-databases)** for an example of how to do this)
-- Ensure you have a MySQL server running on the **default port (3306)** and ensure the **`users`** table exists in the database.
+- Ensure you have a MySQL server running on the **default port (3306)** and that a table named ***users*** exists in the database.
   (See **[Setting up test databases](#setting-up-test-databases)** for an example of how to do this)
 - `cd` into the *express-user-manager* directory.
 - Copy the *.env.example* file to *.env* and edit the values for the following variables:
@@ -96,7 +96,7 @@ To run the tests,
     - `npm run test:db:memory` will run the database tests using only the **in-memory** database.
     - `npm run test:e2e:mongoose` will run the end-to-end tests using only the **mongoose** database.
 
-  The following post-fixes are supported: `:memory`, `:mongoose`, `:mysql`, `:sqlite`.
+  The following post-fixes are supported: `:all`, `:memory`, `:mongoose`, `:mysql`, `:sqlite`.
 
 <a name="manual-testing"></a>
 ### Manual testing (with Postman or cURL)
@@ -113,18 +113,17 @@ You can run end-to-end tests on the routes using Postman or cURL. To do this,
 
 <a name="setting-up-test-databases"></a>
 ### Setting up test databases (with docker)
-- Setup a MongoDB database:
-    - Create a container: `docker run -d -it --rm -p 27017:27017 mongo:4.4.1`
-    - If you wish to name the container, use the `--name` flag, for example: `docker run -d -it --rm --name mongodb -p 27017:27017 mongo:4.4.1`
-    - You can also create volume mappings between your OS and the container using the `-v` flag: `-v path/on/your/host/system:/etc/mongo`
-- Setup a MySQL database:
+- **Setup a MongoDB database**:
+    - Create the container: `docker run -d -it --rm --name mongodb -p 27017:27017 mongo:4.4.1`
+    - You can create volume mappings between your OS and the container using the `-v` flag: `-v path/on/your/host/system:/etc/mongo`
+- **Setup a MySQL database**:
     - Create the container:
       `docker run -d -it --rm --name mysql -p 3306:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=true mysql:5.7 --default-authentication-plugin=mysql_native_password`
-    - Log into the container and create the *users* database: `docker exec -it mysql mysql -h localhost -u root -e "CREATE DATABASE IF NOT EXISTS users"`
+    - Log into the container and create the ***users*** database: `docker exec -it mysql mysql -h localhost -u root -e "CREATE DATABASE IF NOT EXISTS users"`
     - You can also create volume mappings between your OS and the container as follows: `-v path/on/your/host/system:/var/lib/mysql`
 
 ### Viewing debug output
-To see debug output on the console, set the `DEBUG` environment variable to *express-user-manager*
+To see debug output on the console, set the `DEBUG` environment variable to ***express-user-manager***
 before running the tests or starting the built-in server: `set DEBUG=express-user-manager`
 
 ## Committing and Pushing changes
@@ -183,7 +182,7 @@ Also, please watch the repo and respond to questions/bug reports/feature request
 [commitizen]: https://npm.im/commitizen
 [commits]: https://conventionalcommits.org/
 [changelog]: https://npm.im/cz-conventional-changelog
-[eslint]: https://www.npmjs.com/package/eslint
+[eslint]: https://eslint.org/
 [fork]: https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo
 [issues]: https://github.com/simplymichael/express-user-manager/issues
 [pr]: https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request
