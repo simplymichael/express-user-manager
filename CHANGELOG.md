@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/simplymichael/express-user-manager/compare/v2.0.0...v2.1.0) (2020-12-21)
+
+
+### Features
+
+* **passwords:** allow customization of password length and non-secure passwords list ([cf2d977](https://github.com/simplymichael/express-user-manager/commit/cf2d977d11803c142855611e7b9137a70093fe9a))
+* **users listing:** implement results filtering, pagination, and limit ([3309734](https://github.com/simplymichael/express-user-manager/commit/3309734e72276473fd87f6e7e16db12a9806e673))
+
 ## [2.0.0](https://github.com/simplymichael/express-user-manager/compare/v1.1.0...v2.0.0) (2020-12-20)
 
 
