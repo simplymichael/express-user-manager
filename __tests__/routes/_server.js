@@ -4,14 +4,12 @@ const env = require('../../src/dotenv');
 const userModule = require('../../src/index');
 const { setupDB } = require('../_test-setup');
 const dbAdapter = env.DB_ADAPTER;
-const DataStore = userModule.getDbAdapter(dbAdapter);
+const store = userModule.getDbAdapter(dbAdapter);
 
 const app = express();
 userModule.listen(app);
-userModule.set('store', new DataStore());
-userModule.set('dbAdapter', dbAdapter);
 
-setupDB(userModule.get('store'), userModule.get('dbAdapter'), {
+setupDB(store, dbAdapter, {
   host: env.DB_HOST,
   port: env.DB_PORT,
   user: env.DB_USERNAME,

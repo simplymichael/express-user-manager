@@ -33,7 +33,7 @@ Additional features include:
     - **[Specifying custom API endpoints](#specifying-custom-api-endpoints)**
     - **[Using the middlewares](#using-the-middlewares)**
 - **[Built-in data stores (database drivers)](#built-in-data-stores)**
-- **[Methods and parameters of the `store` object](#methods-and-parameters-of-the-store-object)**
+- **[Methods of the `store` object](#methods-of-the-store-object)**
 - **[Emitted events](#emitted-events)**
     - **[Events emitted by the database](#events-emitted-by-the-database)**
     - **[Events emitted by request handlers](#events-emitted-by-request-handlers)**
@@ -69,10 +69,8 @@ Additional features include:
    *       (See the section on "Built-in data stores" for supported database engines)
    */
   const dbAdapter = 'mongoose'; // OR 'sequelize'
-  const DataStore = userManager.getDbAdapter(dbEngine);
-  const store = new DataStore();
+  const store = userManager.getDbAdapter(dbAdapter);
 
-  userManager.set('store', store);
   userManager.listen(app);
 
   (async function() {
@@ -84,7 +82,7 @@ Additional features include:
       port: DB_PORT, // optional, default: 27017
       user: DB_USERNAME, // optional
       pass: DB_PASSWORD, // optional
-      engine: DB_ENGINE, // optional if the adapter is mongoose or the adapter is sequelize with in-memory storage; required otherwise
+      engine: DB_ENGINE, // optional if the adapter is "mongoose" or if the value is "memory" and the adapter is "sequelize"; required otherwise
       dbName: DB_DBNAME, // optional, default: 'users'
       storagePath: DB_STORAGE_PATH, // optional, required if "engine" is set to "sqlite"
       debug: DB_DEBUG, // optional, default: false
@@ -135,45 +133,31 @@ so these variables can be defined inside a **.env** file and they will automatic
    your custom app's route handlers being handled by the
    404 handler and thus prevent any requests from getting to the
    routes that are supposed to be handled by calling `userManager.listen().`s
-3. Create a data store. This can be done in one of two ways:
-    - You can use one of the built-in ones:
-      ```
-      const DataStore = userManager.getDbAdapter('mongoose'); // for MongoDB
-      // OR
-      const DataStore = userManager.getDbAdapter('sequelize'); // for one of: MySQL | MariaDB | SQLite | Microsoft SQL Server | Postgres | In-memory DB
+3. Connect to a data store:
+   ```
+   const store = userManager.getDbAdapter('mongoose'); // for MongoDB
+   // OR
+   const store = userManager.getDbAdapter('sequelize'); // for one of: MySQL | MariaDB | SQLite | Microsoft SQL Server | Postgres | In-memory DB
 
-      const store = new DataStore();
-      await store.connect(connectionOptions);
-      ```
-      (See the `connect()` method in the section on
-      **[Methods and parameters of the store object](#methods-and-parameters-of-the-store-object)**
-      for the expected `connectionOptions`)
-    - Use a custom store object.
-      The store object should implement the following (asynchronous) methods:
+   await store.connect(connectionOptions);
+   ```
 
-        - *connect(options)*
-        - *disconnect()*
-        - *createUser(userData)*
-        - *getUsers(options)*
-        - *searchUsers(options)*
-        - *findByEmail(email)*
-        - *findByUsername(username)*
-
-      (See section on **[Methods and parameters of the store object](#methods-and-parameters-of-the-store-object)** for more)
-4. Set the datastore: `userManager.set('store', store);`
-5. Proceed with normal server initialization, e.g:
+   (See the `connect()` method in the section on **[Methods of the store object](#methods-of-the-store-object)** for the expected `connectionOptions`)
+4. Proceed with normal server initialization, e.g:
    ```
    const server = http.createServer(app);
    server.listen(port);
    server.on('error', function onError(error) {...});
    server.on('listening', function onListening() {...});
    ```
-6. Listen for and handle events
+5. Optionally listen for and handle events
    ```
    userManager.on(EVENT_NAME, function(data) {
       // do something with data
    });
    ```
+
+   (See the **[Emitted events](#emitted-events)** section for more)
 
 <a name="specifying-custom-api-endpoints"></a>
 ### Specifying custom API endpoints
@@ -239,8 +223,7 @@ This will return an object with the following middlewares:
 - Postgres (Adapter: [sequelize](https://www.npmjs.com/package/sequelize), Engine: `postgres`)
 - SQLite (Adapter: [sequelize](https://www.npmjs.com/package/sequelize), Engine: `sqlite`)
 
-<a name="methods-and-parameters-of-the-store-object"></a>
-## Methods and parameters of the store object
+## Methods of the store object
 - `async connect(options)`: `options` should be an object with members:
     - host {string} the db server host
     - port {number} the db server port
@@ -406,12 +389,19 @@ The default base API route is **`/api/users`**.
     - route: `GET /`
     - protected: `false`
     - request headers: none
-    - request parameters: none
+    - request parameters:
+        - `firstname` (string, optional): get users matching {firstname}
+        - `lastname` (string, optional): get users matching {lastname}
+        - `sort` (string, optional)
+        - `page` (number, optional, default = 1)
+        - `limit` (number, optional, default = 20)
     - request body: none
     - response:
       ```
       {
         "data": {
+          "total": TOTAL_COUNT_OF_MATCHING_RESULTS,
+          "length": COUNT_OF_CURRENT_RESULTS_RETURNED, // determined by "page" and "limit"
           "users": [
             { id, firstname, lastname, fullname, email, username, signupDate },
             { id, firstname, lastname, fullname, email, username, signupDate },

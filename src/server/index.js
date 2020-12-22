@@ -5,14 +5,13 @@ const userModule = require('../index');
 const serverMethods = require('./server-methods');
 const { onError, onListening, normalizePort } = serverMethods;
 const port = normalizePort(env.PORT);
-const DataStore = userModule.getDbAdapter(env.DB_ADAPTER);
 const defaultRoutes = require('../routes/defaults');
 
 const app = express();
 const apiUrl = defaultRoutes.base;
 const customRoutes = defaultRoutes.paths;
-const store = new DataStore();
-userModule.set('store', store);
+const store = userModule.getDbAdapter(env.DB_ADAPTER);
+
 userModule.listen(app, apiUrl, customRoutes);
 
 function startServer() {
