@@ -6,8 +6,10 @@ branches:
   only:
     - master
     - develop
+    - revamp
 
 services:
+  - mongodb
   - mysql
 
 before_install:
@@ -21,9 +23,9 @@ node_js:
   - "12"
 
 before_script:
+  - sleep 15
   - npm prune
   - cp ./.env.example ./.env
-  - docker run -d -it --rm --name mongodb -p 27017:27017 mongo:4.4.1
 
 script:
   - npm run test:coverage
