@@ -174,14 +174,7 @@ function getDbAdapter(adapter) {
     throw new Error(`${appName}::getAdapter: invalid adapter ${adapter}. ${validAdaptersMsg}`);
   }
 
-  debug(`Setting adapter: "${adapter}"...`);
-  const DataStore = db.getAdapter(adapter);
-  debug(`Adapter "${adapter}" set`);
-
-  debug('Initializing store from adapter...');
-  const store = new DataStore();
-  debug('Store initialization complete');
-
+  const store = db.getAdapter(adapter);
   const clonedStore = { ...store };
   const storeMethods = [
     'disconnect',
@@ -205,7 +198,6 @@ function getDbAdapter(adapter) {
   debug('Store registration complete');
 
   return clonedStore;
-  // return store;
 
   /**
    * Supply connection options

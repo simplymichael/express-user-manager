@@ -131,30 +131,112 @@ before running the tests or starting the built-in server: `set DEBUG=express-use
 To create a new database adapter, create a new file.
 Inside the file, define and export a class with the following methods:
 
-- `async connect(options)`: `options` should be an object with members:
-    - host {string} the db server host
-    - port {number} the db server port
-    - user {string} the db server username
-    - pass {string} the db server user password
-    - engine {string} the database engine to use.
+- `constructor(emit, debug, toBoolean)`: The constructor automatically receives three arguments:
+    - `emit`: a function for emitting events, used this way: `this.emit(EVENT, DATA)`.
+    - `debug`: a function for outputting debugging output when the **DEBUG** environment variable is set to `express-user-manager`;
+      This function should be used liberally to output events in the object's life-cycle.
+    - `toBoolean`: a function to convert boolean-like expressions to boolean.
+      It was created to help with parsing "boolean" values coming from environment variables. Examples:
+        - `this.toBoolean("false")` evaluates to `false`
+        - `this.toBoolean("0")` evaluates to `false`
+        - `this.toBoolean(false)` evaluates to `false`
+        - `this.toBoolean(0)` evaluates to `false`
+        - All other conversions evaluate to `true`
+- `async connect(options)`: `options` is an object with members:
+    - `host` ***{string}*** db server host
+    - `port` ***{number}*** db server port
+    - `user` ***{string}*** db server username
+    - `pass` ***{string}*** db user's password
+    - `engine` ***{string}*** the database engine to use.
         - Possible values are: `memory, mariadb, mssql, mysql, postgres, sqlite`
-        - This parameter is not required when using the `mongoose` adapter: `userManager.getDbAdapter('mongoose')`.
-    - storagePath {string} The storage location when the `engine` is set to `postgres`.
+        - This parameter is not required when using the `mongoose` adapter: `express-user-manager.getDbAdapter('mongoose')`.
+    - `storagePath` ***{string}*** The storage location when the `engine` is set to `postgres`.
         - The value is combined with the `dbName` option to set the storage: `${storagePath}/${dbName}.sqlite`
-    - dbName {string} the name of the database to connect to
-    - debug {boolean | number(int | 0)} determines whether or not to show debugging output
-- `async disconnect()`
+    - `dbName` ***{string}*** the name of the database to connect to
+    - `debug` ***{boolean | number(int | 0)}*** determines whether or not to show debugging output
+  On successful connection, it should do two things:
+    - emit a ***dbConnection*** event with the connection resource as the data: `this.emit('dbConnection', conn);`
+    - return the connection resource: `return conn;`
+- `async disconnect()`: On disconnect success, it should emit a ***dbDisconnect*** event: `this.emit('dbDisconnect');`
 - `async createUser(userData)`: `userData` should be an object with members:
-    - firstname
-    - lastname
-    - username
-    - email
-    - password
-    - passwordConfirm
-- `async getUsers(options)`
-- `async searchUsers(options)`
-- `async findByEmail(email)`
-- `findByUsername(username)`
+    - `id` ***{mixed}***
+    - `firstname` ***{string}***
+    - `lastname` ***{string}***
+    - `fullname` ***{string}***
+    - `username` ***{string}***
+    - `email` ***{string}***
+    - `password` ***{string}***
+    - `passwordConfirm` ***{string}***
+  On success, it should:
+    - emit a ***createUser*** event with the new user's data: `this.emit('createUser', userData);`
+    - return the new user's data: `return userData;`
+  where `userData` is an object:
+  ```
+  return {
+    firstname: FNAME,
+    lastname: LNAME,
+    email: EMAIL,
+    username: USERNAME,
+    signupDate: DATE_CREATED
+  }
+  ```
+- `async getUsers(options)`: `options` is an object with the following optional members:
+    - `firstname` ***{string}*** filter by users with matching firstnames (optional)
+    - `lastname` ***{string}*** get users with matching lastnames (optional)
+    - `page` ***{number}*** the page to return, for pagination purposes (optional, default 1)
+    - `limit` ***{number}*** the number of results to return, for pagination purposes (optional, default 20)
+    - `sort` ***{string}*** determines the sort order of returned users (optional)
+  It should return an object with the following members:
+    - `total` ***{number}*** the total number of users that match the specified firstname and/or lastname filters
+    - `length` ***{number}*** the number of results returned for the current page and limit
+    - `users` ***{array}***  of objects representing the list of returned users that match the search term
+- `async searchUsers(options)`: `options` is an object with the following members:
+    - `query` ***{string}*** the search term (required)
+    - `by` ***{string}*** whether to search by firstname, lastname, username, email (optional, default searches by all)
+    - `page` ***{number}*** the page to return, for pagination purposes (optional, default 1)
+    - `limit` ***{number}*** the number of results to return, for pagination purposes (optional, default 20)
+    - `sort` ***{string}*** determines the sort order of returned users (optional)
+  It should return an object with the following members:
+    - `total` ***{number}*** the total number of users that match the specified firstname and/or lastname filters
+    - `length` ***{number}*** the number of results returned for the current page and limit
+    - `users` ***{array}***  of objects representing the list of returned users that match the search term
+- `async findByEmail(email)`: should return a user object:
+   ```
+   return {
+     id: USER_ID,
+     firstname: FNAME,
+     lastname: LNAME,
+     fullname: USER_FULLNAME,
+     email: EMAIL,
+     username: USERNAME,
+     signupDate: DATE_CREATED
+   }
+   ```
+- `findByUsername(username)`: should return a user object:
+   ```
+   return {
+     id: USER_ID,
+     firstname: FNAME,
+     lastname: LNAME,
+     fullname: USER_FULLNAME,
+     email: EMAIL,
+     username: USERNAME,
+     signupDate: DATE_CREATED
+   }
+   ```
+- `findById(userId)`: should return a user object:
+   ```
+   return {
+     id: USER_ID,
+     firstname: FNAME,
+     lastname: LNAME,
+     fullname: USER_FULLNAME,
+     email: EMAIL,
+     username: USERNAME,
+     signupDate: DATE_CREATED
+   }
+   ```
+- `deleteUser(userId)`
 
 Save the file in one of two ways:
 - as ***{adapterName}***.js inside the `src/databases/adapters` directory

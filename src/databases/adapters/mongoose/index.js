@@ -1,14 +1,17 @@
 const mongoose = require('mongoose');
-const debugLog = require('../../../utils/debug');
 const User = require('./data/models/user-model');
-const { emit, convertToBoolean } = require('../../_utils');
+
 
 // we put this here, rather than make it a property of the class instance
 // to avoid accidentally overriding it outside the class
 let db = null;
 
 class MongooseStore {
-  constructor() {}
+  constructor(emit, debug, convertToBoolean) {
+    this.emit = emit;
+    this.debug = debug;
+    this.toBoolean = convertToBoolean;
+  }
 
   /**
    * Start a (MongoDB) DB server instance
@@ -44,7 +47,7 @@ class MongooseStore {
       : `mongodb://${host}:${port}/${dbName}`;
 
     try {
-      mongoose.set('debug', convertToBoolean(debug));
+      mongoose.set('debug', this.toBoolean(debug));
 
       db = await mongoose.connect(dsn, {
         useNewUrlParser: true,
@@ -53,15 +56,15 @@ class MongooseStore {
         useFindAndModify: false,
       });
 
-      debugLog('Successfully connected to MongoDB server');
+      this.debug('Successfully connected to MongoDB server');
 
-      emit('dbConnection', db);
+      this.emit('dbConnection', db);
 
       return db;
     } catch(err) {
-      debugLog(`Failed to connect to MongoDB server: ${err}`);
+      this.debug(`Failed to connect to MongoDB server: ${err}`);
 
-      if(convertToBoolean(exitOnFail)) {
+      if(this.toBoolean(exitOnFail)) {
         process.exit(1);
       }
     }
@@ -69,7 +72,7 @@ class MongooseStore {
 
   async disconnect() {
     await db.disconnect();
-    emit('dbDisconnect');
+    this.emit('dbDisconnect');
   }
 
   /**
@@ -99,7 +102,7 @@ class MongooseStore {
         },
       });
 
-      emit('createUser', onCreateData);
+      this.emit('createUser', onCreateData);
       return onCreateData;
     } catch(err) {
       if (err.code === 11000) {

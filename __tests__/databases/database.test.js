@@ -9,8 +9,7 @@ const userModule = require('../../src/user-module');
 
 const { expect } = chai;
 const usersBackup = users.slice();
-const DataStore = database.getAdapter(env.DB_ADAPTER);
-const db = new DataStore();
+const db = database.getAdapter(env.DB_ADAPTER);
 
 function getRandomData(array) {
   return array[Math.floor(Math.random() * array.length)];

@@ -1,7 +1,6 @@
 const { Op, Sequelize } = require('sequelize');
-const debugLog = require('../../../utils/debug');
 const createUserModel = require('./user-model');
-const { emit, convertToBoolean } = require('../../_utils');
+
 
 // we put this here, rather than make it a property of the class instance
 // to avoid accidentally overriding it outside the class
@@ -9,7 +8,11 @@ let db = null;
 let User = null;
 
 class SequelizeStore {
-  constructor() {}
+  constructor(emit, debug, convertToBoolean) {
+    this.emit = emit;
+    this.debug = debug;
+    this.toBoolean = convertToBoolean;
+  }
 
   /**
    * Start a (MongoDB) DB server instance
@@ -49,7 +52,7 @@ class SequelizeStore {
     } = options;
 
     engine = engine.toLowerCase();
-    const logger = convertToBoolean(debug) ? console.log : false;
+    const logger = this.toBoolean(debug) ? console.log : false;
 
     try {
       switch(engine) {
@@ -66,16 +69,16 @@ class SequelizeStore {
       await sequelize.authenticate();
 
       db = sequelize;
-      debugLog(`Successfully connected to "${engine}" database server`);
-      emit('dbConnection', db);
+      this.debug(`Successfully connected to "${engine}" database server`);
+      this.emit('dbConnection', db);
 
       User = await createUserModel(db, 'users');
 
       return db;
     } catch(err) {
-      debugLog(`Failed to connect to MySQL server: ${err}`);
+      this.debug(`Failed to connect to MySQL server: ${err}`);
 
-      if(convertToBoolean(exitOnFail)) {
+      if(this.toBoolean(exitOnFail)) {
         process.exit(1);
       }
     }
@@ -117,7 +120,7 @@ class SequelizeStore {
 
   async disconnect() {
     await db.close();
-    emit('dbDisconnect');
+    this.emit('dbDisconnect');
   }
 
   /**
@@ -134,7 +137,7 @@ class SequelizeStore {
     try {
       const onCreateData = await User.create(userData);
 
-      emit('createUser', onCreateData.toJSON());
+      this.emit('createUser', onCreateData.toJSON());
       return onCreateData;
     } catch(err) {
       throw {
@@ -322,7 +325,7 @@ class SequelizeStore {
     const allUsersCount = await User.count({ where });
     const results = await User.findAll(queryParams);
 
-    return{
+    return {
       total: allUsersCount,
       length: results.length,
       users: results,
