@@ -9,7 +9,7 @@ const userData = testUsers[0];
 const signupRoute = `${apiUrl}${customRoutes.signup}`;
 const passwordMinLen = env.PASSWORD_MIN_LENGTH;
 const passwordMaxLen = env.PASSWORD_MAX_LENGTH;
-const forbiddenPasswords = env.PASSWORD_BLACK_LIST.split(',').map(str => str.trim());
+const forbiddenPasswords = env.DISALLOWED_PASSWORDS.split(',').map(str => str.trim());
 
 should();
 chai.use(chaiHttp);

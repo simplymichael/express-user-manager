@@ -1,3 +1,4 @@
+const env = require('../../dotenv');
 const { emit, userModule } = require('../../utils');
 const debugLog = require('../../utils/debug');
 const { statusCodes } = require('../../utils/http');
@@ -10,6 +11,7 @@ const publicFields = [
 ];
 
 module.exports = {
+  env,
   emit,
   publicFields,
   debugLog,

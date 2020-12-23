@@ -20,20 +20,20 @@ Additional features include:
 
 - customizable API endpoints
 - support for multiple database engines and data-storage mechanisms
-- customization (via environment variables) of the minimum and maximum length of passwords
-- specification (via environment variable) of non-secure passwords blacklist
+- customization of the minimum and maximum length of passwords
+- specification of non-secure passwords to disallow
 
 # Table of Contents
 
 - **[Installation](#installation)**
 - **[Quick start](#quick-start)**
-- **[Usage](#usage)**
-    - **[Prerequisites](#prerequisites)**
-    - **[Code setup](#code-setup)**
+- **[Configuration](#configuration)**
+    - **[Environment variables](#environment-variables)**
+    - **[The config method](#the-config-method)**
     - **[Specifying custom API endpoints](#specifying-custom-api-endpoints)**
-    - **[Using the middlewares](#using-the-middlewares)**
+- **[The init method](#the-init-method)**
+- **[Built-in middlewares](#built-in-middlewares)**
 - **[Built-in data stores (database drivers)](#built-in-data-stores)**
-- **[Methods of the `store` object](#methods-of-the-store-object)**
 - **[Emitted events](#emitted-events)**
     - **[Events emitted by the database](#events-emitted-by-the-database)**
     - **[Events emitted by request handlers](#events-emitted-by-request-handlers)**
@@ -42,127 +42,196 @@ Additional features include:
 - **[Usage as a stand-alone server](#usage-as-a-standalone-server)**
 - **[Requests and responses](#requests-and-responses)**
 - **[Contributing](#contributing)**
+    - **[Report a bug](#report-a-bug)**
+    - **[Request a new feature](#request-a-new-feature)**
+    - **[Submit a pull request](#submit-a-pull-request)**
+    - **Checkout the [Contributing guide](#contributing-guide)**
 - **[CHANGELOG](#changelog)**
 
-<a name="installation"></a>
 ## Installation
 `npm install --save express-user-manager`
 
-<a name="quick-start"></a>
 ## Quick start
-- Set environment variables:
-    - **SESSION_TOKEN_KEY**
-    - **AUTH_TOKEN_KEY**
-    - **AUTH_TOKEN_EXPIRY**
-    - **PASSWORD_MIN_LENGTH**
-    - **PASSWORD_MAX_LENGTH**
-    - **PASSWORD_BLACK_LIST**: A comma-separated list of weak/non-secure passwords
-- ```
-  const express = require('express');
-  const userManager = require('express-user-manager');
-  const app = express();
+```
+const express = require('express');
+const userManager = require('express-user-manager');
+const app = express();
 
-  /**
-   * Setup the datastore using any of the currently supported database adapters:
-   *   - mongoose
-   *   - sequelize (with in-memory storage or any supported database engine)
-   *       (See the section on "Built-in data stores" for supported database engines)
-   */
-  const dbAdapter = 'mongoose'; // OR 'sequelize'
-  const store = userManager.getDbAdapter(dbAdapter);
+/**
+ * Setup the datastore using any of the currently supported database adapters:
+ *   - mongoose: for MongoDB
+ *   - sequelize: for any of the other supported database engines:
+ *     MySQL | MariaDB | SQLite | Microsoft SQL Server | Postgres | In-memory DB
+ *     (See the section on "Built-in data stores" for supported database engines)
+ */
+const dbAdapter = 'mongoose'; // OR 'sequelize'
+const store = userManager.getDbAdapter(dbAdapter);
 
-  userManager.listen(app);
+// Bind the routes under [apiMountPoint] (default: ***/api/users***):
+userManager.listen(expressApp, apiMountPoint = '/api/users', customRoutes = {});
 
-  (async function() {
-    const server = http.createServer(app);
+(async function() {
+  const server = http.createServer(app);
 
-    // Ensure the db is connected before binding the server to the port
-    await store.connect({
-      host: DB_HOST, // optional, default: 'localhost'
-      port: DB_PORT, // optional, default: 27017
-      user: DB_USERNAME, // optional
-      pass: DB_PASSWORD, // optional
-      engine: DB_ENGINE, // optional if the adapter is "mongoose" or if the value is "memory" and the adapter is "sequelize"; required otherwise
-      dbName: DB_DBNAME, // optional, default: 'users'
-      storagePath: DB_STORAGE_PATH, // optional, required if "engine" is set to "sqlite"
-      debug: DB_DEBUG, // optional, default: false
-      exitOnFail: EXIT_ON_DB_CONNECT_FAIL // optional, default: true
-    });
+  // Establish a connection to the data store
+  // Ensure the db is connected before binding the server to the port
+  await store.connect({
+    host: DB_HOST, // optional, default: 'localhost'
+    port: DB_PORT, // optional, default: 27017
+    user: DB_USERNAME, // optional
+    pass: DB_PASSWORD, // optional
+    engine: DB_ENGINE, // optional if the adapter is "mongoose" or if the value is "memory" and the adapter is "sequelize"; required otherwise
+    dbName: DB_DBNAME, // optional, default: 'users'
+    storagePath: DB_STORAGE_PATH, // optional, required if "engine" is set to "sqlite"
+    debug: DB_DEBUG, // optional, default: false
+    exitOnFail: EXIT_ON_DB_CONNECT_FAIL // optional, default: true
+  });
 
-    server.listen(PORT);
-    server.on('error', onError);
-    server.on('listening', onListening);
-  })();
-  ```
+  // Proceed with normal server initialization tasks
+  server.listen(PORT);
+  server.on('error', onError);
+  server.on('listening', onListening);
+ })();
 
-<a name="usage"></a>
-## Usage
+// Optionally listen for and handle events
+// (See the **[Emitted events](#emitted-events)** section for more)
+userManager.on(EVENT_NAME, function(data) {
+  // do something with data
+});
+```
+- The `expressApp` parameter has the following constraints:
+    - It must be an express app (that is created with `var app = express()`)
+    - It MUST NOT be an express server, that is, it must not have been passed to `http.createServer(app)`
+- The `apiMountPoint` parameter allows you to specify the base API route.
+  Every request to the API will be relative to this base route. The default is `/api/users`.
+- The `customRoutes` parameter is an object that allows customization of the routes.
 
-<a name="prerequisites"></a>
-### Prerequisites
-Set the following environment variables:
+  (See **[Specifying custom API endpoints](#specifying-custom-api-endpoints)** for more)
+
+**NOTE**: If your ***expressApp*** has its own custom routing in place,
+make sure to call `userManager.listen(expressApp)` before setting up your app's custom 404 handler.
+This is because setting up your app's 404 handler
+before calling `userManager.listen()` will lead to every route not in
+your custom app's route handlers being handled by the
+404 handler and thus prevent any requests from getting to the
+routes that are supposed to be handled by calling `userManager.listen().`
+
+## The init method
+The `init` method is an `async` function that runs setup and initialization tasks then start listening for requests,
+all in a single step: `await init(app, options);`.
+
+It takes two parameters:
+- an express.js app as the first argument
+- an object
+  (with the same signature as the object passed to the **[`config`](#the-config-method)** method)
+  as the second argument.
+
+## Configuration
+express-user-manager can be configured in several ways:
+
+- using environment variables (See the **[Environment variables](#environment-variables)** section)
+- using the `config` method (See **[The config method](#the-config-method)**)
+- using a combination of environment variables and the `config` method
+    - if configuration is not set via `config`, then configuration values are searched in environment variables.
+    - if only some configuration options are set using `config`, then the others are searched for in environment variables.
+    - The configuration options set via `config` take precedence over environment variables.
+    - the arguments passed to `listen` take precedence over configuration options set using `config`.
+
+### Environment variables
 
 - **NODE_ENV** (*string*)
-- **SESSION_TOKEN_KEY** (*string*: Session sign key)
-- **AUTH_TOKEN_KEY** (*string*: Authorization token sign key)
+- **API_MOUNT_POINT** (*string*): The route under which to listen for API requests, default is: `/api/users`
+- **PORT**: The port on which the server should run
+- **DB_ENGINE**: The database engine to use. Should be one of the supported databases.
+  (See **[Built-in data stores (database drivers)](#built-in-data-stores)**)
+- **DB_ADAPTER**: The adapter to use. Set it to `mongoose` if using MongoDB; Set it to `sequelize` otherwise.
+- **DB_STORAGE_PATH**: Define this only when the **DB_ENGINE** is set to `sqlite`.
+- **DB_HOST**: The database host
+- **DB_USERNAME**: The database user
+- **DB_PASSWORD**: The database user's password
+- **DB_DBNAME**: The name of the database
+- **DB_PORT**: The port on which the database is running
+- **DB_DEBUG**: Set this to `true` or a non-zero integer to display debug output for the database.
+- **EXIT_ON_DB_CONNECT_FAIL**: Set this to `true` or a non-zero integer if the app should exit if it is unable to establish a connection to the database.
+- **SESSION_SECRET**
+- **AUTH_TOKEN_SECRET**
 - **AUTH_TOKEN_EXPIRY** (*number*: Authorization token expiry (in seconds))
+- **PASSWORD_MIN_LENGTH**
+- **PASSWORD_MAX_LENGTH**
+- **DISALLOWED_PASSWORDS**: A comma-separated list of weak/non-secure passwords
 
-**Note**: We use the **dotenv** package,
-so these variables can be defined inside a **.env** file and they will automatically be picked up.
+**Note**: **express-user-manager** uses the [dotenv][dotenv] package,
+so a quick and easy way to define the above variables is to create a ***.env*** file
+at the root of your project directory, and add them to the file
+and they will automatically be picked up. [Sample .env file][env]
 
-<a name="code-setup"></a>
-### Code setup
-1. `const userManager = require('express-user-manager');`
-2. Bind the routes under [baseApiRoute] (default: ***/api/users***):
+### The config method
+```
+userManager.config({
+  apiMountPoint: {string}, // The base route under which to listen for API requests
+  password { // {object} for password configuration
+    minLength: {number}, // minimum length of user passwords, default: 6,
+    maxLength: {number}, // maximum length of user passwords, default: 20
+    disallowed: {string | array}, // comma-separated string or array of strings considered weak/non-secure passwords
+  },
+  routes: { // {object} for configuring custom routes, with members
+    list: {string}, // specifies the path for getting users listing
+    search: {string}, specifies the path for searching users
+    getUser: {string}, // specifies the path for getting a user's details via their username, a /:{username} is appended to this path
+    signup: {string}, // specifies the user registration path
+    login: {string}, // specifies user authentication path,
+    logout: {string}, // defines the logout path
+    deleteUser: {string} // specifies the path for deleting a user, a /:{userId} is appended to this path
+  },
+  db { // {object} for configuring the database connection
+    adapter: {string}, // the adapter to use. valid values include 'mongoose', 'sequelize'
+    host: {mixed}, // database host
+    port: {number}, // database port
+    user: {string}, // database user
+    pass: {string}, // database user's password
+    engine: {string}, // the database engine, when the adapter is set to "sequelize". values: 'memory', 'mariadb', 'mssql', 'mysql', 'postgres', 'sqlite'
+    dbName: {string}, // name of the database to connect to
+    storagePath: {string}, // the database storage path, only valid when "engine" is "sqlite". combined with `dbName`: `${storagePath}/${dbName}.sqlite`
+    debug: {boolean}, // a value of true outputs database debug info
+    exitOnFail: {boolean}, // set to true to kill the Node process if database connection fails
+  },
+  security { // {object} for configuring security
+    sessionSecret: {string}, // a key for encrypting the session
+    authTokenSecret: {string}, // a key for signing the authorization token
+    authTokenExpiry: {number}, // the expiry time of the authorization token (in seconds), example: 60 * 60 * 24
+  }
+});
 
-   `userManager.listen(expressApp, baseApiRoute = '/api/users', customRoutes = {});`
+userManager.listen(expressApp);
+```
 
-    - The `expressApp` parameter has the following constraints:
-        - It must be an express app (that is created with `var app = express()`)
-        - It MUST NOT be an express server, that is, it must not have been passed to `http.createServer(app)`
-    - The `baseApiRoute` parameter allows you to specify the base API route.
-      Every request to the API will be relative to this base route. The default is `/api/users`.
-    - The `customRoutes` parameter is an object that allows customization of the routes.
-
-      (See the section on **[Specifying custom routes](#specifying-custom-api-endpoints)** for more)
-
-   **NOTE**: If your ***expressApp*** has its own custom routing in place,
-   make sure to call `userManager.listen(expressApp)` before setting up
-   your app's custom 404 route handler. This is because setting up your app's 404 route handler
-   before calling `userManager.listen()` will lead to every route not in
-   your custom app's route handlers being handled by the
-   404 handler and thus prevent any requests from getting to the
-   routes that are supposed to be handled by calling `userManager.listen().`s
-3. Connect to a data store:
-   ```
-   const store = userManager.getDbAdapter('mongoose'); // for MongoDB
-   // OR
-   const store = userManager.getDbAdapter('sequelize'); // for one of: MySQL | MariaDB | SQLite | Microsoft SQL Server | Postgres | In-memory DB
-
-   await store.connect(connectionOptions);
-   ```
-
-   (See the `connect()` method in the section on **[Methods of the store object](#methods-of-the-store-object)** for the expected `connectionOptions`)
-4. Proceed with normal server initialization, e.g:
-   ```
-   const server = http.createServer(app);
-   server.listen(port);
-   server.on('error', function onError(error) {...});
-   server.on('listening', function onListening() {...});
-   ```
-5. Optionally listen for and handle events
-   ```
-   userManager.on(EVENT_NAME, function(data) {
-      // do something with data
-   });
-   ```
-
-   (See the **[Emitted events](#emitted-events)** section for more)
-
-<a name="specifying-custom-api-endpoints"></a>
 ### Specifying custom API endpoints
-The last parameter to `userManager.listen()` represents an object that lets you customize the API endpoints.
-The default object has a number of properties, each corresponding to a request path:
+To customize the request paths, either:
+- pass a `routes` property with the API endpoints to `userManager.config`:
+  ```
+  userManager.config({
+    routes: customApiEndpoints
+  });
+
+  userManager.listen(expressApp, apiMountPoint);
+  ```
+- pass an object with the API endpoints as the last parameter to `userManager.listen`
+  `userManager.listen(expressApp, apiMountPoint, customApiEndpoints)`
+
+Below is the default definition of the API Endpoints, which can be modified for your custom routes:
+```
+const customApiEndpoints = {
+  list       : '/',       // Resolves to [apiMountPoint]/
+  search     : '/search', // Resolves to [apiMountPoint]/search
+  getUser    : '/user',   // Resolves to [apiMountPoint]/user/:username
+  signup     : '/',       // Resolves to [apiMountPoint]/
+  login      : '/login',  // Resolves to [apiMountPoint]/login
+  logout     : '/logout', // Resolves to [apiMountPoint]/logout
+  deleteUser : '/user',   // Resolves to [apiMountPoint]/user/:userId
+};
+```
+
+As seen above, the default object has a number of properties, each corresponding to a request path:
 - **list** : Specifies the path to get users listing
 - **search** : Specifies the path to search for users
 - **getUser** : Specifies the path to get a user by username
@@ -173,25 +242,7 @@ The default object has a number of properties, each corresponding to a request p
 - **deleteUser** : Specifies the path for deleting user by id
 (a `/:userId` is automatically appended to the end of this route)
 
-To customize the request paths,
-pass an object (with the above properties as keys, and the custom paths as values)
-as the third argument of the `userManager.listen()` call:
-```
-const customRoutes = {
-  list       : '/',       // Resolves to [baseApiRoute]/
-  search     : '/search', // Resolves to [baseApiRoute]/search
-  getUser    : '/user',   // Resolves to [baseApiRoute]/user/:username
-  signup     : '/',       // Resolves to [baseApiRoute]/
-  login      : '/login',  // Resolves to [baseApiRoute]/login
-  logout     : '/logout', // Resolves to [baseApiRoute]/logout
-  deleteUser : '/user',   // Resolves to [baseApiRoute]/user/:userId
-};
-
-userManager.listen(expressApp, baseApiRoute, customRoutes);`
-```
-
-<a name="using-the-middlewares"></a>
-### Using the middlewares
+## Built-in middlewares
 The **userManager** module provides some middlewares.
 You can get them by calling: `userManager.get('middlewares');`.
 This will return an object with the following middlewares:
@@ -222,32 +273,6 @@ This will return an object with the following middlewares:
 - MysQL (Adapter: [sequelize](https://www.npmjs.com/package/sequelize), Engine: `mysql`)
 - Postgres (Adapter: [sequelize](https://www.npmjs.com/package/sequelize), Engine: `postgres`)
 - SQLite (Adapter: [sequelize](https://www.npmjs.com/package/sequelize), Engine: `sqlite`)
-
-## Methods of the store object
-- `async connect(options)`: `options` should be an object with members:
-    - host {string} the db server host
-    - port {number} the db server port
-    - user {string} the db server username
-    - pass {string} the db server user password
-    - engine {string} the database engine to use.
-        - Possible values are: `memory, mariadb, mssql, mysql, postgres, sqlite`
-        - This parameter is not required when using the `mongoose` adapter: `userManager.getDbAdapter('mongoose')`.
-    - storagePath {string} The storage location when the `engine` is set to `postgres`.
-        - The value is combined with the `dbName` option to set the storage: `${storagePath}/${dbName}.sqlite`
-    - dbName {string} the name of the database to connect to
-    - debug {boolean | number(int | 0)} determines whether or not to show debugging output
-- `async disconnect()`
-- `async createUser(userData)`: `userData` should be an object with members:
-    - firstname
-    - lastname
-    - username
-    - email
-    - password
-    - passwordConfirm
-- `async getUsers(options)`
-- `async searchUsers(options)`
-- `async findByEmail(email)`
-- `findByUsername(username)`
 
 <a name="emitted-events"></a>
 ## Emitted events
@@ -289,60 +314,13 @@ This will return an object with the following middlewares:
 - must contain at least a lowercase character
 - must not be among the values specified in the `PASSWORD_BLACK_LIST` environment variable
 
-<a name="usage-as-a-standalone-server"></a>
 ## Usage as a stand-alone server
 The package comes with a built-in express server that allows you run it as a stand-alone server.
 
 To run it as a stand-alone server, do the following:  
 - Ensure you have a server running for your preferred database engine.
   (See **[Setting up test databases](#setting-up-test-databases)** for some examples)
-- Define the environment variables listed in the **[Quick start](#quick-start)** section.
-- In addition, define the following environment variables:
-    - **PORT**: The port on which the server should run
-    - **DB_ENGINE**: The database engine to use. Should be one of the supported databases.
-      (See **[Built-in data stores (database drivers)](#built-in-data-stores)**)
-    - **DB_ADAPTER**: The adapter to use. Set it to `mongoose` if using MongoDB; Set it to `sequelize` otherwise.
-    - **DB_STORAGE_PATH**: Define this only when the **DB_ENGINE** is set to `sqlite`.
-    - **DB_HOST**: The database host
-    - **DB_USERNAME**: The database user
-    - **DB_PASSWORD**: The database user's password
-    - **DB_DBNAME**: The name of the database
-    - **DB_PORT**: The port on which the database is running
-    - **DB_DEBUG**: Set this to `true` or a non-zero integer to display debug output for the database.
-    - **EXIT_ON_DB_CONNECT_FAIL**: Set this to `true` or a non-zero integer if the app should exit if it is unable to establish a connection to the database.
-
-  **Note**: A quick and easy way to define the above variables is to create a *.env* file at the root of your project directory, and add them to it.
-  For example:
-  ```
-  NODE_ENV=development
-  PORT=3000
-
-  # Database
-  DB_ENGINE=
-  DB_ADAPTER=
-  DB_STORAGE_PATH=
-  DB_HOST=localhost
-  DB_USERNAME=
-  DB_PASSWORD=
-  DB_DBNAME=users
-  DB_PORT=
-  DB_DEBUG=false
-  EXIT_ON_DB_CONNECT_FAIL=true
-
-  # Security
-  SESSION_TOKEN_KEY=secret
-
-  # Access/Authorization token sign key
-  AUTH_TOKEN_KEY=secret
-
-  # Access/Authorization token expiry (in seconds)
-  AUTH_TOKEN_EXPIRY="60 * 60 * 24"
-
-  # Password customization
-  PASSWORD_MIN_LENGTH=6
-  PASSWORD_MAX_LENGTH=20
-  PASSWORD_BLACK_LIST=password,passw0Rd,secret,Passw0rd,Password123
-  ```
+- Define the environment variables listed in the **[Environment variables](#environment-variables)** section.
 - start the server, using one of these two methods:
     - Run `node express-user-manager/src/server` from within the parent directory containing the express-user-manager package.
     - `require('express-user-manager/src/server')();` from within a `node.js` script. For example, inside an `index.js` file.
@@ -496,10 +474,20 @@ The default base API route is **`/api/users`**.
       ```
     - response `{}`
 
-<a name="contributing"></a>
 ## Contributing
-See the [Contributing guide](https://github.com/simplymichael/express-user-manager/blob/master/CONTRIBUTING.md)
+- [Report a bug][bug]
+- [Request a new feature][fr]
+- [Submit a pull request][pr]
+- <a name="contributing-guide"><a>Checkout the [Contributing guide][contribute]
 
-<a name="changelog"></a>
 ## CHANGELOG
-See [CHANGELOG](https://github.com/simplymichael/express-user-manager/blob/master/CHANGELOG.md)
+See [CHANGELOG][changelog]
+
+
+[pr]: https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request
+[fr]: https://github.com/simplymichael/express-user-manager/labels/feature%20request
+[bug]: https://github.com/simplymichael/express-user-manager/labels/bug
+[env]: https://github.com/simplymichael/express-user-manager/blob/master/.env.example
+[dotenv]: https://www.npmjs.com/package/dotenv
+[changelog]: https://github.com/simplymichael/express-user-manager/blob/master/CHANGELOG.md
+[contribute]: https://github.com/simplymichael/express-user-manager/blob/master/CONTRIBUTING.md

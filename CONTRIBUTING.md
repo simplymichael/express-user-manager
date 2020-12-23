@@ -15,6 +15,7 @@ Also, feel free to propose changes to this document in a pull request.
     - **[Manual testing (with Postman or cURL)](#manual-testing)**
     - **[Setting up test databases (with docker)](#setting-up-test-databases)**
     - **[Viewing debug output](#viewing-debug-output)**
+    - **[Creating a new database adapter](#creating-a-new-database-adapter)**
 - **[Committing and pushing changes](#committing-and-pushing-changes)**
 - **[Style-guides](#styleguides)**
     - **[Git Commit Messages](#git-commit-messages)**
@@ -79,12 +80,12 @@ To run the tests,
     - `DB_DBNAME=users`
     - `DB_DEBUG=false`
     - `EXIT_ON_DB_CONNECT_FAIL=true`
-    - `SESSION_TOKEN_KEY=secret`
-    - `AUTH_TOKEN_KEY=secret`
+    - `SESSION_SECRET=secret`
+    - `AUTH_TOKEN_SECRET=secret`
     - `AUTH_TOKEN_EXPIRY="60 * 60 * 24"`
     - `PASSWORD_MIN_LENGTH=6`
     - `PASSWORD_MAX_LENGTH=20`
-    - `PASSWORD_BLACK_LIST=password,passw0Rd,secret,Passw0rd,Password123`
+    - `DISALLOWED_PASSWORDS=password,passw0Rd,secret,Passw0rd,Password123`
 - Run all tests: `npm test`
 - Run all tests with coverage report: `npm run test:coverage`
 - Run only the database tests: `npm run test:db:all`
@@ -125,6 +126,40 @@ You can run end-to-end tests on the routes using Postman or cURL. To do this,
 ### Viewing debug output
 To see debug output on the console, set the `DEBUG` environment variable to ***express-user-manager***
 before running the tests or starting the built-in server: `set DEBUG=express-user-manager`
+
+### Creating a new database adapter
+To create a new database adapter, create a new file.
+Inside the file, define and export a class with the following methods:
+
+- `async connect(options)`: `options` should be an object with members:
+    - host {string} the db server host
+    - port {number} the db server port
+    - user {string} the db server username
+    - pass {string} the db server user password
+    - engine {string} the database engine to use.
+        - Possible values are: `memory, mariadb, mssql, mysql, postgres, sqlite`
+        - This parameter is not required when using the `mongoose` adapter: `userManager.getDbAdapter('mongoose')`.
+    - storagePath {string} The storage location when the `engine` is set to `postgres`.
+        - The value is combined with the `dbName` option to set the storage: `${storagePath}/${dbName}.sqlite`
+    - dbName {string} the name of the database to connect to
+    - debug {boolean | number(int | 0)} determines whether or not to show debugging output
+- `async disconnect()`
+- `async createUser(userData)`: `userData` should be an object with members:
+    - firstname
+    - lastname
+    - username
+    - email
+    - password
+    - passwordConfirm
+- `async getUsers(options)`
+- `async searchUsers(options)`
+- `async findByEmail(email)`
+- `findByUsername(username)`
+
+Save the file in one of two ways:
+- as ***{adapterName}***.js inside the `src/databases/adapters` directory
+- as `index.js` inside a directory name ***{adapterName}***,
+  then place the directory in the `src/databases/adapters` directory
 
 ## Committing and Pushing changes
 

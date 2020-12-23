@@ -1,5 +1,6 @@
 const emailValidator = require('email-validator');
 const {
+  env,
   emit,
   appModule,
   debugLog,
@@ -54,7 +55,12 @@ async function login(req, res) {
     req.session.user = user; // Maintain the user's data in current session
 
     // Create an auth token for the user so we can validate future requests
-    const { token, expiry } = generateAuthToken(user.id, user.email);
+    const { authTokenSecret, authTokenExpiry } = appModule.get('security') || {};
+    const tokenSecret = authTokenSecret || env.AUTH_TOKEN_SECRET;
+    const tokenExpiry = authTokenExpiry || env.AUTH_TOKEN_EXPIRY;
+    const { token, expiry } = generateAuthToken(
+      user.id, user.email, tokenSecret, eval(tokenExpiry) + 's'
+    );
     const authorization = { token: `Bearer ${token}`, expiresIn: expiry };
 
     responseData = {

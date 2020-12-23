@@ -8,10 +8,8 @@ const { emit, convertToBoolean } = require('../../_utils');
 let db = null;
 let User = null;
 
-class MySqlStore {
-  constructor() {
-    this.emit = emit;
-  }
+class SequelizeStore {
+  constructor() {}
 
   /**
    * Start a (MongoDB) DB server instance
@@ -178,7 +176,7 @@ class MySqlStore {
 
     const OFFSET = ((typeof page === 'number' && page > 0) ? page - 1 : 0);
     const LIMIT = ((typeof limit === 'number' && limit > 0) ? limit : 0);
-    const orderBy = MySqlStore.generateOrderBy(sort);
+    const orderBy = SequelizeStore.generateOrderBy(sort);
 
     // Prepare the searchBy clause
     let where = {};
@@ -260,7 +258,7 @@ class MySqlStore {
       throw new Error('Please specify the search term');
     }
 
-    const orderBy = MySqlStore.generateOrderBy(sort);
+    const orderBy = SequelizeStore.generateOrderBy(sort);
     const regex = `%${query}%`;
 
     // Prepare the searchBy clause
@@ -380,4 +378,4 @@ class MySqlStore {
   }
 }
 
-module.exports = MySqlStore;
+module.exports = SequelizeStore;

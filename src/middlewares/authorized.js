@@ -1,5 +1,5 @@
 const { decodeAuthToken } = require('../utils/auth');
-const { appModule, emit, statusCodes } = require('./_utils');
+const { env, emit, appModule, statusCodes } = require('./_utils');
 
 module.exports = authorized;
 
@@ -36,7 +36,9 @@ async function authorized(req, res, next) {
       return res.status(statusCodes.unauthorized).json(responseData);
     }
 
-    const decoded = decodeAuthToken(bearerToken);
+    const { authTokenSecret } = appModule.get('security') || {};
+    const tokenSecret = authTokenSecret || env.AUTH_TOKEN_SECRET;
+    const decoded = decodeAuthToken(bearerToken, tokenSecret);
 
     if(!decoded) {
       emit('authorizationError', responseData);
