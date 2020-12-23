@@ -89,6 +89,34 @@ describe(`Delete User: DELETE /api/users/user/:userId`, async () => {
       });
   });
 
+  it('should return a 400 status code if "userId" is not specified in request body', (done) => {
+    const agent = chai.request.agent(server);
+
+    agent
+      .post(loginRoute)
+      .send(loginCredentials)
+      .then(function (res) {
+        const { token, expiresIn } = res.body.data.authorization;
+
+        return agent
+          .delete(deleteRoute)
+          .set('Authorization', token)
+          .send({})
+          .then(function (res) {
+            res.should.have.status(400);
+            res.should.have.property('body');
+            res.body.should.be.a('object');
+            res.body.should.have.property('errors');
+            res.body.errors.should.be.an('array');
+            res.body.errors[0].should.be.an('object');
+            res.body.errors[0].should.have.property('msg');
+            res.body.errors[0].msg.should.equal('The user id must be specified in the request url and request body!');
+            agent.close();
+            done();
+          })
+      });
+  });
+
   it('should return a 400 status code if "userId" in request url and request body do not match', (done) => {
     const agent = chai.request.agent(server);
 
