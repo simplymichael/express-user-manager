@@ -48,7 +48,10 @@
     "lint:fix": "npm run lint -- --fix",
     "codecov": "codecov",
     "draft-release": "standard-version",
-    "draft-release:simulate": "npm run draft-release -- --dry-run"
+    "draft-release:simulate": "npm run draft-release -- --dry-run",
+    "view-readme": "./node_modules/.bin/markdown-viewer -b",
+    "view-contributing": "./node_modules/.bin/markdown-viewer -f CONTRIBUTING.md -b",
+    "view-license": "./node_modules/.bin/markdown-viewer -f LICENSE.md -b"
   },
   "repository": {
     "type": "git",
@@ -84,6 +87,7 @@
     "cz-conventional-changelog": "3.3.0",
     "eslint": "7.13.0",
     "ghooks": "2.0.4",
+    "markdown-viewer": "1.0.1",
     "mocha": "8.2.1",
     "node-fetch": "2.6.1",
     "nyc": "15.1.0",

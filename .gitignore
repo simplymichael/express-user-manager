@@ -13,3 +13,4 @@ test-directory/
 .env
 .data
 .DS_Store
+.markdown-viewer
