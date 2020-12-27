@@ -35,6 +35,9 @@ Additional features include:
     - **[The `config` method](#the-config-method)**
     - **[Specifying custom API endpoints](#specifying-custom-api-endpoints)**
 - **[Built-in middlewares](#built-in-middlewares)**
+- **[Hooks](#hooks)**
+    - **[Available hooks](#available-hooks)**
+        - **[Request hooks](#request-hooks)**
 - **[Built-in data stores (database drivers)](#built-in-data-stores)**
 - **[Emitted events](#emitted-events)**
     - **[Events emitted by the database](#events-emitted-by-the-database)**
@@ -49,6 +52,8 @@ Additional features include:
     - **[Submit a pull request](#submit-a-pull-request)**
     - **Checkout the [Contributing guide](#contributing-guide)**
 - **[CHANGELOG](#changelog)**
+- **[License](#license)**
+- **[Author](#author)**
 
 ## Installation
 `npm install --save express-user-manager`
@@ -293,6 +298,7 @@ const customApiEndpoints = {
 };
 ```
 
+#### API endpoints object properties
 As seen above, the default object has a number of properties, each corresponding to a request path:
 - **list** : Specifies the path to get users listing
 - **search** : Specifies the path to search for users
@@ -324,6 +330,61 @@ This will return an object with the following middlewares:
   if the current user is already logged in.
 - **restrictUserToSelf**:
   Constrains a user to performing certain actions only on their own account.
+
+## Hooks
+Hooks are a mechanism to allow you hook into different parts of the application's lifecycle.
+
+### Available hooks
+- <a name="request-hooks">**Request hooks**</a>
+
+  Request hooks allow you define and register custom request middlewares.
+  They give you the ability to modify the request or response.
+
+  You can register a request hook for a single route, multiple routes, or all routes.
+
+  To register a request hook:
+    - define a middleware, which is just a fancy word for a function that takes three parameters: `req`, `res`, `next`.
+
+      If you intend to hand over processing to the next handler in the chain (recommended),
+      remember to call `next()` from within your middleware when you are done; Or call `next(error)` to pass execution to the error handler.
+    - decide on which route (or routes) the middleware should be registered for: single-route, multi-route, global.
+      The route(s) should correspond to a key or keys in the [API endpoints configuration object](#api-endpoints-object-properties).
+
+      Multiple hooks can be registered on a given route.
+    - call the `userModule.addRequestHook(target, middlewareFn)` to register the hook.
+
+      The first parameter to `addRequestHook` is a string or an array of strings that specify the target of the hook. Possible values include:
+        - `*`: represents a global hook, which will register the hook for every request (path)
+        - pathName, e.g `login`: represents a single-route hook, which will register the hook for the specified route
+        - list of pathNames, e.g `['login', 'signup', ...]`: represents multi-route hooks, which will register the hook for every path in the array
+
+  **Examples**
+    - Register a hook for every route:
+      ```
+      userModule.addRequestHook('*', function(req, res, next) {
+        // Do something interesting here, with the request or the response.
+        // You can for example set/append custom response headers:
+        res.set('Access-Control-Allow-Origin', '<CUSTOM_ORIGIN>');
+
+        // Call next to pass control onto the next middleware function
+        next();
+      });
+      ```
+    - Register a hook for the signup route:
+      ```
+      userModule.addRequestHook('signup', function(req, res, next) {
+        res.append('Access-Control-Allow-Headers', '<CUSTOM_HEADER>');
+
+        next();
+      });
+      ```
+    - Register a hook for multiple the *login*, *signup*, and *list* routes:
+      ```
+      userModule.addRequestHook(['login', 'signup', 'list'], function(req, res, next) {
+        // Do something tangible
+        next();
+      });
+      ```
 
 <a name="built-in-data-stores"></a>
 ## Built-in data stores (database adapters and engines)
@@ -545,11 +606,18 @@ The default base API route is **`/api/users`**.
 ## CHANGELOG
 See [CHANGELOG][changelog]
 
+## License
+[MIT License][license]
+
+## Author
+[Simplymichael](https://github.com/simplymichael) ([simplymichaelorji@gmail.com](mailto:simplymichaelorji@gmail.com))
+
 
 [pr]: https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request
 [fr]: https://github.com/simplymichael/express-user-manager/labels/feature%20request
 [bug]: https://github.com/simplymichael/express-user-manager/labels/bug
 [env]: https://github.com/simplymichael/express-user-manager/blob/master/.env.example
 [dotenv]: https://www.npmjs.com/package/dotenv
+[license]: https://github.com/simplymichael/express-user-manager/blob/master/LICENSE.md
 [changelog]: https://github.com/simplymichael/express-user-manager/blob/master/CHANGELOG.md
 [contribute]: https://github.com/simplymichael/express-user-manager/blob/master/CONTRIBUTING.md

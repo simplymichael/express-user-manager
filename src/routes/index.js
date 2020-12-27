@@ -1,5 +1,6 @@
 const express = require('express');
 const handlers = require('./handlers');
+const hooks = require('../utils/hooks');
 const apiPaths = require('./defaults').paths;
 const loadUser = require('../middlewares/load-user');
 const loggedIn = require('../middlewares/logged-in');
@@ -7,6 +8,12 @@ const authorized = require('../middlewares/authorized');
 const notLoggedIn = require('../middlewares/not-logged-in');
 const validator = require('../middlewares/validators/_validator');
 const checkExpressValidatorStatus = require('../middlewares/express-validator-status-checker');
+
+function invokeHooks(target) {
+  return function(req, res, next) {
+    hooks.execute(target, req, res, next);
+  };
+}
 
 function setupRouting(customRoutes = {}) {
   const router = express.Router();
@@ -23,19 +30,24 @@ function setupRouting(customRoutes = {}) {
   }
 
   /* GET users listing. */
-  router.get(routes.list, handlers.get);
+  router.get(routes.list, invokeHooks('list'), handlers.get);
 
   /* Search for users */
-  router.get(routes.search, handlers.search);
+  router.get(routes.search, invokeHooks('search'), handlers.search);
 
   /* Get a user by username */
-  router.get(`${routes.getUser}/:username`, loadUser, handlers.getUser);
+  router.get(`${routes.getUser}/:username`,
+    loadUser,
+    invokeHooks('getUser'),
+    handlers.getUser
+  );
 
   /* Create (i.e, register) a new user */
   router.post(routes.signup,
     notLoggedIn,
     validator.validate('firstname', 'lastname', 'username', 'email', 'password', 'confirmPassword'),
     checkExpressValidatorStatus('signupError'),
+    invokeHooks('signup'),
     handlers.create
   );
 
@@ -44,10 +56,11 @@ function setupRouting(customRoutes = {}) {
     notLoggedIn,
     validator.validate('login', 'password'),
     checkExpressValidatorStatus('loginError'),
+    invokeHooks('login'),
     handlers.login
   );
 
-  router.get(routes.logout, handlers.logout);
+  router.get(routes.logout, invokeHooks('logout'), handlers.logout);
 
   /**
    * DANGER: Delete user by id
@@ -57,6 +70,7 @@ function setupRouting(customRoutes = {}) {
   router.delete(`${routes.deleteUser}/:userId`,
     loggedIn,
     authorized,
+    invokeHooks('delete'),
     handlers.deleteUser
   );
 

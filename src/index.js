@@ -3,6 +3,7 @@
 const env = require('./dotenv');
 const db = require('./databases');
 const debug = require('./utils/debug');
+const hooks = require('./utils/hooks');
 const setupRouting = require('./routes');
 const prepare = require('./utils/prepare');
 const userModule = require('./user-module');
@@ -19,6 +20,7 @@ userModule.init = init;
 userModule.config = config;
 userModule.listen = listen;
 userModule.getDbAdapter = getDbAdapter;
+userModule.addRequestHook = addRequestHook;
 
 /**
  * Export userModule singleton instance
@@ -234,6 +236,41 @@ function listen(app, baseApiRoute = '/api/users', customRoutes = {}) {
   debug('Setting up mount point...');
   app.use(new RegExp(`${baseApiRoute}`, 'i'), routeListener);
   debug(`Routing setup complete. Listening for requests at ${baseApiRoute}`);
+}
+
+/**
+ * Add a request hook
+ *
+ * @param target {mixed} string | array: the values of target can be:
+ *   - * : to add the hook to every request (path)
+ *   - pathName: to add the hook to specified path
+ *   - array of pathNames: to add the hook to every path in the array
+ */
+function addRequestHook(target, fn) {
+  const routes = { ...defaults.apiPaths };
+  const validRoutes = Object.keys(routes);
+
+  if(typeof target === 'string') {
+    target = target.toLowerCase().trim();
+
+    if(target === '*') {
+      for(const pathName in routes) {
+        hooks.add('request', pathName, fn);
+      }
+    }
+
+    if(!validRoutes.includes(target)) {
+      throw new Error(`${appName}::addRequestHook: invalid hook target "${target}"`);
+    }
+
+    hooks.add('request', target, fn);
+  } else if(Array.isArray(target)) {
+    for(const route of target) {
+      if(validRoutes.includes(route)) {
+        hooks.add('request', route, fn);
+      }
+    }
+  }
 }
 
 // Private helper functions

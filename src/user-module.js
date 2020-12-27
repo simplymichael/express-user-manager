@@ -24,9 +24,16 @@ class UserModule extends EventEmitter {
   }
 
   get(key) {
-    return this.store.has(key) ? this.store.get(key) : null;
+    return this.contains(key) ? this.store.get(key) : null;
   }
 
+  contains(key) {
+    return this.store.has(key);
+  }
+
+  delete(key) {
+    return this.store.delete(key);
+  }
 
   static getInstance() {
     return new UserModule();

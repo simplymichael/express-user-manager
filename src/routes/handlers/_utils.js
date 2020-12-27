@@ -1,6 +1,6 @@
 const env = require('../../dotenv');
-const { emit, userModule } = require('../../utils');
 const debugLog = require('../../utils/debug');
+const { emit, userModule } = require('../../utils');
 const { statusCodes } = require('../../utils/http');
 
 // Fields to return to the client when a new user is created

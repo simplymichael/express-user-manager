@@ -6,7 +6,7 @@ branches:
   only:
     - master
     - develop
-    - revamp
+    - hooks
 
 services:
   - mongodb
