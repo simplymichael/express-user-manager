@@ -46,6 +46,7 @@ module.exports = userModule;
  *      - signup {string} specifies the user registration path
  *      - login {string} specifies user authentication path,
  *      - logout {string} defines the logout path
+ *      - updateUser {string} defines the path for updating user data
  *      - deleteUser {string} specifies the path for deleting a user, a /:{userId} is appended to this path
  *  - db {object} for configuring the database connection
  *      - adapter {string} the adapter to use. valid values include 'mongoose', 'sequelize'
@@ -186,6 +187,7 @@ function getDbAdapter(adapter) {
     'findByEmail',
     'findByUsername',
     'findById',
+    'updateUser',
     'deleteUser'
   ];
 

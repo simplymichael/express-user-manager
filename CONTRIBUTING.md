@@ -159,10 +159,8 @@ Inside the file, define and export a class with the following methods:
     - return the connection resource: `return conn;`
 - `async disconnect()`: On disconnect success, it should emit a ***dbDisconnect*** event: `this.emit('dbDisconnect');`
 - `async createUser(userData)`: `userData` should be an object with members:
-    - `id` ***{mixed}***
     - `firstname` ***{string}***
     - `lastname` ***{string}***
-    - `fullname` ***{string}***
     - `username` ***{string}***
     - `email` ***{string}***
     - `password` ***{string}***
@@ -173,6 +171,7 @@ Inside the file, define and export a class with the following methods:
   where `userData` is an object:
   ```
   return {
+    id: USER_ID
     firstname: FNAME,
     lastname: LNAME,
     email: EMAIL,
@@ -212,7 +211,7 @@ Inside the file, define and export a class with the following methods:
      signupDate: DATE_CREATED
    }
    ```
-- `findByUsername(username)`: should return a user object:
+- `async findByUsername(username)`: should return a user object:
    ```
    return {
      id: USER_ID,
@@ -224,7 +223,7 @@ Inside the file, define and export a class with the following methods:
      signupDate: DATE_CREATED
    }
    ```
-- `findById(userId)`: should return a user object:
+- `async findById(userId)`: should return a user object:
    ```
    return {
      id: USER_ID,
@@ -236,7 +235,27 @@ Inside the file, define and export a class with the following methods:
      signupDate: DATE_CREATED
    }
    ```
-- `deleteUser(userId)`
+- `async updateUser(userId, updateData)`: `updateData` should be an object with members:
+    - `firstname` ***{string}***
+    - `lastname` ***{string}***
+    - `username` ***{string}***
+    - `email` ***{string}***
+  On success, it should:
+    - emit an ***updateUserSuccess*** event with the updated user's data: `this.emit('updateUserSuccess', userData);`
+    - return the new user's data: `return userData;`
+  where `userData` is an object:
+  ```
+  return {
+    id: USER_ID
+    firstname: FNAME,
+    lastname: LNAME,
+    fullname: USER_FULLNAME,
+    email: EMAIL,
+    username: USERNAME,
+    signupDate: DATE_CREATED
+  }
+  ```
+- `async deleteUser(userId)`
 
 Save the file in one of two ways:
 - as ***{adapterName}***.js inside the `src/databases/adapters` directory
