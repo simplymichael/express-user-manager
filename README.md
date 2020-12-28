@@ -431,7 +431,6 @@ Hooks are a mechanism to allow you hook into different parts of the application'
 - actionNotPermittedError
 - authorizationError
 - authenticationError
-- getUserError
 
 <a name="password-constraints"></a>
 ## Password constraints
