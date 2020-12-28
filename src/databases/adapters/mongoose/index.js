@@ -272,6 +272,10 @@ class MongooseStore {
     return await User.getById(userId);
   }
 
+  async updateUser(userId, updateData) {
+    return await User.updateUser(userId, updateData);
+  }
+
   async deleteUser(userId) {
     return await User.deleteUser(userId);
   }

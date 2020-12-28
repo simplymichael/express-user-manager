@@ -5,7 +5,7 @@ const { emit, statusCodes } = require('./_utils');
  * not other users'
  */
 function restrictUserToSelf(req, res, next) {
-  if (!req.session.user || req.session.user.username !== req.user.username) {
+  if (!req.session.user || (req.session.user.id !== req.body.id)) {
     const responseData = {
       errors: [{
         msg: 'Unauthorized'
