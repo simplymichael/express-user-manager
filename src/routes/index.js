@@ -7,6 +7,7 @@ const loggedIn = require('../middlewares/logged-in');
 const authorized = require('../middlewares/authorized');
 const notLoggedIn = require('../middlewares/not-logged-in');
 const validator = require('../middlewares/validators/_validator');
+const restrictUserToSelf = require('../middlewares/restrict-user-to-self');
 const checkExpressValidatorStatus = require('../middlewares/express-validator-status-checker');
 
 function invokeHooks(target) {
@@ -58,6 +59,17 @@ function setupRouting(customRoutes = {}) {
     checkExpressValidatorStatus('loginError'),
     invokeHooks('login'),
     handlers.login
+  );
+
+  /* Update user data */
+  router.put(routes.updateUser,
+    loggedIn,
+    authorized,
+    restrictUserToSelf,
+    validator.validate('id', 'firstname', 'lastname', 'username', 'email'),
+    checkExpressValidatorStatus('updateUserError'),
+    invokeHooks('updateUser'),
+    handlers.updateUser
   );
 
   router.get(routes.logout, invokeHooks('logout'), handlers.logout);

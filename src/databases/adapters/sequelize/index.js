@@ -350,6 +350,14 @@ class SequelizeStore {
     return (await User.findAll({ where: { id: userId } }))[0];
   }
 
+  async updateUser(userId, updateData) {
+    return await User.update(updateData, {
+      where: {
+        id: userId
+      }
+    });
+  }
+
   async deleteUser(userId) {
     return await User.destroy({ where: { id: userId } });
   }

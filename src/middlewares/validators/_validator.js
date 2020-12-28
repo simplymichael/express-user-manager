@@ -1,3 +1,4 @@
+const idValidator = require('./id-validator');
 const firstnameValidator = require('./firstname-validator');
 const lastnameValidator = require('./lastname-validator');
 const emailValidator = require('./email-validator');
@@ -7,6 +8,7 @@ const passwordConfirmationValidator = require('./password-confirmation-validator
 const loginValidator = require('./login-validator');
 
 const validators = {
+  id: idValidator,
   firstname: firstnameValidator,
   lastname: lastnameValidator,
   email: emailValidator,

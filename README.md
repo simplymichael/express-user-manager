@@ -16,7 +16,8 @@ It automatically creates and adds the following API endpoints to an Express app:
 - user retrieval
 - users listing
 - user searching
-- account deletion
+- user data update
+- user account deletion
 
 Additional features include:
 
@@ -213,6 +214,7 @@ userManager.config({
     signup: {string}, // specifies the user registration path
     login: {string}, // specifies user authentication path,
     logout: {string}, // defines the logout path
+    updateUser: {string} // specifies the path for updating a user's data
     deleteUser: {string} // specifies the path for deleting a user, a /:{userId} is appended to this path
   },
 
@@ -294,6 +296,7 @@ const customApiEndpoints = {
   signup     : '/',       // Resolves to [apiMountPoint]/
   login      : '/login',  // Resolves to [apiMountPoint]/login
   logout     : '/logout', // Resolves to [apiMountPoint]/logout
+  updateUser : '/',       // Resolves to [apiMountPoint]/
   deleteUser : '/user',   // Resolves to [apiMountPoint]/user/:userId
 };
 ```
@@ -418,6 +421,8 @@ Hooks are a mechanism to allow you hook into different parts of the application'
 - searchUsersError
 - searchUsersSuccess
 - getUserSuccess
+- updateUserError
+- updateUserSuccess
 - deleteUserError
 - deleteUserSuccess
 
@@ -580,6 +585,25 @@ The default base API route is **`/api/users`**.
     - request body: none
     - request parameters: none
     - response: `{}`
+- **Update user data**
+    - route: `PUT /`
+    - protected: `true`
+    - request headers:
+      ```
+      {
+        "Authorization": "Bearer TOKEN_STRING"
+      }
+      ```
+    - request parameters: none
+    - request body: `{ id, firstname, lastname, username, email }`
+    - response:
+      ```
+      {
+        "data": {
+          "user": { id, firstname, lastname, fullname, email, username, signupDate }
+        }
+      }
+      ```
 - **Delete user by ID**
     - route: `DELETE /user/USER_ID`
     - protected: `true`

@@ -6,6 +6,7 @@ const apiPaths = {
   signup: '/',
   login: '/login',
   logout: '/logout',
+  updateUser: '/',
   deleteUser: '/user',
 };
 
