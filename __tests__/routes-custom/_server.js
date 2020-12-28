@@ -12,6 +12,7 @@ const customRoutes = {
   signup     : '/register',
   login      : '/auth',
   logout     : '/signout',
+  updateUser : '/update',
   deleteUser : '/user',
 };
 

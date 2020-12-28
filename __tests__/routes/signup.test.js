@@ -186,6 +186,23 @@ describe(`User Registration: POST ${signupRoute}`, () => {
         res.body.should.be.a('object');
         res.body.should.have.property('data');
         res.body.data.should.have.property('user');
+
+        const user = res.body.data.user;
+
+        user.should.have.property('id');
+        user.should.have.property('firstname');
+        user.firstname.should.equal(clonedUser.firstname);
+        user.should.have.property('lastname');
+        user.lastname.should.equal(clonedUser.lastname);
+        user.should.have.property('fullname');
+        user.fullname.should.equal([clonedUser.firstname, clonedUser.lastname].join(' '));
+        user.should.have.property('username');
+        user.username.should.equal(clonedUser.username);
+        user.should.have.property('email');
+        user.email.should.equal(clonedUser.email);
+        user.should.have.property('signupDate')
+        user.should.not.have.property('password');
+
         done();
     });
   });

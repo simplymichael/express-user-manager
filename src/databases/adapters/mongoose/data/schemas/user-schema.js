@@ -5,7 +5,6 @@ const schemaDefinition = {
   username: {
     type: String,
     unique: true,
-    lowercase: true,
     required: true,
   },
   name: {
@@ -15,7 +14,6 @@ const schemaDefinition = {
   email: {
     type: String,
     required: true,
-    lowercase: true,
     validate: [
       (email) => emailValidator.validate(email),
       'Please provide a valid email'

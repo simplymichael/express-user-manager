@@ -1,11 +1,11 @@
-const { emit, statusCodes } = require('./_utils');
+const { emit, getValidId, statusCodes } = require('./_utils');
 
 /**
  * Lets a user only perform actions on their own profiles,
  * not other users'
  */
 function restrictUserToSelf(req, res, next) {
-  if (!req.session.user || (req.session.user.id !== req.body.id)) {
+  if (!req.session.user || (getValidId(req.session.user.id) !== getValidId(req.body.id))) {
     const responseData = {
       errors: [{
         msg: 'Unauthorized'

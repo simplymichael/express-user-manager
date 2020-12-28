@@ -108,6 +108,7 @@ class MongooseStore {
       if (err.code === 11000) {
         throw {
           type: 'USER_EXISTS_ERROR',
+          error: err,
         };
       }
 
@@ -273,6 +274,20 @@ class MongooseStore {
   }
 
   async updateUser(userId, updateData) {
+    const name = {};
+
+    if(updateData.firstname) {
+      name.first = updateData.firstname;
+    }
+
+    if(updateData.lastname) {
+      name.last = updateData.lastname;
+    }
+
+    if(Object.keys(name).length > 0) {
+      updateData.name = name;
+    }
+
     return await User.updateUser(userId, updateData);
   }
 

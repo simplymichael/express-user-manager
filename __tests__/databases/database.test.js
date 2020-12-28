@@ -152,6 +152,66 @@ describe('Users', () => {
 
       await db.deleteUser(user.id);
     });
+
+    it('should reject with an error if user with email already exists', async () => {
+      const userData = { ...getRandomData(users) };
+      userData.username = userData.username.split('').reverse().join('');
+      const spy = chai.spy.on(userModule, 'emit');
+      const user = await db.createUser(userData);
+
+      expect(spy).to.have.been.called.with('createUser');
+
+      expect(user).to.be.an('object');
+      expect(user).to.have.property('id');
+      expect(user).to.have.property('firstname').to.equal(userData.firstname);
+      expect(user).to.have.property('lastname').to.equal(userData.lastname);
+      expect(user).to.have.property('username').to.equal(userData.username);
+      expect(user).to.have.property('email').to.equal(userData.email);
+      expect(user).to.have.property('password');
+      expect(user).to.have.property('signupDate').to.be.instanceOf(Date);
+
+      try {
+        await db.createUser(userData);
+      } catch(err) {
+        expect(spy).to.not.have.been.called;
+        expect(err).to.be.an.an('object').to.have.property('type');
+        expect(['USER_EXISTS_ERROR', 'VALIDATION_ERROR']).to.include(err.type);
+        expect(err).to.have.property('error');
+      }
+
+      chai.spy.restore();
+      await db.deleteUser(user.id);
+    });
+
+    it('should reject with an error on duplicate username', async () => {
+      const userData = { ...getRandomData(users) };
+      userData.email = 'fakeEmail@someprovider.com';
+      const spy = chai.spy.on(userModule, 'emit');
+      const user = await db.createUser(userData);
+
+      expect(spy).to.have.been.called.with('createUser');
+
+      expect(user).to.be.an('object');
+      expect(user).to.have.property('id');
+      expect(user).to.have.property('firstname').to.equal(userData.firstname);
+      expect(user).to.have.property('lastname').to.equal(userData.lastname);
+      expect(user).to.have.property('username').to.equal(userData.username);
+      expect(user).to.have.property('email').to.equal(userData.email);
+      expect(user).to.have.property('password');
+      expect(user).to.have.property('signupDate').to.be.instanceOf(Date);
+
+      try {
+        await db.createUser(userData);
+      } catch(err) {
+        expect(spy).to.not.have.been.called;
+        expect(err).to.be.an.an('object').to.have.property('type');
+        expect(['USER_EXISTS_ERROR', 'VALIDATION_ERROR']).to.include(err.type);
+        expect(err).to.have.property('error');
+      }
+
+      chai.spy.restore();
+      await db.deleteUser(user.id);
+    });
   });
 
   describe('Get Users', () => {
@@ -719,6 +779,58 @@ describe('Users', () => {
       expect(foundUser).to.have.property('lastname').to.equal(user.lastname);
       expect(foundUser).to.have.property('username').to.equal(user.username);
       expect(foundUser).to.have.property('email').to.equal(user.email);
+      expect(foundUser).to.have.property('signupDate').to.be.instanceOf(Date);
+      expect(foundUser.signupDate.toString()).to.equal(user.signupDate.toString());
+    });
+  });
+
+  describe('Update User By Id', () => {
+    beforeEach(function(done) {
+      createTestUsers(done);
+    });
+
+    afterEach(function(done) {
+      deleteTestUsers(function() {
+        users = usersBackup;
+
+        done();
+      });
+    });
+
+    it('should update a registered user by their id', async () => {
+      const user = getRandomData(users);
+      let foundUser = null;
+
+      foundUser = await db.findById(user.id);
+
+      expect(foundUser).to.be.an('object');
+      expect(foundUser).to.have.property('id');
+      expect(getValidUserId(foundUser.id)).to.equal(getValidUserId(user.id));
+      expect(foundUser).to.have.property('firstname').to.equal(user.firstname);
+      expect(foundUser).to.have.property('lastname').to.equal(user.lastname);
+      expect(foundUser).to.have.property('username').to.equal(user.username);
+      expect(foundUser).to.have.property('email').to.equal(user.email);
+      expect(foundUser).to.have.property('signupDate').to.be.instanceOf(Date);
+      expect(foundUser.signupDate.toString()).to.equal(user.signupDate.toString());
+
+      const updateData = {
+        firstname: 'updatedFirstname',
+        lastname: 'updatedLastname',
+        email: 'updatedEmail@provider.com',
+        username: 'updatedUsername',
+      };
+
+      await db.updateUser(user.id, updateData);
+
+      foundUser = await db.findById(user.id);
+
+      expect(foundUser).to.be.an('object');
+      expect(foundUser).to.have.property('id');
+      expect(getValidUserId(foundUser.id)).to.equal(getValidUserId(user.id));
+      expect(foundUser).to.have.property('firstname').to.equal(updateData.firstname);
+      expect(foundUser).to.have.property('lastname').to.equal(updateData.lastname);
+      expect(foundUser).to.have.property('username').to.equal(updateData.username);
+      expect(foundUser).to.have.property('email').to.equal(updateData.email);
       expect(foundUser).to.have.property('signupDate').to.be.instanceOf(Date);
       expect(foundUser.signupDate.toString()).to.equal(user.signupDate.toString());
     });
