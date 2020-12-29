@@ -7,63 +7,7 @@ module.exports = updateUser;
 /* Update user */
 async function updateUser(req, res) {
   const store = appModule.get('store');
-  const { id } = req.body;
-  let { firstname, lastname, username, email } = req.body;
-
-  firstname = (typeof firstname === 'string' ? firstname : '').trim();
-  lastname = (typeof lastname === 'string' ? lastname : '').trim();
-  username = (typeof username === 'string' ? username : '').trim();
-  email = (typeof email === 'string' ? email : '').trim();
-
-  if(firstname.length === 0) {
-    responseData = {
-      errors: [{
-        msg: 'The firstname field cannot be empty.',
-      }]
-    };
-
-    emit(errorName, responseData);
-    res.status(statusCodes.badRequest).json(responseData);
-    return;
-  }
-
-  if(lastname.length === 0) {
-    responseData = {
-      errors: [{
-        msg: 'The lastname field cannot be empty.',
-      }]
-    };
-
-    emit(errorName, responseData);
-    res.status(statusCodes.badRequest).json(responseData);
-    return;
-  }
-
-  if(username.length === 0) {
-    responseData = {
-      errors: [{
-        msg: 'The username field cannot be empty.',
-      }]
-    };
-
-    emit(errorName, responseData);
-    res.status(statusCodes.badRequest).json(responseData);
-    return;
-  }
-
-  if(email.length === 0) {
-    responseData = {
-      errors: [{
-        msg: 'The email field cannot be empty.',
-      }]
-    };
-
-
-    emit(errorName, responseData);
-    res.status(statusCodes.badRequest).json(responseData);
-    return;
-  }
-
+  const { id, firstname, lastname, username, email } = req.body;
   const userData = await store.findById(id);
 
   if(!userData) {
