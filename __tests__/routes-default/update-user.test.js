@@ -322,7 +322,7 @@ describe(`Update User: PUT ${apiUrl}/users`, async () => {
         return agent
           .put(updateRoute)
           .set('Authorization', token)
-          .send({ ...updateData, ...user })
+          .send(updateData)
           .then(function (res) {
             res.should.have.status(200);
             res.should.have.property('body');
@@ -331,7 +331,7 @@ describe(`Update User: PUT ${apiUrl}/users`, async () => {
             res.body.should.have.property('data');
             res.body.data.should.have.property('user');
 
-            /*const updatedUser = res.body.data.user;
+            const updatedUser = res.body.data.user;
 
             updatedUser.should.have.property('id');
             getValidUserId(updatedUser.id).should.equal(getValidUserId(updateData.id));
@@ -352,7 +352,11 @@ describe(`Update User: PUT ${apiUrl}/users`, async () => {
             // For some reason,
             // the signupDate (createdAt field) changes after updating
             //updatedUser.signupDate.should.equal(user.signupDate);
-            updatedUser.should.not.have.property('password');*/
+            updatedUser.should.not.have.property('password');
+
+            // Set the user details to the updated data ,
+            // so that we can successfully delete them in the afterEach hook
+            user = updatedUser;
 
             agent.close();
             done();

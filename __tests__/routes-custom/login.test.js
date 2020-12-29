@@ -157,6 +157,19 @@ describe(`User Login: POST ${loginRoute}`, async () => {
     });
   });
 
+  it('should return a 404 status code if password does not match registered user\'s password', (done) => {
+    chai.request(server)
+      .post(loginRoute)
+      .send({
+        login: userData.email,
+        password: userData.password.split('').reverse().join(''),
+      })
+      .end((err, res) => {
+        res.should.have.status(404);
+        done();
+    });
+  });
+
   it('should authenticate user with valid email and password', (done) => {
     chai.request(server)
       .post(loginRoute)

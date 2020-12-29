@@ -1,6 +1,7 @@
 module.exports = {
   getRandomData,
   getValidUserId,
+  reverse,
 };
 
 
@@ -10,4 +11,8 @@ function getValidUserId(userId) {
 
 function getRandomData(array) {
   return array[Math.floor(Math.random() * array.length)];
+}
+
+function reverse(str) {
+  return str.split('').reverse().join('');
 }
