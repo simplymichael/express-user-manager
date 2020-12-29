@@ -1,11 +1,24 @@
+const validHookTypes = ['req', 'request'];
+
 const hooks = {
   request: {},
 
   add: function(type, target, fn) {
+    if(typeof target !== 'string') {
+      throw new Error(
+        `hooks::add: second parameter expects a string: ${typeof target} given`);
+    }
+
+    if(typeof fn !== 'function') {
+      throw new Error(
+        `hooks::add: third parameter expects a function: ${typeof fn} given`);
+    }
+
     switch(type.toLowerCase()) {
     case 'req':
     case 'request': return addRequestHook(target, fn);
-    default: throw new Error(`Unknown hook type: ${type}`);
+    default: throw new Error(`hooks::add: unknown hook type: ${type}.
+      Valid types are ${validHookTypes.join(',')}`);
     }
   },
 
