@@ -1,12 +1,13 @@
-const { emit, appModule, statusCodes, publicFields } = require('./_utils');
+const { emit, hooks, appModule, statusCodes, publicFields } = require('./_utils');
 const errorName = 'updateUserError';
 let responseData;
 
 module.exports = updateUser;
 
 /* Update user */
-async function updateUser(req, res) {
+async function updateUser(req, res, next) {
   const store = appModule.get('store');
+  const routes = appModule.get('routes');
   const { id, firstname, lastname, username, email } = req.body;
   const userData = await store.findById(id);
 
@@ -39,7 +40,11 @@ async function updateUser(req, res) {
     data: { user }
   };
 
-  emit('updateUserSuccess', responseData);
-  res.status(statusCodes.ok).json(responseData);
+  res.body = responseData;
+
+  hooks.execute('response', routes.updateUser, req, res, next);
+
+  emit('updateUserSuccess', res.body);
+  res.status(statusCodes.ok).json(res.body);
   return;
 }

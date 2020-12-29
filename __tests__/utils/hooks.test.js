@@ -78,7 +78,9 @@ describe('Hooks', () => {
       expect(typeof hooks.request[target][1]).to.equal('function');
       expect(hooks.request[target][1]).to.equal(callback);
     });
+  });
 
+  describe('execute()', () => {
     it('should invoke registered callbacks when "execute" is called', () => {
       const target = '/';
       const callback = function(req, res, next) {
@@ -95,7 +97,7 @@ describe('Hooks', () => {
       expect(typeof hooks.request[target][2]).to.equal('function');
       expect(hooks.request[target][2]).to.equal(callback);
 
-      hooks.execute(target, {}, {}, function() {});
+      hooks.execute('request', target, {}, {}, function() {});
 
       expect(testValue).to.equal(3);
     });

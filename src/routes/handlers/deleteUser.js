@@ -1,10 +1,10 @@
-const { emit, appModule, getValidId, statusCodes } = require('./_utils');
+const { emit, hooks, appModule, getValidId, statusCodes } = require('./_utils');
 const errorName = 'deleteUserError';
 let responseData;
 
 module.exports = deleteUser;
 
-async function deleteUser(req, res) {
+async function deleteUser(req, res, next) {
   if(!req.params.userId || !req.body.userId) {
     responseData = {
       errors: [{
@@ -30,6 +30,7 @@ async function deleteUser(req, res) {
   }
 
   const store = appModule.get('store');
+  const routes = appModule.get('routes');
   const { userId } = req.body;
   const userData = await store.findById(userId);
 
@@ -59,7 +60,11 @@ async function deleteUser(req, res) {
 
   responseData = {};
 
-  emit('deleteUserSuccess', responseData);
-  res.status(statusCodes.ok).json(responseData);
+  res.body = responseData;
+
+  hooks.execute('response', routes.deleteUser, req, res, next);
+
+  emit('deleteUserSuccess', res.body);
+  res.status(statusCodes.ok).json(res.body);
   return;
 }

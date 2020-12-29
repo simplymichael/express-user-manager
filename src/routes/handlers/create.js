@@ -1,4 +1,4 @@
-const { emit, appModule, statusCodes, publicFields } = require('./_utils');
+const { emit, hooks, appModule, statusCodes, publicFields } = require('./_utils');
 const { hashPassword } = require('../../utils/auth');
 const errorName = 'signupError';
 let responseData;
@@ -6,8 +6,9 @@ let responseData;
 module.exports = createUser;
 
 /* Create (i.e, register) a new user */
-async function createUser(req, res) {
+async function createUser(req, res, next) {
   const store = appModule.get('store');
+  const routes = appModule.get('routes');
   const { firstname, lastname, username, email, password } = req.body;
 
   if(await store.findByEmail(email)) {
@@ -58,7 +59,11 @@ async function createUser(req, res) {
     data: { user }
   };
 
-  emit('signupSuccess', responseData);
-  res.status(statusCodes.ok).json(responseData);
+  res.body = responseData;
+
+  hooks.execute('response', routes.signup, req, res, next);
+
+  emit('signupSuccess', res.body);
+  res.status(statusCodes.ok).json(res.body);
   return;
 }

@@ -2,6 +2,7 @@ const emailValidator = require('email-validator');
 const {
   env,
   emit,
+  hooks,
   appModule,
   statusCodes,
   publicFields
@@ -12,8 +13,9 @@ let responseData;
 
 module.exports = login;
 
-async function login(req, res) {
+async function login(req, res, next) {
   const store = appModule.get('store');
+  const routes = appModule.get('routes');
   const { login, password } = req.body;
   const isEmail = emailValidator.validate(login);
   const userData = isEmail
@@ -65,7 +67,11 @@ async function login(req, res) {
     data: { user,  authorization }
   };
 
-  emit('loginSuccess', responseData);
-  res.status(statusCodes.ok).json(responseData);
+  res.body = responseData;
+
+  hooks.execute('response', routes.login, req, res, next);
+
+  emit('loginSuccess', res.body);
+  res.status(statusCodes.ok).json(res.body);
   return;
 }

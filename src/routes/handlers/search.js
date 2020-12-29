@@ -1,12 +1,13 @@
-const { emit, appModule, statusCodes, publicFields } = require('./_utils');
+const { emit, hooks, appModule, statusCodes, publicFields } = require('./_utils');
 const errorName = 'searchUsersError';
 let responseData;
 
 module.exports = searchUsers;
 
 /* Search for users */
-async function searchUsers(req, res) {
+async function searchUsers(req, res, next) {
   const store = appModule.get('store');
+  const routes = appModule.get('routes');
   let { query, by = '', page = 1, limit = 20, sort = '' } = req.query;
 
   if(!query || query.trim().length === 0) {
@@ -43,7 +44,11 @@ async function searchUsers(req, res) {
     }
   };
 
-  emit('searchUsersSuccess', responseData);
-  res.status(statusCodes.ok).json(responseData);
+  res.body = responseData;
+
+  hooks.execute('response', routes.search, req, res, next);
+
+  emit('searchUsersSuccess', res.body);
+  res.status(statusCodes.ok).json(res.body);
   return;
 }

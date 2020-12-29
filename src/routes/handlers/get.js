@@ -1,12 +1,13 @@
-const { emit, appModule, statusCodes, publicFields } = require('./_utils');
+const { emit, hooks, appModule, statusCodes, publicFields } = require('./_utils');
 
 let responseData;
 
 module.exports = getUsers;
 
 /* GET users listing. */
-async function getUsers(req, res) {
+async function getUsers(req, res, next) {
   const store = appModule.get('store');
+  const routes = appModule.get('routes');
   const users = [];
   const results = await store.getUsers(req.query);
 
@@ -29,6 +30,10 @@ async function getUsers(req, res) {
     }
   };
 
-  emit('getUsersSuccess', responseData);
-  res.status(statusCodes.ok).json(responseData);
+  res.body = responseData;
+
+  hooks.execute('response', routes.list, req, res, next);
+
+  emit('getUsersSuccess', res.body);
+  res.status(statusCodes.ok).json(res.body);
 }

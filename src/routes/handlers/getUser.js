@@ -1,11 +1,12 @@
-const { emit, statusCodes, publicFields } = require('./_utils');
+const { emit, hooks, appModule, statusCodes, publicFields } = require('./_utils');
 let responseData;
 
 module.exports = getUser;
 
 /* GET user data */
-async function getUser(req, res) {
+async function getUser(req, res, next) {
   const user = {};
+  const routes = appModule.get('routes');
 
   // Populate the user variable with values we want to return to the client
   // req.user comes from the loadUser middleware
@@ -17,6 +18,10 @@ async function getUser(req, res) {
     data: { user }
   };
 
-  emit('getUserSuccess', responseData);
-  res.status(statusCodes.ok).json(responseData);
+  res.body = responseData;
+
+  hooks.execute('response', routes.getUser, req, res, next);
+
+  emit('getUserSuccess', res.body);
+  res.status(statusCodes.ok).json(res.body);
 }

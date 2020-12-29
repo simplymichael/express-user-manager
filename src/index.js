@@ -21,6 +21,7 @@ userModule.config = config;
 userModule.listen = listen;
 userModule.getDbAdapter = getDbAdapter;
 userModule.addRequestHook = addRequestHook;
+userModule.addResponseHook = addResponseHook;
 
 /**
  * Export userModule singleton instance
@@ -249,8 +250,8 @@ function listen(app, baseApiRoute = '/api/users', customRoutes = {}) {
  *   - array of pathNames: to add the hook to every path in the array
  */
 function addRequestHook(target, fn) {
-  const routes = { ...defaults.apiPaths };
-  const validRoutes = Object.keys(routes);
+  const routes = { ...defaults.paths };
+  const validRoutes = Object.values(routes);
 
   if(typeof target === 'string') {
     target = target.toLowerCase().trim();
@@ -259,17 +260,52 @@ function addRequestHook(target, fn) {
       for(const pathName in routes) {
         hooks.add('request', pathName, fn);
       }
-    }
+    } else {
+      if(!validRoutes.includes(target)) {
+        throw new Error(`${appName}::addRequestHook: invalid hook target "${target}"`);
+      }
 
-    if(!validRoutes.includes(target)) {
-      throw new Error(`${appName}::addRequestHook: invalid hook target "${target}"`);
+      hooks.add('request', target, fn);
     }
-
-    hooks.add('request', target, fn);
   } else if(Array.isArray(target)) {
     for(const route of target) {
       if(validRoutes.includes(route)) {
         hooks.add('request', route, fn);
+      }
+    }
+  }
+}
+
+/**
+ * Add a response hook
+ *
+ * @param target {mixed} string | array: the values of target can be:
+ *   - * : to add the hook to every path
+ *   - pathName: to add the hook to specified path
+ *   - array of pathNames: to add the hook to every path in the array
+ */
+function addResponseHook(target, fn) {
+  const routes = { ...defaults.paths };
+  const validRoutes = Object.values(routes);
+
+  if(typeof target === 'string') {
+    target = target.toLowerCase().trim();
+
+    if(target === '*') {
+      for(const pathName in routes) {
+        hooks.add('response', pathName, fn);
+      }
+    } else {
+      if(!validRoutes.includes(target)) {
+        throw new Error(`${appName}::addResponseHook: invalid hook target "${target}"`);
+      }
+
+      hooks.add('response', target, fn);
+    }
+  } else if(Array.isArray(target)) {
+    for(const route of target) {
+      if(validRoutes.includes(route)) {
+        hooks.add('response', route, fn);
       }
     }
   }

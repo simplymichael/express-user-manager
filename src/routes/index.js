@@ -10,9 +10,11 @@ const validator = require('../middlewares/validators/_validator');
 const restrictUserToSelf = require('../middlewares/restrict-user-to-self');
 const checkExpressValidatorStatus = require('../middlewares/express-validator-status-checker');
 
+const { userModule } = require('../utils');
+
 function invokeHooks(target) {
   return function(req, res, next) {
-    hooks.execute(target, req, res, next);
+    hooks.execute('request', target, req, res, next);
   };
 }
 
@@ -29,6 +31,8 @@ function setupRouting(customRoutes = {}) {
       routes[pathName] = path || routes[pathName];
     }
   }
+
+  userModule.set('routes', routes);
 
   /* GET users listing. */
   router.get(routes.list, invokeHooks('list'), handlers.get);
@@ -82,7 +86,7 @@ function setupRouting(customRoutes = {}) {
   router.delete(`${routes.deleteUser}/:userId`,
     loggedIn,
     authorized,
-    invokeHooks('delete'),
+    invokeHooks('deleteUser'),
     handlers.deleteUser
   );
 

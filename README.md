@@ -39,6 +39,8 @@ Additional features include:
 - **[Hooks](#hooks)**
     - **[Available hooks](#available-hooks)**
         - **[Request hooks](#request-hooks)**
+        - **[Response hooks](#response-hooks)**
+    - **[Examples](#examples)**
 - **[Built-in data stores (database drivers)](#built-in-data-stores)**
 - **[Emitted events](#emitted-events)**
     - **[Events emitted by the database](#events-emitted-by-the-database)**
@@ -338,56 +340,57 @@ This will return an object with the following middlewares:
 Hooks are a mechanism to allow you hook into different parts of the application's lifecycle.
 
 ### Available hooks
-- <a name="request-hooks">**Request hooks**</a>
+- <a name="request-hooks">**Request hooks**</a>: allow you define and register custom request middlewares.
+  They give you the ability to modify the request before the final processing.
+- <a name="response-hooks">**Response hooks**</a>: let you define and register custom response-modifying functions
+  which give you the ability to modify the response before it is sent to the client.
 
-  Request hooks allow you define and register custom request middlewares.
-  They give you the ability to modify the request or response.
+You can register a request or response hook for a single route, for multiple routes, or for all routes.
 
-  You can register a request hook for a single route, multiple routes, or all routes.
+To register a request or response hook:
+- define a middleware, which is just a fancy word for a function that takes three parameters: `req`, `res`, `next`.
 
-  To register a request hook:
-    - define a middleware, which is just a fancy word for a function that takes three parameters: `req`, `res`, `next`.
+  If you intend to hand over processing to the next handler in the chain (recommended),
+  remember to call `next()` from within your middleware when you are done; Or call `next(error)` to pass execution to the error handler.
+- decide on which route (or routes) the middleware should be registered for: single-route, multi-route, global.
+  The route(s) should correspond to a key or keys in the [API endpoints configuration object](#api-endpoints-object-properties).
 
-      If you intend to hand over processing to the next handler in the chain (recommended),
-      remember to call `next()` from within your middleware when you are done; Or call `next(error)` to pass execution to the error handler.
-    - decide on which route (or routes) the middleware should be registered for: single-route, multi-route, global.
-      The route(s) should correspond to a key or keys in the [API endpoints configuration object](#api-endpoints-object-properties).
+  Multiple hooks can be registered on a given route.
+- Register the hook:
+    - call `userManager.addRequestHook(target, middlewareFn)` to register a request hook
+    - call `userManager.addResponseHook(target, middlewareFn)` to register a response hook
 
-      Multiple hooks can be registered on a given route.
-    - call the `userModule.addRequestHook(target, middlewareFn)` to register the hook.
+  The first parameter to `addRequestHook` or `addResponseHook` is a string or an array of strings that specify the target of the hook.
+  Possible values include:
+    - `*`: represents a global hook, which will register the hook for every path
+    - pathName, e.g `login`: represents a single-route hook, which will register the hook for the specified route
+    - list of pathNames, e.g `['login', 'signup', ...]`: represents multi-route hooks, which will register the hook for every path in the array
 
-      The first parameter to `addRequestHook` is a string or an array of strings that specify the target of the hook. Possible values include:
-        - `*`: represents a global hook, which will register the hook for every request (path)
-        - pathName, e.g `login`: represents a single-route hook, which will register the hook for the specified route
-        - list of pathNames, e.g `['login', 'signup', ...]`: represents multi-route hooks, which will register the hook for every path in the array
+### Examples
+- Register a request hook for every route:
+  ```
+  userModule.addRequestHook('*', function(req, res, next) {
+    // Do something interesting here, with the request or the response.
+    req.accessTime = Date.now();
 
-  **Examples**
-    - Register a hook for every route:
-      ```
-      userModule.addRequestHook('*', function(req, res, next) {
-        // Do something interesting here, with the request or the response.
-        // You can for example set/append custom response headers:
-        res.set('Access-Control-Allow-Origin', '<CUSTOM_ORIGIN>');
-
-        // Call next to pass control onto the next middleware function
-        next();
-      });
-      ```
-    - Register a hook for the signup route:
-      ```
-      userModule.addRequestHook('signup', function(req, res, next) {
-        res.append('Access-Control-Allow-Headers', '<CUSTOM_HEADER>');
-
-        next();
-      });
-      ```
-    - Register a hook for multiple the *login*, *signup*, and *list* routes:
-      ```
-      userModule.addRequestHook(['login', 'signup', 'list'], function(req, res, next) {
-        // Do something tangible
-        next();
-      });
-      ```
+    // Call next to pass control onto the next middleware function
+    next();
+  });
+  ```
+- Register a response hook for the signup route:
+  ```
+  userModule.addResponseHook('signup', function(req, res, next) {
+    // You can for example set/append custom response headers:
+    res.append('Access-Control-Allow-Headers', '<CUSTOM_HEADER>');
+  });
+  ```
+- Register a response hook for multiple the *login* and *signup* routes:
+  ```
+  userModule.addResponseHook(['login', 'signup'], function(req, res, next) {
+    // Do something tangible
+    res.body.data.authenticated = true;
+  });
+  ```
 
 <a name="built-in-data-stores"></a>
 ## Built-in data stores (database adapters and engines)
