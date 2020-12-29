@@ -453,13 +453,12 @@ To run it as a stand-alone server, do the following:
     - `require('express-user-manager/src/server')();` from within a `node.js` script. For example, inside an `index.js` file.
       Then run the file using node: `node index.js`.
 
-**Note**: The built-in server runs using the default settings. That means:
-- it runs under the `/api/users` base route.
-- it uses the default request paths. (See the section on **Requests and responses**)
+**Note**: The built-in server runs using the default route/path settings. That means:
+- it runs under the `/api/users` base route (mount point).
+- it uses the default request paths. (See the section on **[Requests and responses](#requests-and-responses)**)
 
-<a name="requests-and-responses"></a>
 ## Requests and responses
-Every route below is assumed to begin (i.e., prefixed) with the base API route.
+Every route below is assumed to begin (i.e., prefixed) with the base API route (or mount point).
 The default base API route is **`/api/users`**.
 
 - **Create user**

@@ -103,7 +103,7 @@ To run the tests,
 ### Manual testing (with Postman or cURL)
 You can run end-to-end tests on the routes using Postman or cURL. To do this,
 - Start the built-in server. You can start the built-in server in one of two ways:
-    1. Follow the steps listed in the **[Usage as a standalone server](README.md#usage-as-a-standalone-server)** section to start the server.
+    1. Follow the steps listed in the **[Usage as a standalone server][sa-server]** section to start the server.
     2. Run `npm` scripts to start the server:
         - `cd` into the *express-user-manager* directory.
         - If you are using a MongoDB or MySQL server, ensure the server is up and running on the port you specified.
@@ -322,3 +322,4 @@ Also, please watch the repo and respond to questions/bug reports/feature request
 [fork]: https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo
 [issues]: https://github.com/simplymichael/express-user-manager/issues
 [pr]: https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request
+[sa-server]: https://github.com/simplymichael/express-user-manager/blob/master/README.md#usage-as-a-standalone-server
