@@ -1,4 +1,4 @@
-const { emit, appModule, statusCodes } = require('./_utils');
+const { emit, appModule, getValidId, statusCodes } = require('./_utils');
 const errorName = 'deleteUserError';
 let responseData;
 
@@ -47,7 +47,15 @@ async function deleteUser(req, res) {
 
   await store.deleteUser(userId);
 
-  req.session.user = null; // Kill the user's session
+  /**
+   * If a user is deleting their own account,
+   * this should happen in cases where it is not an admin user
+   * that is deleting another user.
+   * In such cases, once the user deletes their account, we log them out.
+   */
+  if(getValidId(req.session.user.id) === getValidId(userId)) {
+    req.session.user = null; // Kill the user's session
+  }
 
   responseData = {};
 
