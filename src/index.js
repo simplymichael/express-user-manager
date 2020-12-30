@@ -11,7 +11,7 @@ const middlewares = require('./middlewares');
 const { generateRoute } = require('./utils');
 const defaults = require('./routes/defaults');
 const appName = 'express-user-manager';
-const validAdapters = [ 'mongoose', 'sequelize' ];
+const validAdapters = db.validAdapters;
 const validAdaptersMsg = `Valid adapters include: ${validAdapters.join(', ')}`;
 
 // Augment the userModule with midddlewares

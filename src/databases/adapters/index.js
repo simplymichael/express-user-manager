@@ -18,4 +18,8 @@ module.exports = {
   getAdapter(key) {
     return adapters[key] || null;
   },
+
+  get adapters() {
+    return adapters;
+  }
 };

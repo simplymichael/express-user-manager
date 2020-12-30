@@ -1,9 +1,14 @@
 const debug = require('../utils/debug');
 const { emit, convertToBoolean } = require('../utils');
 const adapters = require('./adapters/');
+const validAdapters = Object.keys(adapters.adapters); //[ 'mongoose', 'sequelize' ];
 
 module.exports = {
   getAdapter,
+
+  get validAdapters() {
+    return validAdapters;
+  },
 };
 
 function getAdapter(key) {
