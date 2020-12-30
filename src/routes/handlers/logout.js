@@ -1,4 +1,10 @@
-const { emit, hooks, appModule, statusCodes } = require('./_utils');
+const {
+  emit,
+  hooks,
+  appModule,
+  statusCodes,
+  generateRoute
+} = require('./_utils');
 
 module.exports = logout;
 
@@ -9,7 +15,7 @@ function logout(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', routes.logout, req, res, next);
+  hooks.execute('response', generateRoute(routes.logout), req, res, next);
 
   emit('logoutSuccess', res.body);
   return res.status(statusCodes.ok).json(res.body);

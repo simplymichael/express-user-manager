@@ -28,9 +28,29 @@ function getValidId(id) {
   }
 }
 
+function generateRoute(target) {
+  target = target.toLowerCase();
+  const routes = { ...userModule.get('routes') };
+
+  switch(target) {
+  case routes.list:
+  case routes.search:
+  case routes.getUser:
+  case routes.logout: return `GET ${target}`;
+
+  case routes.signup:
+  case routes.login: return `POST ${target}`;
+
+  case routes.updateUser: return `PUT ${target}`;
+  case routes.deleteUser: return `DELETE ${target}`;
+  default: return '';
+  }
+}
+
 module.exports = {
   emit,
   userModule,
   getValidId,
+  generateRoute,
   convertToBoolean,
 };

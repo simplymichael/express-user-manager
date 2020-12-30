@@ -122,10 +122,11 @@ function executeResponseHooks(name, req, res, next) {
 }
 
 function callHookListeners(listeners, req, res, next) {
-  /*if(listeners.length === 0) {
-    return;
+  if(listeners.length === 0) {
+    next();
   }
 
+  /*
   listeners.shift()(req, res, next);
 
   if (listeners.length > 0) {

@@ -8,6 +8,7 @@ const setupRouting = require('./routes');
 const prepare = require('./utils/prepare');
 const userModule = require('./user-module');
 const middlewares = require('./middlewares');
+const { generateRoute } = require('./utils');
 const defaults = require('./routes/defaults');
 const appName = 'express-user-manager';
 const validAdapters = [ 'mongoose', 'sequelize' ];
@@ -250,7 +251,7 @@ function listen(app, baseApiRoute = '/api/users', customRoutes = {}) {
  *   - array of pathNames: to add the hook to every path in the array
  */
 function addRequestHook(target, fn) {
-  const routes = { ...defaults.paths };
+  const routes = { ...userModule.get('routes') }; //{ ...defaults.paths };
   const validRoutes = Object.values(routes);
 
   if(typeof target === 'string') {
@@ -258,19 +259,19 @@ function addRequestHook(target, fn) {
 
     if(target === '*') {
       for(const pathName in routes) {
-        hooks.add('request', pathName, fn);
+        hooks.add('request', generateRoute(pathName), fn);
       }
     } else {
       if(!validRoutes.includes(target)) {
         throw new Error(`${appName}::addRequestHook: invalid hook target "${target}"`);
       }
 
-      hooks.add('request', target, fn);
+      hooks.add('request', generateRoute(target), fn);
     }
   } else if(Array.isArray(target)) {
     for(const route of target) {
       if(validRoutes.includes(route)) {
-        hooks.add('request', route, fn);
+        hooks.add('request', generateRoute(route), fn);
       }
     }
   }
@@ -285,7 +286,7 @@ function addRequestHook(target, fn) {
  *   - array of pathNames: to add the hook to every path in the array
  */
 function addResponseHook(target, fn) {
-  const routes = { ...defaults.paths };
+  const routes = { ...userModule.get('routes') }; //{ ...defaults.paths };
   const validRoutes = Object.values(routes);
 
   if(typeof target === 'string') {
@@ -293,19 +294,19 @@ function addResponseHook(target, fn) {
 
     if(target === '*') {
       for(const pathName in routes) {
-        hooks.add('response', pathName, fn);
+        hooks.add('response', generateRoute(pathName), fn);
       }
     } else {
       if(!validRoutes.includes(target)) {
         throw new Error(`${appName}::addResponseHook: invalid hook target "${target}"`);
       }
 
-      hooks.add('response', target, fn);
+      hooks.add('response', generateRoute(target), fn);
     }
   } else if(Array.isArray(target)) {
     for(const route of target) {
       if(validRoutes.includes(route)) {
-        hooks.add('response', route, fn);
+        hooks.add('response', generateRoute(route), fn);
       }
     }
   }

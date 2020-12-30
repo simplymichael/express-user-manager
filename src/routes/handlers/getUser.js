@@ -1,4 +1,11 @@
-const { emit, hooks, appModule, statusCodes, publicFields } = require('./_utils');
+const {
+  emit,
+  hooks,
+  appModule,
+  statusCodes,
+  publicFields,
+  generateRoute,
+} = require('./_utils');
 let responseData;
 
 module.exports = getUser;
@@ -20,7 +27,7 @@ async function getUser(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', routes.getUser, req, res, next);
+  hooks.execute('response', generateRoute(routes.getUser), req, res, next);
 
   emit('getUserSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);

@@ -1,4 +1,11 @@
-const { emit, hooks, appModule, statusCodes, publicFields } = require('./_utils');
+const {
+  emit,
+  hooks,
+  appModule,
+  statusCodes,
+  publicFields,
+  generateRoute
+} = require('./_utils');
 const errorName = 'searchUsersError';
 let responseData;
 
@@ -46,7 +53,7 @@ async function searchUsers(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', routes.search, req, res, next);
+  hooks.execute('response', generateRoute(routes.search), req, res, next);
 
   emit('searchUsersSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);

@@ -10,11 +10,11 @@ const validator = require('../middlewares/validators/_validator');
 const restrictUserToSelf = require('../middlewares/restrict-user-to-self');
 const checkExpressValidatorStatus = require('../middlewares/express-validator-status-checker');
 
-const { userModule } = require('../utils');
+const { userModule, generateRoute } = require('../utils');
 
 function invokeHooks(target) {
   return function(req, res, next) {
-    hooks.execute('request', target, req, res, next);
+    hooks.execute('request', generateRoute(target), req, res, next);
   };
 }
 
@@ -35,48 +35,48 @@ function setupRouting(customRoutes = {}) {
   userModule.set('routes', routes);
 
   /* GET users listing. */
-  router.get(routes.list, invokeHooks('list'), handlers.get);
+  router.get(routes.list, invokeHooks(routes.list), handlers.get);
 
   /* Search for users */
-  router.get(routes.search, invokeHooks('search'), handlers.search);
+  router.get(routes.search, invokeHooks(routes.search), handlers.search);
 
   /* Get a user by username */
   router.get(`${routes.getUser}/:username`,
+    invokeHooks(routes.getUser),
     loadUser,
-    invokeHooks('getUser'),
     handlers.getUser
   );
 
   /* Create (i.e, register) a new user */
   router.post(routes.signup,
+    invokeHooks(routes.signup),
     notLoggedIn,
     validator.validate('firstname', 'lastname', 'username', 'email', 'password', 'confirmPassword'),
     checkExpressValidatorStatus('signupError'),
-    invokeHooks('signup'),
     handlers.create
   );
 
   /* Authenticate a user(, and return an authorization key)*/
   router.post(routes.login,
+    invokeHooks(routes.login),
     notLoggedIn,
     validator.validate('login', 'password'),
     checkExpressValidatorStatus('loginError'),
-    invokeHooks('login'),
     handlers.login
   );
 
   /* Update user data */
   router.put(routes.updateUser,
+    invokeHooks(routes.updateUser),
     loggedIn,
     authorized,
     restrictUserToSelf,
     validator.validate('id', 'firstname', 'lastname', 'username', 'email'),
     checkExpressValidatorStatus('updateUserError'),
-    invokeHooks('updateUser'),
     handlers.updateUser
   );
 
-  router.get(routes.logout, invokeHooks('logout'), handlers.logout);
+  router.get(routes.logout, invokeHooks(routes.logout), handlers.logout);
 
   /**
    * DANGER: Delete user by id
@@ -84,9 +84,9 @@ function setupRouting(customRoutes = {}) {
    * Use with CAUTION
    */
   router.delete(`${routes.deleteUser}/:userId`,
+    invokeHooks(routes.deleteUser),
     loggedIn,
     authorized,
-    invokeHooks('deleteUser'),
     handlers.deleteUser
   );
 

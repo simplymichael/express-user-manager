@@ -1,4 +1,11 @@
-const { emit, hooks, appModule, getValidId, statusCodes } = require('./_utils');
+const {
+  emit,
+  hooks,
+  appModule,
+  getValidId,
+  statusCodes,
+  generateRoute,
+} = require('./_utils');
 const errorName = 'deleteUserError';
 let responseData;
 
@@ -62,7 +69,7 @@ async function deleteUser(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', routes.deleteUser, req, res, next);
+  hooks.execute('response', generateRoute(routes.deleteUser), req, res, next);
 
   emit('deleteUserSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);

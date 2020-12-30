@@ -1,4 +1,11 @@
-const { emit, hooks, appModule, statusCodes, publicFields } = require('./_utils');
+const {
+  emit,
+  hooks,
+  appModule,
+  statusCodes,
+  publicFields,
+  generateRoute
+} = require('./_utils');
 const errorName = 'updateUserError';
 let responseData;
 
@@ -42,7 +49,7 @@ async function updateUser(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', routes.updateUser, req, res, next);
+  hooks.execute('response', generateRoute(routes.updateUser), req, res, next);
 
   emit('updateUserSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);

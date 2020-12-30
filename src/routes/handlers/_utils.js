@@ -1,6 +1,6 @@
 const env = require('../../dotenv');
 const debugLog = require('../../utils/debug');
-const { emit, getValidId, userModule } = require('../../utils');
+const { emit, getValidId, userModule, generateRoute } = require('../../utils');
 const { statusCodes } = require('../../utils/http');
 const hooks = require('../../utils/hooks');
 
@@ -19,5 +19,6 @@ module.exports = {
   debugLog,
   statusCodes,
   getValidId,
+  generateRoute,
   appModule: userModule,
 };

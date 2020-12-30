@@ -325,7 +325,7 @@ This will return an object with the following middlewares:
   using the ***Authorization*** header.
 - **loadUser**:
   Loads the current user (identified by *username*) into the request,
-  to that it is available to other middlewares in the middleware chain.
+  to that it is available to every other middleware in the middleware chain.
   The username is sent as part of the request parameters (*request.params*)
 - **loggedIn**:
   Ensures a user is logged in before they can perform the requested action.
@@ -341,9 +341,14 @@ Hooks are a mechanism to allow you hook into different parts of the application'
 
 ### Available hooks
 - <a name="request-hooks">**Request hooks**</a>: allow you define and register custom request middlewares.
-  They give you the ability to modify the request before the final processing.
-- <a name="response-hooks">**Response hooks**</a>: let you define and register custom response-modifying functions
-  which give you the ability to modify the response before it is sent to the client.
+  They give you the ability to modify the request any way you see fit.
+
+  Request hooks are called first before any other middleware in the middleware chain is called.
+  This gives you great flexibility in modifying the request before handing it over to other middleware functions in the chain.
+- <a name="response-hooks">**Response hooks**</a>: let you define and register custom response-modifying functions.
+
+  Response hooks are called just before the response is sent back to the client,
+  giving you the ability to modify the response before it gets to the client.
 
 You can register a request or response hook for a single route, for multiple routes, or for all routes.
 

@@ -1,4 +1,11 @@
-const { emit, hooks, appModule, statusCodes, publicFields } = require('./_utils');
+const {
+  emit,
+  hooks,
+  appModule,
+  statusCodes,
+  publicFields,
+  generateRoute,
+} = require('./_utils');
 const { hashPassword } = require('../../utils/auth');
 const errorName = 'signupError';
 let responseData;
@@ -61,7 +68,7 @@ async function createUser(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', routes.signup, req, res, next);
+  hooks.execute('response', generateRoute(routes.signup), req, res, next);
 
   emit('signupSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);

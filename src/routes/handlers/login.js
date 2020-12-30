@@ -5,7 +5,8 @@ const {
   hooks,
   appModule,
   statusCodes,
-  publicFields
+  publicFields,
+  generateRoute
 } = require('./_utils');
 const { checkPassword, generateAuthToken } = require('../../utils/auth');
 const errorName = 'loginError';
@@ -69,7 +70,7 @@ async function login(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', routes.login, req, res, next);
+  hooks.execute('response', generateRoute(routes.login), req, res, next);
 
   emit('loginSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);
