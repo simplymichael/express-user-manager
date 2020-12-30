@@ -12,8 +12,6 @@ let responseData;
 module.exports = deleteUser;
 
 async function deleteUser(req, res, next) {
-  const routes = appModule.get('routes');
-
   if(!req.params.userId || !req.body.userId) {
     responseData = {
       errors: [{
@@ -21,12 +19,8 @@ async function deleteUser(req, res, next) {
       }]
     };
 
-    res.body = responseData;
-
-    hooks.execute('response', generateRoute(routes.deleteUser), req, res, next);
-
-    emit(errorName, res.body);
-    res.status(statusCodes.badRequest).json(res.body);
+    emit(errorName, responseData);
+    res.status(statusCodes.badRequest).json(responseData);
     return;
   }
 
@@ -37,16 +31,13 @@ async function deleteUser(req, res, next) {
       }]
     };
 
-    res.body = responseData;
-
-    hooks.execute('response', generateRoute(routes.deleteUser), req, res, next);
-
-    emit(errorName, res.body);
-    res.status(statusCodes.badRequest).json(res.body);
+    emit(errorName, responseData);
+    res.status(statusCodes.badRequest).json(responseData);
     return;
   }
 
   const store = appModule.get('store');
+  const routes = appModule.get('routes');
   const { userId } = req.body;
   const userData = await store.findById(userId);
 
@@ -57,12 +48,8 @@ async function deleteUser(req, res, next) {
       }]
     };
 
-    res.body = responseData;
-
-    hooks.execute('response', generateRoute(routes.deleteUser), req, res, next);
-
-    emit(errorName, res.body);
-    res.status(statusCodes.notFound).json(res.body);
+    emit(errorName, responseData);
+    res.status(statusCodes.notFound).json(responseData);
     return;
   }
 

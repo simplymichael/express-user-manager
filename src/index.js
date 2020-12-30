@@ -252,26 +252,28 @@ function listen(app, baseApiRoute = '/api/users', customRoutes = {}) {
  */
 function addRequestHook(target, fn) {
   const routes = { ...userModule.get('routes') }; //{ ...defaults.paths };
-  const validRoutes = Object.values(routes);
+  const validRoutes = Object.keys(routes);
 
   if(typeof target === 'string') {
-    target = target.toLowerCase().trim();
+    target = target.trim();
 
     if(target === '*') {
       for(const pathName in routes) {
-        hooks.add('request', generateRoute(pathName), fn);
+        hooks.add('request', generateRoute(routes[pathName]), fn);
       }
     } else {
       if(!validRoutes.includes(target)) {
         throw new Error(`${appName}::addRequestHook: invalid hook target "${target}"`);
       }
 
-      hooks.add('request', generateRoute(target), fn);
+      hooks.add('request', generateRoute(routes[target]), fn);
     }
   } else if(Array.isArray(target)) {
+    target = target.map(val => val.trim());
+
     for(const route of target) {
       if(validRoutes.includes(route)) {
-        hooks.add('request', generateRoute(route), fn);
+        hooks.add('request', generateRoute(routes[route]), fn);
       }
     }
   }
@@ -286,27 +288,29 @@ function addRequestHook(target, fn) {
  *   - array of pathNames: to add the hook to every path in the array
  */
 function addResponseHook(target, fn) {
-  const routes = { ...userModule.get('routes') }; //{ ...defaults.paths };
-  const validRoutes = Object.values(routes);
+  const routes = { ...userModule.get('routes') };
+  const validRoutes = Object.keys(routes);
 
   if(typeof target === 'string') {
-    target = target.toLowerCase().trim();
+    target = target.trim();
 
     if(target === '*') {
       for(const pathName in routes) {
-        hooks.add('response', generateRoute(pathName), fn);
+        hooks.add('response', generateRoute(routes[pathName]), fn);
       }
     } else {
       if(!validRoutes.includes(target)) {
         throw new Error(`${appName}::addResponseHook: invalid hook target "${target}"`);
       }
 
-      hooks.add('response', generateRoute(target), fn);
+      hooks.add('response', generateRoute(routes[target]), fn);
     }
   } else if(Array.isArray(target)) {
+    target = target.map(val => val.trim());
+
     for(const route of target) {
       if(validRoutes.includes(route)) {
-        hooks.add('response', generateRoute(route), fn);
+        hooks.add('response', generateRoute(routes[route]), fn);
       }
     }
   }

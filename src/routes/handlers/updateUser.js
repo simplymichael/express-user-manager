@@ -25,12 +25,8 @@ async function updateUser(req, res, next) {
       }]
     };
 
-    res.body = responseData;
-
-    hooks.execute('response', generateRoute(routes.updateUser), req, res, next);
-
-    emit(errorName, res.body);
-    res.status(statusCodes.notFound).json(res.body);
+    emit(errorName, responseData);
+    res.status(statusCodes.notFound).json(responseData);
     return;
   }
 

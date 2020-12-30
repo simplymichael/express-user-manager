@@ -29,7 +29,6 @@ function getValidId(id) {
 }
 
 function generateRoute(target) {
-  target = target.toLowerCase();
   const routes = { ...userModule.get('routes') };
 
   switch(target) {

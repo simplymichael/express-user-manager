@@ -28,13 +28,9 @@ async function createUser(req, res, next) {
       }]
     };
 
-    res.body = responseData;
+    emit(errorName, responseData);
 
-    hooks.execute('response', generateRoute(routes.signup), req, res, next);
-
-    emit(errorName, res.body);
-
-    res.status(statusCodes.conflict).json(res.body);
+    res.status(statusCodes.conflict).json(responseData);
     return;
   }
 
@@ -48,12 +44,8 @@ async function createUser(req, res, next) {
       }]
     };
 
-    res.body = responseData;
-
-    hooks.execute('response', generateRoute(routes.signup), req, res, next);
-
-    emit(errorName, res.body);
-    res.status(statusCodes.conflict).json(res.body);
+    emit(errorName, responseData);
+    res.status(statusCodes.conflict).json(responseData);
     return;
   }
 
