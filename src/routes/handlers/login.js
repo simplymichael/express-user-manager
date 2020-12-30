@@ -30,8 +30,12 @@ async function login(req, res, next) {
       }]
     };
 
-    emit(errorName, responseData);
-    res.status(statusCodes.notFound).json(responseData);
+    res.body = responseData;
+
+    hooks.execute('response', generateRoute(routes.login), req, res, next);
+
+    emit(errorName, res.body);
+    res.status(statusCodes.notFound).json(res.body);
     return;
   }
 
@@ -43,8 +47,12 @@ async function login(req, res, next) {
       }]
     };
 
-    emit(errorName, responseData);
-    res.status(statusCodes.notFound).json(responseData);
+    res.body = responseData;
+
+    hooks.execute('response', generateRoute(routes.login), req, res, next);
+
+    emit(errorName, res.body);
+    res.status(statusCodes.notFound).json(res.body);
     return;
   }
 

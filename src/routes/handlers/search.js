@@ -26,8 +26,12 @@ async function searchUsers(req, res, next) {
       }]
     };
 
-    emit(errorName, responseData);
-    res.status(statusCodes.badRequest).json(responseData);
+    res.body = responseData;
+
+    hooks.execute('response', generateRoute(routes.search), req, res, next);
+
+    emit(errorName, res.body);
+    res.status(statusCodes.badRequest).json(res.body);
     return;
   }
 
