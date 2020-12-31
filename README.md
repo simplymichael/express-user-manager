@@ -40,7 +40,10 @@ Additional features include:
     - **[Available hooks](#available-hooks)**
         - **[Request hooks](#request-hooks)**
         - **[Response hooks](#response-hooks)**
-    - **[Examples](#examples)**
+    - **[Registering request and response hooks](#registering-request-and-response-hooks)**
+        - **[Registering hooks: examples](#registering-hooks-examples)**
+    - **[Unregistering request and response hooks](#unregistering-request-and-response-hooks)**
+        - **[Unregistering hooks: examples](#unregistering-hooks-examples)**
 - **[Built-in data stores (database drivers)](#built-in-data-stores)**
 - **[Emitted events](#emitted-events)**
     - **[Events emitted by the database](#events-emitted-by-the-database)**
@@ -350,8 +353,11 @@ Hooks are a mechanism to allow you hook into different parts of the application'
   Response hooks are called just before the response is sent back to the client,
   giving you the ability to modify the response before it gets to the client.
 
+  **Note**: Currently, response hooks are only fired when the HTTP response status code is 200.
+
 You can register a request or response hook for a single route, for multiple routes, or for all routes.
 
+#### Registering request and response hooks
 To register a request or response hook:
 - define a middleware, which is just a fancy word for a function that takes three parameters: `req`, `res`, `next`.
 
@@ -371,10 +377,10 @@ To register a request or response hook:
     - pathName, e.g `login`: represents a single-route hook, which will register the hook for the specified route
     - list of pathNames, e.g `['login', 'signup', ...]`: represents multi-route hooks, which will register the hook for every path in the array
 
-### Examples
+#### Registering hooks: examples
 - Register a request hook for every route:
   ```
-  userModule.addRequestHook('*', function(req, res, next) {
+  userManager.addRequestHook('*', function(req, res, next) {
     // Do something interesting here, with the request or the response.
     req.accessTime = Date.now();
 
@@ -384,17 +390,68 @@ To register a request or response hook:
   ```
 - Register a response hook for the signup route:
   ```
-  userModule.addResponseHook('signup', function(req, res, next) {
+  userManager.addResponseHook('signup', function(req, res, next) {
     // You can for example set/append custom response headers:
     res.append('Access-Control-Allow-Headers', '<CUSTOM_HEADER>');
   });
   ```
-- Register a response hook for multiple the *login* and *signup* routes:
+- Register a response hook for multiple (*login* and *signup*) routes:
   ```
-  userModule.addResponseHook(['login', 'signup'], function(req, res, next) {
+  userManager.addResponseHook(['login', 'signup'], function(req, res, next) {
     // Do something tangible
     res.body.data.authenticated = true;
   });
+  ```
+- Register a list of request hooks along with their corresponding function identifiers:
+  ```
+  userManager.addRequestHook(['login', 'signup'], ['loginFnId', 'signupFnId'])
+  ```
+- Register multiple response hooks for a single (*signup*) route:
+  ```
+  userManager.addResponseHook('signup', [callback1, callback2, ...]);
+  ```
+
+#### Unregistering request and response hooks
+You also have the ability to unregister a hook when the hook is no longer needed.
+And you can unregister hooks globally, for only some routes, or for a single route.
+
+- To unregister a request hook, call `userManager.removeRequestHook(route [, callback])`.
+
+  If the optional `callback` parameter is not specified, every hook registered to that route will be removed.
+  Otherwise, only the particular callback function specified for the hook is removed.
+- To unregister a response hook, call `userManager.removeResponseHook(route, [callback])`;
+
+  If the optional `callback` parameter is not specified, every hook registered to that route will be removed.
+  Otherwise, only the particular callback function specified for the hook is removed.
+
+#### Unregistering hooks: examples
+- Unregister every request hook:
+  ```
+  userManager.removeRequestHook('*');
+  ```
+- Unregister every response hook for the user signup route:
+  ```
+  userManager.removeResponseHook('signup');
+  ```
+- Unregister only a request callback hook for the signup route:
+  ```
+  UserManager.removeRequestHook('signup', fn);
+  ```
+
+  `fn` should be a named function registered with `userManager.addRequestHook('signup', fn)`;
+
+  Anonymous functions cannot be unregistered this way.
+- Unregister a list of request hooks along with their corresponding function identifiers:
+  ```
+  userManager.removeRequestHook(['login', 'signup'], ['loginFnId', 'signupFnId']);
+  ```
+- Unregister every response hook for the passed routes list:
+  ```
+  userManager.removeRequestHook(['login', 'signup']);
+  ```
+- Unregister multiple request hooks for a single (*login*) route:
+  ```
+  userManager.removeRequestHook('login', [fn1, fn2, ...]);
   ```
 
 <a name="built-in-data-stores"></a>

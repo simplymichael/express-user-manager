@@ -23,6 +23,8 @@ userModule.listen = listen;
 userModule.getDbAdapter = getDbAdapter;
 userModule.addRequestHook = addRequestHook;
 userModule.addResponseHook = addResponseHook;
+userModule.removeRequestHook = removeRequestHook;
+userModule.removeResponseHook = removeResponseHook;
 
 /**
  * Export userModule singleton instance
@@ -249,34 +251,11 @@ function listen(app, baseApiRoute = '/api/users', customRoutes = {}) {
  *   - * : to add the hook to every request (path)
  *   - pathName: to add the hook to specified path
  *   - array of pathNames: to add the hook to every path in the array
+ * @param fn {mixed} function | array (of functions):
+ *   the function identifiers to be associated with (each) target route hook
  */
 function addRequestHook(target, fn) {
-  const routes = { ...userModule.get('routes') }; //{ ...defaults.paths };
-  const validRoutes = Object.keys(routes);
-
-  if(typeof target === 'string') {
-    target = target.trim();
-
-    if(target === '*') {
-      for(const pathName in routes) {
-        hooks.add('request', generateRoute(pathName), fn);
-      }
-    } else {
-      if(!validRoutes.includes(target)) {
-        throw new Error(`${appName}::addRequestHook: invalid hook target "${target}"`);
-      }
-
-      hooks.add('request', generateRoute(target), fn);
-    }
-  } else if(Array.isArray(target)) {
-    target = target.map(val => val.trim());
-
-    for(const route of target) {
-      if(validRoutes.includes(route)) {
-        hooks.add('request', generateRoute(route), fn);
-      }
-    }
-  }
+  addHook('request', target, fn);
 }
 
 /**
@@ -286,37 +265,120 @@ function addRequestHook(target, fn) {
  *   - * : to add the hook to every path
  *   - pathName: to add the hook to specified path
  *   - array of pathNames: to add the hook to every path in the array
+ * @param fn {mixed} function | array (of functions):
+ *   the function identifiers to be associated with (each) target route hook
  */
 function addResponseHook(target, fn) {
-  const routes = { ...userModule.get('routes') };
+  addHook('response', target, fn);
+}
+
+/**
+ * Unregister request hooks
+ *
+ * @param target {mixed} string | array: the values of target can be:
+ *   - * : to unregister every request hook
+ *   - pathName: to unregister the hook to specified path
+ *   - array of pathNames: to unregister the hook to every path in the array
+ * @param fn {mixed} function | array (of functions):
+ *   the function identifiers associated with the target route hook
+ */
+function removeRequestHook(target, fn) {
+  removeHook('request', target, fn);
+}
+
+/**
+ * Unregister response hooks
+ *
+ * @param target {mixed} string | array: the values of target can be:
+ *   - * : to unregister every response hook
+ *   - pathName: to unregister the hook to specified path
+ *   - array of pathNames: to unregister the hook to every path in the array
+ * @param fn {mixed} function | array (of functions):
+ *   the function identifiers associated with the target route hook
+ */
+function removeResponseHook(target, fn) {
+  removeHook('response', target, fn);
+}
+
+// Private helper functions
+
+function addHook(type, target, fn) {
+  const routes = { ...userModule.get('routes') }; //{ ...defaults.paths };
   const validRoutes = Object.keys(routes);
+  const sentenceType = type[0].toUpperCase() + type.substring(1);
 
   if(typeof target === 'string') {
     target = target.trim();
 
     if(target === '*') {
       for(const pathName in routes) {
-        hooks.add('response', generateRoute(pathName), fn);
+        hooks.add(type, generateRoute(pathName), fn);
       }
     } else {
       if(!validRoutes.includes(target)) {
-        throw new Error(`${appName}::addResponseHook: invalid hook target "${target}"`);
+        throw new Error(`${appName}::add${sentenceType}Hook: invalid hook target "${target}"`);
       }
 
-      hooks.add('response', generateRoute(target), fn);
+      if(Array.isArray(fn)) {
+        for(let i = 0; i < fn.length; i++) {
+          hooks.add(type, generateRoute(target), fn[i]);
+        }
+      } else {
+        hooks.add(type, generateRoute(target), fn);
+      }
     }
   } else if(Array.isArray(target)) {
     target = target.map(val => val.trim());
 
-    for(const route of target) {
-      if(validRoutes.includes(route)) {
-        hooks.add('response', generateRoute(route), fn);
+    if(Array.isArray(fn)) {
+      for(let i = 0; i < target.length; i++) {
+        if(validRoutes.includes(target[i])) {
+          hooks.add(type, generateRoute(target[i]), fn[i]);
+        }
+      }
+    } else {
+      for(const route of target) {
+        if(validRoutes.includes(route)) {
+          hooks.add(type, generateRoute(route), fn);
+        }
       }
     }
   }
 }
 
-// Private helper functions
+function removeHook(type, target, fn) {
+  const routes = { ...userModule.get('routes') };
+
+  if(typeof target === 'string') {
+    target = target.trim();
+
+    if(target === '*') {
+      for(const pathName in routes) {
+        hooks.remove(type, generateRoute(pathName), fn);
+      }
+    } else {
+      if(Array.isArray(fn)) {
+        for(let i = 0; i < fn.length; i++) {
+          hooks.remove(type, generateRoute(target), fn[i]);
+        }
+      } else {
+        hooks.remove(type, generateRoute(target), fn);
+      }
+    }
+  } else if(Array.isArray(target)) {
+    target = target.map(val => val.trim());
+
+    if(Array.isArray(fn)) {
+      for(let i = 0; i < target.length; i++) {
+        hooks.remove(type, generateRoute(target[i]), fn[i]);
+      }
+    } else {
+      for(const route of target) {
+        hooks.remove(type, generateRoute(route), fn);
+      }
+    }
+  }
+}
 
 /**
  * Lets us look for connection parameters in :

@@ -6,11 +6,23 @@ const hooks = require('../../src/utils/hooks');
 const { deleteApiTestUser } = require('../_api-utils');
 const { getValidUserId } = require('../_utils');
 const testUsers = require('./_test-users.json');
-const { env, apiUrl, apiPort, server, userModule } = require('./_server');
+const {
+  env,
+  apiUrl,
+  apiPort,
+  server,
+  userModule,
+  customRoutes
+} = require('./_server');
 const { should } = chai;
-const usersRoute = `${apiUrl}/users`;
-const signupRoute = `${apiUrl}/users`;
-const loginRoute = `${apiUrl}/users/login`;
+const usersRoute = `${apiUrl}${customRoutes.list}`;
+const signupRoute = `${apiUrl}${customRoutes.signup}`;
+const loginRoute = `${apiUrl}${customRoutes.login}`;
+const userDataRoute = `${apiUrl}${customRoutes.getUser}`;
+const searchRoute = `${apiUrl}${customRoutes.search}`;
+const updateRoute = `${apiUrl}${customRoutes.updateUser}`;
+const deleteRoute = `${apiUrl}${customRoutes.deleteUser}`;
+const logoutRoute = `${apiUrl}${customRoutes.logout}`;
 const appName = 'express-user-manager';
 const testUserData = testUsers[0];
 const loginCredentials = {
@@ -31,7 +43,7 @@ function assertGlobalHook(res) {
     'message', 'This is a global hook');
 }
 
-describe(`Default API routes Hooks`, () => {
+describe(`Custom API routes Hooks`, () => {
   let user = null;
   let createdUsers = [];
 
@@ -53,10 +65,10 @@ describe(`Default API routes Hooks`, () => {
 
   afterEach(async () => {
     if(user && user.id) {
-      const deleteRoute = `${apiUrl}/users/user/${user.id}`;
+      const delRoute = `${deleteRoute}/${user.id}`;
       const userToLogin = { ...user, password: testUsers[0].password };
 
-      await deleteApiTestUser(userToLogin, server, `${loginRoute}`, deleteRoute);
+      await deleteApiTestUser(userToLogin, server, `${loginRoute}`, delRoute);
     }
 
     user = null;
@@ -113,7 +125,7 @@ describe(`Default API routes Hooks`, () => {
       userModule.removeResponseHook('*');
     });
 
-    it(`should add the hooks to the signup route POST ${apiUrl}/users`, (done) => {
+    it(`should add the hooks to the signup route POST ${signupRoute}`, (done) => {
       let clonedUser = { ...testUsers[1] };
 
       chai.request(server)
@@ -145,8 +157,8 @@ describe(`Default API routes Hooks`, () => {
 
     it(`should add the hooks to the login route POST ${loginRoute}`, (done) => {
       chai.request(server)
-        .post(`${loginRoute}`)
-        .send(loginCredentials)
+        .post(loginRoute)
+        .send({ login: user.email, password: testUserData.password })
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
@@ -176,7 +188,7 @@ describe(`Default API routes Hooks`, () => {
       });
     });
 
-    it(`should add the hooks to the users listing route GET ${apiUrl}/users`, (done) => {
+    it(`should add the hooks to the users listing route GET ${usersRoute}`, (done) => {
       chai.request(server)
         .get(usersRoute)
         .end((err, res) => {
@@ -208,12 +220,12 @@ describe(`Default API routes Hooks`, () => {
       });
     });
 
-    it(`should add the hooks to user details retrieval route: GET ${usersRoute}/user/:username`, (done) => {
+    it(`should add the hooks to user details retrieval route: GET ${userDataRoute}/:username`, (done) => {
       const username = user.username;
       const userRole = 'user';
 
       chai.request(server)
-        .get(`${usersRoute}/user/${username}`)
+        .get(`${userDataRoute}/${username}`)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
@@ -235,9 +247,9 @@ describe(`Default API routes Hooks`, () => {
       });
     });
 
-    it(`should add the hooks to the search route GET ${apiUrl}/users/search`, (done) => {
+    it(`should add the hooks to the search route GET ${searchRoute}`, (done) => {
       chai.request(server)
-        .get(`${apiUrl}/users/search?query=${testUserData.firstname}&by=firstname`)
+        .get(`${searchRoute}?query=${testUserData.firstname}&by=firstname`)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
@@ -255,9 +267,8 @@ describe(`Default API routes Hooks`, () => {
       });
     });
 
-    it(`should add the hooks to the user data update route PUT ${apiUrl}/users`, (done) => {
+    it(`should add the hooks to the user data update route PUT ${updateRoute}`, (done) => {
       const agent = chai.request.agent(server);
-      const updateRoute = `${apiUrl}/users`;
       const updateData = {
         id: user.id,
         firstname: 'updatedFirstname',
@@ -335,7 +346,7 @@ describe(`Default API routes Hooks`, () => {
         });
     });
 
-    it(`should add the hooks to the user delete route DELETE ${apiUrl}/users/user/:id`, (done) => {
+    it(`should add the hooks to the user delete route DELETE ${deleteRoute}/:id`, (done) => {
       const agent = chai.request.agent(server);
 
       agent
@@ -345,7 +356,7 @@ describe(`Default API routes Hooks`, () => {
           const { token, expiresIn } = res.body.data.authorization;
 
           return agent
-            .delete(`${apiUrl}/users/user/${user.id}`)
+            .delete(`${deleteRoute}/${user.id}`)
             .set('Authorization', token)
             .send({ userId: user.id })
             .then(function (res) {
@@ -357,7 +368,7 @@ describe(`Default API routes Hooks`, () => {
               assertGlobalHook(res);
 
               return agent
-                .get(`${apiUrl}/users/user/${user.username}`)
+                .get(`${userDataRoute}/${user.username}`)
                 .send()
                 .then(function(res) {
                   res.should.have.status(404);
@@ -372,7 +383,7 @@ describe(`Default API routes Hooks`, () => {
         });
     });
 
-    it(`should add the hooks to the logout route GET ${apiUrl}/users/logout`, (done) => {
+    it(`should add the hooks to the logout route GET ${logoutRoute}`, (done) => {
       const agent = chai.request.agent(server);
 
       agent
@@ -382,12 +393,12 @@ describe(`Default API routes Hooks`, () => {
           const { token, expiresIn } = res.body.data.authorization;
 
           return agent
-            .get(`${apiUrl}/users/logout`)
+            .get(logoutRoute)
             .then(function(res) {
               assertGlobalHook(res);
 
               return agent
-                .delete(`${apiUrl}/users/user/${user.id}`)
+                .delete(`${deleteRoute}/${user.id}`)
                 .set('Authorization', token)
                 .send({ userId: user.id })
                 .then(function (res) {
@@ -406,9 +417,10 @@ describe(`Default API routes Hooks`, () => {
             });
         });
     });
+
   });
 
-  describe(`Get user: GET ${usersRoute}/user/:username`, () => {
+  describe(`Get user: GET ${userDataRoute}/:username`, () => {
     specify('request hook should inject and response hook should add a "role" field with the injected role value to the user', (done) => {
       const username = user.username;
       const userRole = 'user';
@@ -431,7 +443,7 @@ describe(`Default API routes Hooks`, () => {
       });
 
       chai.request(server)
-        .get(`${usersRoute}/user/${username}`)
+        .get(`${userDataRoute}/${username}`)
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.be.a('object');
@@ -449,9 +461,6 @@ describe(`Default API routes Hooks`, () => {
 
           // check that the injected user role is present in the user's data
           res.body.data.user.should.have.property('role', userRole);
-
-          userModule.removeRequestHook('getUser');
-          userModule.removeResponseHook('getUser');
 
           done();
       });
