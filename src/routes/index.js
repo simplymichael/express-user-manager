@@ -11,6 +11,7 @@ const restrictUserToSelf = require('../middlewares/restrict-user-to-self');
 const checkExpressValidatorStatus = require('../middlewares/express-validator-status-checker');
 
 const { userModule, generateRoute } = require('../utils');
+const { keys: routeKeys } = require('./defaults');
 
 function invokeHooks(target) {
   return function(req, res, next) {
@@ -32,24 +33,24 @@ function setupRouting(customRoutes = {}) {
     }
   }
 
-  userModule.set('routes', routes);
+  userModule.set('routes', routes); // used by src/utils/index.js::generateRoute()
 
   /* GET users listing. */
-  router.get(routes.list, invokeHooks(routes.list), handlers.get);
+  router.get(routes.list, invokeHooks(routeKeys.list), handlers.get);
 
   /* Search for users */
-  router.get(routes.search, invokeHooks(routes.search), handlers.search);
+  router.get(routes.search, invokeHooks(routeKeys.search), handlers.search);
 
   /* Get a user by username */
   router.get(`${routes.getUser}/:username`,
-    invokeHooks(routes.getUser),
+    invokeHooks(routeKeys.getUser),
     loadUser,
     handlers.getUser
   );
 
   /* Create (i.e, register) a new user */
   router.post(routes.signup,
-    invokeHooks(routes.signup),
+    invokeHooks(routeKeys.signup),
     notLoggedIn,
     validator.validate('firstname', 'lastname', 'username', 'email', 'password', 'confirmPassword'),
     checkExpressValidatorStatus('signupError'),
@@ -58,7 +59,7 @@ function setupRouting(customRoutes = {}) {
 
   /* Authenticate a user(, and return an authorization key)*/
   router.post(routes.login,
-    invokeHooks(routes.login),
+    invokeHooks(routeKeys.login),
     notLoggedIn,
     validator.validate('login', 'password'),
     checkExpressValidatorStatus('loginError'),
@@ -67,7 +68,7 @@ function setupRouting(customRoutes = {}) {
 
   /* Update user data */
   router.put(routes.updateUser,
-    invokeHooks(routes.updateUser),
+    invokeHooks(routeKeys.updateUser),
     loggedIn,
     authorized,
     restrictUserToSelf,
@@ -76,7 +77,7 @@ function setupRouting(customRoutes = {}) {
     handlers.updateUser
   );
 
-  router.get(routes.logout, invokeHooks(routes.logout), handlers.logout);
+  router.get(routes.logout, invokeHooks(routeKeys.logout), handlers.logout);
 
   /**
    * DANGER: Delete user by id
@@ -84,7 +85,7 @@ function setupRouting(customRoutes = {}) {
    * Use with CAUTION
    */
   router.delete(`${routes.deleteUser}/:userId`,
-    invokeHooks(routes.deleteUser),
+    invokeHooks(routeKeys.deleteUser),
     loggedIn,
     authorized,
     handlers.deleteUser

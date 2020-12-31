@@ -10,7 +10,13 @@ const apiPaths = {
   deleteUser: '/user',
 };
 
+const pathKeys = Object.keys(apiPaths).reduce((ret, key) => {
+  ret[key] = key;
+  return ret;
+}, {});
+
 module.exports = {
   base: baseApiRoute,
   paths: apiPaths,
+  keys: pathKeys,
 };

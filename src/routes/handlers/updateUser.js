@@ -1,3 +1,4 @@
+const { keys: routeKeys } = require('../defaults');
 const {
   emit,
   hooks,
@@ -14,7 +15,6 @@ module.exports = updateUser;
 /* Update user */
 async function updateUser(req, res, next) {
   const store = appModule.get('store');
-  const routes = appModule.get('routes');
   const { id, firstname, lastname, username, email } = req.body;
   const userData = await store.findById(id);
 
@@ -49,7 +49,7 @@ async function updateUser(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', generateRoute(routes.updateUser), req, res, next);
+  hooks.execute('response', generateRoute(routeKeys.updateUser), req, res, next);
 
   emit('updateUserSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);

@@ -1,4 +1,6 @@
 const emailValidator = require('email-validator');
+const { checkPassword, generateAuthToken } = require('../../utils/auth');
+const { keys: routeKeys } = require('../defaults');
 const {
   env,
   emit,
@@ -8,7 +10,6 @@ const {
   publicFields,
   generateRoute
 } = require('./_utils');
-const { checkPassword, generateAuthToken } = require('../../utils/auth');
 const errorName = 'loginError';
 let responseData;
 
@@ -16,7 +17,6 @@ module.exports = login;
 
 async function login(req, res, next) {
   const store = appModule.get('store');
-  const routes = appModule.get('routes');
   const { login, password } = req.body;
   const isEmail = emailValidator.validate(login);
   const userData = isEmail
@@ -70,7 +70,7 @@ async function login(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', generateRoute(routes.login), req, res, next);
+  hooks.execute('response', generateRoute(routeKeys.login), req, res, next);
 
   emit('loginSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);

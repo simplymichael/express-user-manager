@@ -134,6 +134,30 @@ function callHookListeners(listeners, req, res, next) {
   }*/
 
   while(listeners.length > 0) {
-    listeners.shift()(req, res, next);
+    /**
+     * If we still have more than one hooks in the chain,
+     * next() should be a dummy function,
+     * otherwise, next() should be the express middleware's next() function.
+     *
+     * Without this safeguard, calling next() will jump to the 404 handler,
+     * and return a 404 response
+     * when there are more than one hooks registered for a given route.
+     */
+    if(listeners.length === 1) {
+      listeners.shift()(req, res, next);
+    } else {
+      listeners.shift()(req, res, contrivedNext);
+    }
+  }
+
+  /**
+   * Creates a dummy next() for when we have more than one hook in the chain.
+   * However, if at any point any hook calls next(err) with an error,
+   * then that next(err) should be executed
+   */
+  function contrivedNext(err) {
+    if(err) {
+      next(err);
+    }
   }
 }

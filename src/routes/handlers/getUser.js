@@ -1,7 +1,7 @@
+const { keys: routeKeys } = require('../defaults');
 const {
   emit,
   hooks,
-  appModule,
   statusCodes,
   publicFields,
   generateRoute,
@@ -13,7 +13,6 @@ module.exports = getUser;
 /* GET user data */
 async function getUser(req, res, next) {
   const user = {};
-  const routes = appModule.get('routes');
 
   // Populate the user variable with values we want to return to the client
   // req.user comes from the loadUser middleware
@@ -27,7 +26,7 @@ async function getUser(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', generateRoute(routes.getUser), req, res, next);
+  hooks.execute('response', generateRoute(routeKeys.getUser), req, res, next);
 
   emit('getUserSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);

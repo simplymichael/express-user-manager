@@ -1,3 +1,4 @@
+const { keys: routeKeys } = require('../defaults');
 const {
   emit,
   hooks,
@@ -14,7 +15,6 @@ module.exports = searchUsers;
 /* Search for users */
 async function searchUsers(req, res, next) {
   const store = appModule.get('store');
-  const routes = appModule.get('routes');
   let { query, by = '', page = 1, limit = 20, sort = '' } = req.query;
 
   if(!query || query.trim().length === 0) {
@@ -54,7 +54,7 @@ async function searchUsers(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', generateRoute(routes.search), req, res, next);
+  hooks.execute('response', generateRoute(routeKeys.search), req, res, next);
 
   emit('searchUsersSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);

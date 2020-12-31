@@ -1,3 +1,4 @@
+const { keys: routeKeys } = require('../defaults');
 const {
   emit,
   hooks,
@@ -37,7 +38,6 @@ async function deleteUser(req, res, next) {
   }
 
   const store = appModule.get('store');
-  const routes = appModule.get('routes');
   const { userId } = req.body;
   const userData = await store.findById(userId);
 
@@ -69,7 +69,7 @@ async function deleteUser(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', generateRoute(routes.deleteUser), req, res, next);
+  hooks.execute('response', generateRoute(routeKeys.deleteUser), req, res, next);
 
   emit('deleteUserSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);

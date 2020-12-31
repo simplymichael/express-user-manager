@@ -1,3 +1,5 @@
+const { hashPassword } = require('../../utils/auth');
+const { keys: routeKeys } = require('../defaults');
 const {
   emit,
   hooks,
@@ -6,7 +8,7 @@ const {
   publicFields,
   generateRoute,
 } = require('./_utils');
-const { hashPassword } = require('../../utils/auth');
+
 const errorName = 'signupError';
 let responseData;
 
@@ -15,7 +17,6 @@ module.exports = createUser;
 /* Create (i.e, register) a new user */
 async function createUser(req, res, next) {
   const store = appModule.get('store');
-  const routes = appModule.get('routes');
   const { firstname, lastname, username, email, password } = req.body;
 
   if(await store.findByEmail(email)) {
@@ -68,7 +69,7 @@ async function createUser(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', generateRoute(routes.signup), req, res, next);
+  hooks.execute('response', generateRoute(routeKeys.signup), req, res, next);
 
   emit('signupSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);

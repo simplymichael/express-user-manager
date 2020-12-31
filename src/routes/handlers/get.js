@@ -1,3 +1,4 @@
+const { keys: routeKeys } = require('../defaults');
 const {
   emit,
   hooks,
@@ -14,7 +15,6 @@ module.exports = getUsers;
 /* GET users listing. */
 async function getUsers(req, res, next) {
   const store = appModule.get('store');
-  const routes = appModule.get('routes');
   const users = [];
   const results = await store.getUsers(req.query);
 
@@ -39,7 +39,7 @@ async function getUsers(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', generateRoute(routes.list), req, res, next);
+  hooks.execute('response', generateRoute(routeKeys.list), req, res, next);
 
   emit('getUsersSuccess', res.body);
   res.status(statusCodes.ok).json(res.body);
