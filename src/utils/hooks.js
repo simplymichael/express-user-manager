@@ -126,6 +126,13 @@ function callHookListeners(listeners, req, res, next) {
     next();
   }
 
+  /**
+   * Clone the listeners,
+   * so they don't get removed after each access.
+   * This way, they get called whenever someone accesses the target route
+   */
+  const handlers = listeners.slice();
+
   /*
   listeners.shift()(req, res, next);
 
@@ -133,7 +140,7 @@ function callHookListeners(listeners, req, res, next) {
     callHookListeners(listeners, req, res, next);
   }*/
 
-  while(listeners.length > 0) {
+  while(handlers.length > 0) {
     /**
      * If we still have more than one hooks in the chain,
      * next() should be a dummy function,
@@ -143,10 +150,10 @@ function callHookListeners(listeners, req, res, next) {
      * and return a 404 response
      * when there are more than one hooks registered for a given route.
      */
-    if(listeners.length === 1) {
-      listeners.shift()(req, res, next);
+    if(handlers.length === 1) {
+      handlers.shift()(req, res, next);
     } else {
-      listeners.shift()(req, res, contrivedNext);
+      handlers.shift()(req, res, contrivedNext);
     }
   }
 

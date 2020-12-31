@@ -222,6 +222,113 @@ describe('Hooks', () => {
       expect(spy).to.have.been.called.with(nextMessage);
 
       hooks.remove(type, target, callback);
+      chai.spy.restore();
+      console.log = original;
+    });
+
+    it('should call next only for the last hook when multiple hooks are attached to a route', () => {
+      const type = 'request';
+      const target = '/';
+      const nextMessage = 'next() called';
+
+      // don't log to the console, so we don't mix the output with the test output
+      const original = console.log;
+      console.log = function(...args) { return args };
+      const callback = function(req, res, next) {
+        next();
+      };
+      const spy = chai.spy.on(console, 'log');
+
+      hooks.add(type, target, callback);
+      hooks.add(type, target, callback);
+      hooks.add(type, target, callback);
+
+      const targetRequestHooks = hooks.get('request', target);
+      const requestHooksKeys = Object.keys(hooks.get('request'));
+      const responseHooksKeys = Object.keys(hooks.get('response'));
+
+      expect(spy).to.not.have.been.called;
+      expect(requestHooksKeys).to.have.lengthOf(1);
+      expect(requestHooksKeys[0]).to.equal(target);
+      expect(targetRequestHooks).to.be.an('array');
+      expect(targetRequestHooks).to.have.lengthOf(3);
+      expect(typeof targetRequestHooks[0]).to.equal('function');
+      expect(typeof targetRequestHooks[1]).to.equal('function');
+      expect(typeof targetRequestHooks[2]).to.equal('function');
+      expect(targetRequestHooks[0]).to.equal(callback);
+      expect(targetRequestHooks[1]).to.equal(callback);
+      expect(targetRequestHooks[2]).to.equal(callback);
+      expect(responseHooksKeys).to.have.lengthOf(0);
+
+      hooks.execute(type, target, {}, {},
+        function() {
+          console.log(nextMessage);
+        }
+      );
+
+      expect(spy).to.have.been.called.once;
+      expect(spy).to.have.been.called.with(nextMessage);
+
+      hooks.remove(type, target, callback);
+      chai.spy.restore();
+      console.log = original;
+    });
+
+    it('should call next for any route that errors:next(err) when multiple hooks are attached to a route', () => {
+      const type = 'request';
+      const target = '/';
+      const errMessage = 'Error occurred';
+
+      // don't log to the console, so we don't mix the output with the test output
+      const original = console.log;
+      console.log = function(...args) { return args };
+      const callback = function(req, res, next) {
+        next(errMessage);
+      };
+      const callbackNextNoError = function(req, res, next) {
+        next();
+      };
+      const spy = chai.spy.on(console, 'log');
+
+      hooks.add(type, target, callbackNextNoError);
+      hooks.add(type, target, callback);
+      hooks.add(type, target, callbackNextNoError);
+      hooks.add(type, target, callback);
+      hooks.add(type, target, callback);
+
+      const targetRequestHooks = hooks.get('request', target);
+      const requestHooksKeys = Object.keys(hooks.get('request'));
+      const responseHooksKeys = Object.keys(hooks.get('response'));
+
+      expect(spy).to.not.have.been.called;
+      expect(requestHooksKeys).to.have.lengthOf(1);
+      expect(requestHooksKeys[0]).to.equal(target);
+      expect(targetRequestHooks).to.be.an('array');
+      expect(targetRequestHooks).to.have.lengthOf(5);
+      expect(typeof targetRequestHooks[0]).to.equal('function');
+      expect(typeof targetRequestHooks[1]).to.equal('function');
+      expect(typeof targetRequestHooks[2]).to.equal('function');
+      expect(typeof targetRequestHooks[3]).to.equal('function');
+      expect(typeof targetRequestHooks[4]).to.equal('function');
+      expect(targetRequestHooks[0]).to.equal(callbackNextNoError);
+      expect(targetRequestHooks[1]).to.equal(callback);
+      expect(targetRequestHooks[2]).to.equal(callbackNextNoError);
+      expect(targetRequestHooks[3]).to.equal(callback);
+      expect(targetRequestHooks[4]).to.equal(callback);
+      expect(responseHooksKeys).to.have.lengthOf(0);
+
+      hooks.execute(type, target, {}, {},
+        function(errMessage) {
+          console.log(errMessage);
+        }
+      );
+
+      expect(spy).to.have.been.called.exactly(3);
+      expect(spy).to.have.been.called.with(errMessage);
+
+      hooks.remove(type, target, callback);
+      hooks.remove(type, target, callbackNextNoError);
+      chai.spy.restore();
       console.log = original;
     });
   });
