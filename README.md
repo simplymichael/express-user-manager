@@ -2,7 +2,7 @@
 [![npm](https://img.shields.io/npm/v/express-user-manager)](https://npmjs.com/package/express-user-manager)
 [![Travis build](https://img.shields.io/travis/com/simplymichael/express-user-manager)](https://travis-ci.com/github/simplymichael/express-user-manager)
 [![Codecov](https://img.shields.io/codecov/c/github/simplymichael/express-user-manager)](https://codecov.io/gh/simplymichael/express-user-manager)
-[![npm downloads](https://img.shields.io/npm/dw/express-user-manager)](https://npm.im/express-user-manager)
+[![npm downloads](https://img.shields.io/npm/dm/express-user-manager)](https://npm.im/express-user-manager)
 [![GitHub License](https://img.shields.io/github/license/simplymichael/express-user-manager)](https://github.com/simplymichael/express-user-manager/LICENSE.md)
 [![Conventional commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-brightgreen.svg)](https://conventionalcommits.org)
 
@@ -25,6 +25,8 @@ Additional features include:
 - support for multiple database engines and data-storage mechanisms
 - customization of the minimum and maximum length of passwords
 - specification of non-secure passwords that should not be allowed for use as passwords
+
+**New in V3.0.0**: Support for [Hooks](#hooks)
 
 # Table of Contents
 
