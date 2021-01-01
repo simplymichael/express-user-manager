@@ -1,16 +1,56 @@
 //const http = require('http');
 const chai = require('chai');
+const crypto = require('crypto');
 const spies = require('chai-spies');
 const express = require('express');
-//const env = require('../src/dotenv');
+const env = require('../src/dotenv');
 const userManager = require('../src');
-const { generateRoute } = require('../src/utils');
-const hooks = require('../src/utils/hooks');
+const db = require('../src/databases');
 const { keys: routeKeys } = require('../src/routes/defaults');
+const { convertToBoolean, generateRoute } = require('../src/utils');
+const hooks = require('../src/utils/hooks');
+
 const appName = 'express-user-manager';
+const validAdapters = db.validAdapters;
+const validAdaptersMsg = `Valid adapters include: ${validAdapters.join(', ')}`;
 const { expect, should } = chai;
 
 const app = express();
+const configObj = {
+  apiMountPoint: '/api/v2',
+  password: {
+    minLength  : 7,
+    maxLength  : 25,
+    disallowed : ['password', 'pass', 'password123', 'mypassword']
+  },
+  routes: {
+    list       : '/users',
+    search     : '/search',
+    getUser    : '/user',
+    signup     : '/register',
+    login      : '/signin',
+    logout     : '/signout',
+    updateUser : '/update',
+    deleteUser : '/delete'
+  },
+  db: {
+    adapter     : 'sequelize',
+    host        : 'localhost',
+    port        : 3306,
+    user        : '',
+    pass        : '',
+    engine      : 'memory',
+    dbName      : 'users',
+    storagePath : '',
+    debug       : false,
+    exitOnFail  : true,
+  },
+  security: {
+    sessionSecret   : crypto.randomBytes(32).toString('hex'),
+    authTokenSecret : crypto.randomBytes(32).toString('hex'),
+    authTokenExpiry : 60 * 60 * 24
+  }
+};
 
 /**
  * userManager.listen(app) has to first be called to - among other things -
@@ -24,6 +64,176 @@ should();
 chai.use(spies);
 
 describe(appName, () => {
+  describe('config', () => {
+    it('should throw an error if no parameter is passed', () => {
+      try {
+        userManager.config();
+      } catch(err) {
+        expect(typeof err).to.equal('object');
+        expect(err).to.match(new RegExp(
+          `${appName}::config: expects an object as the first argument`
+        ));
+      }
+    });
+
+    it('should throw an error if a non-object is passed as the first parameter', () => {
+      try {
+        userManager.config(true);
+      } catch(err) {
+        expect(typeof err).to.equal('object');
+        expect(err).to.match(new RegExp(
+          `${appName}::config: expects an object as the first argument`
+        ));
+      }
+    });
+
+    it('should throw an error if null is passed as the first parameter', () => {
+      try {
+        userManager.config(null);
+      } catch(err) {
+        expect(typeof err).to.equal('object');
+        expect(err).to.match(new RegExp(
+          `${appName}::config: expects an object as the first argument`
+        ));
+      }
+    });
+
+    it(`should set configuration parameters on the ${appName} object`, () => {
+      userManager.config(configObj);
+
+      userManager.get('apiMountPoint').should.equal(configObj.apiMountPoint);
+
+      for(let [key, value] of Object.entries(configObj)) {
+        if(key === 'apiMountPoint') {
+          continue;
+        }
+
+        userManager.get(key).should.deep.equal(value);
+      }
+    });
+  });
+
+  describe('getDbAdapter', () => {
+    const envAdapter = env.DB_ADAPTER;
+    const storeMethods = [
+      'emit',
+      'debug',
+      'toBoolean',
+      'connect',
+      'disconnect',
+      'createUser',
+      'getUsers',
+      'searchUsers',
+      'findByEmail',
+      'findByUsername',
+      'findById',
+      'updateUser',
+      'deleteUser'
+    ];
+
+    it('should throw an error if passed an invalid adapter', () => {
+      const adapter = 'database';
+
+      try {
+        const store = userManager.getDbAdapter(adapter);
+      } catch(err) {
+        expect(typeof err).to.equal('object');
+        expect(err).to.match(new RegExp(
+          `${appName}::getAdapter: invalid adapter ${adapter}. ${validAdaptersMsg}`
+        ));
+      }
+    });
+
+    it('should return a db connector and manipulation object (store) based on a passed valid adapter', () => {
+      const store = userManager.getDbAdapter('mongoose');
+      store.should.be.an('object');
+
+      for(let method of storeMethods) {
+        store.should.have.property(method);
+        store[method].should.be.a('function');
+      }
+    });
+
+    it('should return a db connector and manipulation object (store) based on configuration-specified adapter', () => {
+     let store = null;
+
+      // Remove adapters set via env and config;
+      userManager.set('db', null);
+      delete process.env.DB_ADAPTER;
+
+      expect(userManager.get('db')).to.equal(null);
+      expect(env.DB_ADAPTER).to.be.undefined;
+
+      try {
+        store = userManager.getDbAdapter();
+      } catch(err) {
+        (typeof err).should.equal('object');
+        err.should.match(new RegExp(
+          `${appName}::getDbAdapter: no adapter found via config or environment variable. ` +
+          `Pass a string as the first argument. ${validAdaptersMsg}`
+        ));
+        expect(store).to.equal(null);
+
+        userManager.config(configObj);
+
+        /**
+         * getDbAdapter() will search in:
+         *   - passed string (undefined, nothing passed as argument)
+         *   - configObj.db - which we just set by calling config() -
+         *       finds and uses a valid adapter
+         */
+        store = userManager.getDbAdapter();
+
+        store.should.be.an('object');
+
+        for(let method of storeMethods) {
+          store.should.have.property(method);
+          store[method].should.be.a('function');
+        }
+      }
+    });
+
+    it('should return a db connector and manipulation object (store) based on ENV-specified adapter', () => {
+     let store = null;
+
+      // Remove adapters set via env and config;
+      userManager.set('db', null);
+      delete process.env.DB_ADAPTER;
+
+      expect(userManager.get('db')).to.equal(null);
+      expect(env.DB_ADAPTER).to.be.undefined;
+
+      try {
+        store = userManager.getDbAdapter();
+      } catch(err) {
+        (typeof err).should.equal('object');
+        err.should.match(new RegExp(
+          `${appName}::getDbAdapter: no adapter found via config or environment variable. ` +
+          `Pass a string as the first argument. ${validAdaptersMsg}`
+        ));
+        expect(store).to.equal(null);
+
+        // Restore the adapter set in the environment variable
+        process.env.DB_ADAPTER = envAdapter;
+
+        /**
+         * getDbAdapter() will search in:
+         *   - passed string (undefined, nothing passed as argument)
+         *   - configurationObject.db (null, as we set it to null above)
+         *   - environment variable DB_ADAPTER, finds nd uses a valid adapter
+         */
+        store = userManager.getDbAdapter();
+
+        store.should.be.an('object');
+
+        for(let method of storeMethods) {
+          store.should.have.property(method);
+          store[method].should.be.a('function');
+        }
+      }
+    });
+  });
+
   describe('addRequestHook', () => {
     const hookType = 'request';
 
