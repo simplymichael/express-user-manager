@@ -170,8 +170,8 @@ function getDbAdapter(adapter) {
   }
 
   if(!adapter || typeof adapter !== 'string') {
-    const msg = `${appName}::getDbAdapter: no adapter found via config or environment variable.
-    Pass a string as the first argument. ${validAdaptersMsg}`;
+    const msg = `${appName}::getDbAdapter: no adapter found via config or environment variable. ` +
+    `Pass a string as the first argument. ${validAdaptersMsg}`;
     throw new Error(msg);
   }
 

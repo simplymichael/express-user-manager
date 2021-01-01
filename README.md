@@ -216,12 +216,12 @@ userManager.config({
 
   routes: { // {object} for configuring custom routes, with members
     list: {string}, // specifies the path for getting users listing
-    search: {string}, specifies the path for searching users
+    search: {string}, // specifies the path for searching users
     getUser: {string}, // specifies the path for getting a user's details via their username, a /:{username} is appended to this path
     signup: {string}, // specifies the user registration path
     login: {string}, // specifies user authentication path,
     logout: {string}, // defines the logout path
-    updateUser: {string} // specifies the path for updating a user's data
+    updateUser: {string}, // specifies the path for updating a user's data
     deleteUser: {string} // specifies the path for deleting a user, a /:{userId} is appended to this path
   },
 

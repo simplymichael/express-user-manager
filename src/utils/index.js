@@ -7,7 +7,7 @@ function emit(event, ...data) {
 function convertToBoolean(data) {
   data = typeof data === 'string' ? data.toLowerCase() : data;
 
-  if(data === 'false') {
+  if(data === 'false' || data === 'null' || data === 'undefined') {
     return false;
   }
 

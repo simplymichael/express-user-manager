@@ -7,6 +7,7 @@ const {
   getValidId,
   convertToBoolean
 } = require('../../src/utils');
+const falsyValues = ["false", "0 (zero)", "null", "undefined"];
 
 const { expect } = chai;
 
@@ -104,8 +105,24 @@ describe('Utils', () => {
       expect(convertedValue).not.to.equal(0);
     });
 
+    it('should return boolean false if passed the string "null"', () => {
+      const convertedValue = convertToBoolean('null');
+
+      expect(typeof convertedValue).to.equal('boolean');
+      expect(convertedValue).to.equal(false);
+      expect(convertedValue).not.to.equal(null);
+    });
+
     it('should return boolean false if passed NULL', () => {
       expect(convertToBoolean(null)).to.equal(false);
+    });
+
+    it('should return boolean false if passed the string "undefined"', () => {
+      const convertedValue = convertToBoolean('undefined');
+
+      expect(typeof convertedValue).to.equal('boolean');
+      expect(convertedValue).to.equal(false);
+      expect(convertedValue).not.to.equal(undefined);
     });
 
     it('should return boolean false if passed undefined', () => {
@@ -132,7 +149,7 @@ describe('Utils', () => {
       expect(convertedValue).not.to.equal('true');
     });
 
-    it('should return boolean true if passed any string apart from "false" or "0" (zero)', () => {
+    it(`should return boolean true if passed any string apart from ${falsyValues.join}`, () => {
       expect(convertToBoolean('1')).to.equal(true);
       expect(convertToBoolean('yes')).to.equal(true);
       expect(convertToBoolean('me')).to.equal(true);
@@ -143,6 +160,8 @@ describe('Utils', () => {
       expect(convertToBoolean('false')).to.equal(false);
       expect(convertToBoolean('0')).not.to.equal(true);
       expect(convertToBoolean('0')).to.equal(false);
+      expect(convertToBoolean('null')).to.equal(false);
+      expect(convertToBoolean('undefined')).to.equal(false);
     });
 
     it('should return boolean true if passed any integer apart from 0', () => {
