@@ -7,7 +7,7 @@
     "test": "npm run test:unit && npm run test:db:all && npm run test:e2e:all",
     "test:watch": "npm test -- -w",
     "test:coverage": "nyc npm test",
-    "test:unit": "mocha __tests__/utils/\"{,/**/}*.test.js\"",
+    "test:unit": "mocha __tests__/app.test.js __tests__/utils/\"{,/**/}*.test.js\"",
     "test:db": "mocha __tests__/databases/\"{,/**/}*.test.js\"",
     "test:e2e": "npm run test:e2e:routes:default && npm run test:e2e:routes:custom",
     "test:e2e:routes:custom": "mocha __tests__/routes-custom/\"{,/**/}*.test.js\"",
