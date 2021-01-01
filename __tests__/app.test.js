@@ -1,14 +1,18 @@
-//const http = require('http');
+const http = require('http');
 const chai = require('chai');
 const crypto = require('crypto');
 const spies = require('chai-spies');
 const express = require('express');
+const fetch = require('node-fetch');
+const chaiHttp = require('chai-http');
 const env = require('../src/dotenv');
 const userManager = require('../src');
 const db = require('../src/databases');
 const { keys: routeKeys } = require('../src/routes/defaults');
 const { convertToBoolean, generateRoute } = require('../src/utils');
+const debug = require('../src/utils/debug');
 const hooks = require('../src/utils/hooks');
+const { deleteApiTestUser } = require('./_api-utils');
 
 const appName = 'express-user-manager';
 const validAdapters = db.validAdapters;
@@ -62,9 +66,10 @@ userManager.listen(app);
 
 should();
 chai.use(spies);
+chai.use(chaiHttp);
 
-describe(appName, () => {
-  describe('config', () => {
+describe.only(appName, () => {
+  describe('config()', () => {
     it('should throw an error if no parameter is passed', () => {
       try {
         userManager.config();
@@ -113,7 +118,7 @@ describe(appName, () => {
     });
   });
 
-  describe('getDbAdapter', () => {
+  describe('getDbAdapter()', () => {
     const envAdapter = env.DB_ADAPTER;
     const storeMethods = [
       'emit',
@@ -231,6 +236,160 @@ describe(appName, () => {
           store[method].should.be.a('function');
         }
       }
+    });
+  });
+
+  describe('init()', () => {
+    it('should throw an error if the "app" parameter is not passed', async () => {
+      try {
+        await userManager.init();
+      } catch(err) {
+        expect(typeof err).to.equal('object');
+        expect(err).to.match(new RegExp(
+          `${appName}::init: expects an Express app as the first argument`
+        ));
+      }
+    });
+
+    it('should throw an error if the "app" parameter is not an Express.js app', async () => {
+      let server = null;
+
+      try {
+        server = http.createServer(app);
+        await userManager.init(server);
+      } catch(err) {
+        expect(typeof err).to.equal('object');
+        expect(err).to.match(new RegExp(
+          `${appName}::init: expects an Express app as the first argument`
+        ));
+
+        server.close();
+      }
+    });
+
+    it('should throw an error if the "options" parameter is not passed', async () => {
+      try {
+        await userManager.init(app);
+      } catch(err) {
+        expect(typeof err).to.equal('object');
+        expect(err).to.match(new RegExp(
+          `${appName}::init: expects an object as the second argument`
+        ));
+      }
+    });
+
+    it('should throw an error if the "options" parameter is not an object', async () => {
+      try {
+        await userManager.init(app, function() {});
+      } catch(err) {
+        expect(typeof err).to.equal('object');
+        expect(err).to.match(new RegExp(
+          `${appName}::init: expects an object as the second argument`
+        ));
+      }
+    });
+
+    it('should throw an error if the configuration db adapter is invalid', async () => {
+      const adapter = 'database';
+      configObj.db.adapter = adapter;
+
+      try {
+        await userManager.init(app, configObj);
+      } catch(err) {
+        expect(typeof err).to.equal('object');
+        expect(err).to.match(new RegExp(
+          `${appName}::init: invalid adapter "${adapter}". ${validAdaptersMsg}`
+        ));
+      }
+    });
+
+    it('should run initialization code and start listening for requests', async () => {
+      const port = 3000;
+      const requestPath = `${configObj.apiMountPoint}${configObj.routes.signup}`;
+      const requestUrl = `http://localhost:${port}${requestPath}`;
+      const createData = {
+        firstname: 'majik',
+        lastname: 'johnson',
+        username: 'majikj',
+        email: 'majikj@johnsonfamily.com',
+        password: '123Secret#',
+        confirmPassword: '123Secret#'
+      };
+      let server = null;
+      let result = null;
+
+      // Reset the adapter which was changed in the previous test
+      configObj.db.adapter = 'sequelize';
+
+      /**
+       * Create server and listen, without calling userManager.init()
+       * As a result, the routes for handling users is not bound to the server,
+       * consequently requests to the users' routes will return 404
+       */
+      server = http.createServer(app);
+      server.listen(port);
+
+      result = await fetch(requestUrl, {
+        method: 'post',
+        body: JSON.stringify(createData),
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      (typeof result).should.equal('object');
+      result.should.have.property('status', 404);
+
+      server.close();
+      server = null;
+
+      /**
+       * Create server, listen, and call userManager.init()
+       * to run initialization and start listening for user requests
+       * As a result, the routes for handling users is bound to the server,
+       * and we can make user-related requests and get back expected responses.
+       */
+      server = http.createServer(app);
+      server.listen(port);
+      await userManager.init(app, configObj);
+
+      result = await fetch(requestUrl, {
+        method: 'post',
+        body: JSON.stringify(createData),
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      (typeof result).should.equal('object');
+      result.should.have.property('status', 200);
+
+      const jsonResult = await result.json();
+
+      (typeof jsonResult).should.equal('object');
+      jsonResult.should.have.property('data');
+      jsonResult.data.should.have.property('user');
+
+      const user = jsonResult.data.user;
+
+      (typeof user).should.equal('object');
+      user.should.have.property('id');
+      user.should.have.property('firstname', createData.firstname);
+      user.should.have.property('lastname', createData.lastname);
+      user.should.have.property('username', createData.username);
+      user.should.have.property('fullname',
+        [createData.firstname, createData.lastname].join(' '));
+      user.should.have.property('email', createData.email);
+      user.should.have.property('signupDate');
+
+      // Set the password to login and delete the user
+      user.password = createData.password;
+
+      await deleteApiTestUser(
+        user,
+        server,
+        `${configObj.apiMountPoint}${configObj.routes.login}`,
+        `${configObj.apiMountPoint}${configObj.routes.deleteUser}/${user.id}`
+      );
+
+      server.close();
+      server = null;
     });
   });
 

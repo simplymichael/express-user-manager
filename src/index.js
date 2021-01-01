@@ -90,12 +90,14 @@ function config(options) {
  * @param options configuration options passed to config()
  */
 async function init(app, options) {
+  const methodName = 'init';
+
   if(!app || typeof app.use !== 'function') {
-    throw new Error(`${appName}::setup: expects an Express app as the first argument`);
+    throw new Error(`${appName}::${methodName}: expects an Express app as the first argument`);
   }
 
   if(!options || typeof options !== 'object') {
-    throw new Error(`${appName}::setup: expects an object as the second argument`);
+    throw new Error(`${appName}::${methodName}: expects an object as the second argument`);
   }
 
   debug('Setup process started...');
@@ -142,7 +144,7 @@ async function init(app, options) {
   const adapter = dbConfig.adapter || env.DB_ADAPTER;
 
   if(!validAdapters.includes(adapter)) {
-    throw new Error(`${appName}::setup: invalid adapter ${adapter}. ${validAdaptersMsg}`);
+    throw new Error(`${appName}::${methodName}: invalid adapter "${adapter}". ${validAdaptersMsg}`);
   }
 
   const store = userModule.getDbAdapter(adapter);
