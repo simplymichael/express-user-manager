@@ -92,7 +92,7 @@ userManager.listen(expressApp, apiMountPoint = '/api/users', customRoutes = {});
   // Ensure the db is connected before binding the server to the port
   await store.connect({
     host: DB_HOST, // optional, default: 'localhost'
-    port: DB_PORT, // optional, default: 27017
+    port: DB_PORT, // optional
     user: DB_USERNAME, // optional
     pass: DB_PASSWORD, // optional
     engine: DB_ENGINE, // optional if the adapter is "mongoose" or if the value is "memory" and the adapter is "sequelize"; required otherwise
@@ -109,7 +109,7 @@ userManager.listen(expressApp, apiMountPoint = '/api/users', customRoutes = {});
  })();
 
 // Optionally listen for and handle events
-// (See the **[Emitted events](#emitted-events)** section for more)
+// (See the Emitted events section for more)
 userManager.on(EVENT_NAME, function(data) {
   // do something with data
 });
@@ -162,7 +162,7 @@ express-user-manager can be configured in several ways:
 - **`API_MOUNT_POINT`** (*string*): The route under which to listen for API requests, default is: `/api/users`
 - **`PORT`**: The port on which the server is running (or should run, if using as a stand-alone server)
 - **`DB_ENGINE`**: The database engine to use. Should be one of the supported databases.
-  (See **[Built-in data stores (database drivers)](#built-in-data-stores)**)
+  (See **[Built-in data stores](#built-in-data-stores)**)
 - **`DB_ADAPTER`**: The adapter to use. Set it to `mongoose` if using MongoDB; Set it to `sequelize` otherwise.
 - **`DB_STORAGE_PATH`**: Define this only when the **DB_ENGINE** is set to `sqlite`.
 - **`DB_HOST`**: The database host
@@ -317,6 +317,7 @@ As seen above, the default object has a number of properties, each corresponding
 - **signup** : Specifies the path for creating (i.e., registering) a new user
 - **login** : Specifies the path for logging in a user (an authorization key is returned on successful login)
 - **logout** : Specifies the path to log out a user
+- **updateUser**: Specifies the path for updating user information
 - **deleteUser** : Specifies the path for deleting user by id
 (a `/:userId` is automatically appended to the end of this route)
 

@@ -269,7 +269,7 @@ This project follows the [Conventional Commits Specification][commits] and uses 
 Before committing your changes, run `npm run lint:fix` to check and automatically fix linting errors.
 If there are linting errors that cannot be automatically fixed, they are highlighted, so that you can manually fix them.
 
-To commit your changes, run `npm run commit`. This will do the following:
+To commit your changes, run `npm run commit`. This will:
 
 - generate conventional commit messages using [commitizen][commitizen] and [cz-conventional-changelog][changelog]
 - check to make sure there are no linting errors
@@ -313,7 +313,7 @@ When you are ready to have your changes merged, you can then [open a pull reques
 
 Please checkout the [the issues][issues] page for any open issues.
 
-Also, please watch the repo and respond to questions/bug reports/feature requests! Thanks!
+Also, please watch the repo and respond to questions/[bug reports][bug]/[feature requests][fr]! Thanks!
 
 [commitizen]: https://npm.im/commitizen
 [commits]: https://conventionalcommits.org/
@@ -323,3 +323,5 @@ Also, please watch the repo and respond to questions/bug reports/feature request
 [issues]: https://github.com/simplymichael/express-user-manager/issues
 [pr]: https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request
 [sa-server]: https://github.com/simplymichael/express-user-manager/blob/master/README.md#usage-as-a-standalone-server
+[fr]: https://github.com/simplymichael/express-user-manager/labels/feature%20request
+[bug]: https://github.com/simplymichael/express-user-manager/labels/bug
