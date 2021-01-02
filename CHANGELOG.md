@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/simplymichael/express-user-manager/compare/v2.1.0...v3.0.0) (2021-01-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* **app (new methods):** - SESSION_TOKEN_KEY deprecated in favour of SESSION_SECRET
+- AUTH_TOKEN_KEY
+deprecated in favour of AUTH_TOKEN_SECRET
+- PASSWORD_BLACK_LIST deprecated in favour of
+DISALLOWED_PASSWORDS
+* **app (src/index.js):** \r
+- `express-user-manager.getDbDriver` has been removed. Calls to it will
+error.\r
+- `express-user-manager.getDbAdapter(adapter)` no longer returns a constructor, instead it
+returns an object. This means the following no longer works:\r
+```\r
+const DataStore =
+userManager.getDbAdapter(adapter);\r
+const store = new DataStore(); // Error: DataStore is not a
+constructor\r
+\r
+userManager.set('store', store);\r
+```\r
+Do this instead:\r
+`const store =
+userManager.getDbAdapter(adapter);`\r
+This still performs all the previous initialization steps,
+but internally.
+
+### Features
+
+* **app (new methods):** add new configuration and initialization methods ([8e306ef](https://github.com/simplymichael/express-user-manager/commit/8e306ef58a3f36fdf218b569ef197730dc4d1974))
+* **hooks:** implement methods to unregister hooks ([2590cc2](https://github.com/simplymichael/express-user-manager/commit/2590cc22ebb81aaf922565719b7201c6e1d1ad7e))
+* **hooks:** implement request hooks ([445f32a](https://github.com/simplymichael/express-user-manager/commit/445f32a238b45e6686087b102cfb9ff93ecf801d))
+* **hooks:** implement response hooks ([a919078](https://github.com/simplymichael/express-user-manager/commit/a91907886ec1cb5b853ce2ee023b15101e6036e4))
+* **routing:** implement user data update route ([f487bf0](https://github.com/simplymichael/express-user-manager/commit/f487bf0ddd46f238f6469ae863b7da36aa960164))
+
+
+* **app (src/index.js):** simplify the API setup ([e49c432](https://github.com/simplymichael/express-user-manager/commit/e49c432fd84af759a784b071b64cfa7625e88122))
+
 ## [2.1.0](https://github.com/simplymichael/express-user-manager/compare/v2.0.0...v2.1.0) (2020-12-21)
 
 
