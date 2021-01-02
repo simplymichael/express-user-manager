@@ -1,6 +1,6 @@
 {
   "name": "express-user-manager",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "A user management and authentication library for Express apps.",
   "main": "src/index.js",
   "scripts": {
@@ -48,7 +48,7 @@
     "lint": "./node_modules/.bin/eslint ./src",
     "lint:fix": "npm run lint -- --fix",
     "codecov": "codecov",
-    "draft-release": "standard-version",
+    "draft-release": "npm run lint:fix && standard-version",
     "draft-release:simulate": "npm run draft-release -- --dry-run",
     "view-readme": "./node_modules/.bin/markdown-viewer -b",
     "view-contributing": "./node_modules/.bin/markdown-viewer -f CONTRIBUTING.md -b",
