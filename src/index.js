@@ -233,8 +233,22 @@ function getDbAdapter(adapter) {
 function listen(app, baseApiRoute = '/api/users', customRoutes = {}) {
   debug('Setting up routing...');
 
+  baseApiRoute = typeof baseApiRoute === 'string'
+    ? baseApiRoute.trim()
+    : '';
+
+  let apiMountPoint = (baseApiRoute.length > 0 
+    ? baseApiRoute
+    : String(userModule.get('apiMountPoint'))
+  ).trim();
+
+  if(apiMountPoint.length <= 0) {
+    apiMountPoint = '/api/users';
+  }
+
   debug('Setting up path listeners...');
-  const routeListener = setupRouting(customRoutes);
+  const configuredRoutes = userModule.get('routes');
+  const routeListener = setupRouting({ ...configuredRoutes, ...customRoutes });
   debug('Path listeners setup complete');
 
   debug('Setting up express middlewares...');
@@ -243,7 +257,7 @@ function listen(app, baseApiRoute = '/api/users', customRoutes = {}) {
   debug('Express middlewares setup complete');
 
   debug('Setting up mount point...');
-  app.use(new RegExp(`${baseApiRoute}`, 'i'), routeListener);
+  app.use(new RegExp(`${apiMountPoint}`, 'i'), routeListener);
   debug(`Routing setup complete. Listening for requests at ${baseApiRoute}`);
 }
 
