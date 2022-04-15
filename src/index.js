@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const util = require('util');
 const env = require('./dotenv');
 const db = require('./databases');
 const debug = require('./utils/debug');
@@ -76,7 +77,7 @@ function config(options) {
 
   debug('Setting up configuration properties...');
   for(let [key, value] of Object.entries(options)) {
-    debug(`Configuring ${key} with value ${value}...`);
+    debug(`Configuring ${key} with value ${util.inspect(value)}...`);
     userModule.set(key, value);
     debug(`${key} configuration done`);
   }
