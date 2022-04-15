@@ -115,7 +115,7 @@ You can run end-to-end tests on the routes using Postman or cURL. To do this,
 <a name="setting-up-test-databases"></a>
 ### Setting up test databases (with docker)
 - **Setup a MongoDB database**:
-    - Create the container: `docker run -d -it --rm --name mongodb -p 27017:27017 mongo:4.4.1`
+    - Create the container: `docker run -d -it --rm --name mongodb -p 27017:27017 mongo:4.4.4`
     - You can create volume mappings between your OS and the container using the `-v` flag: `-v path/on/your/host/system:/etc/mongo`
 - **Setup a MySQL database**:
     - Create the container:

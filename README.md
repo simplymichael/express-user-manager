@@ -67,7 +67,7 @@ Additional features include:
 `npm install --save express-user-manager`
 
 ## Quick start
-```
+```javascript
 const express = require('express');
 const userManager = require('express-user-manager');
 const app = express();
@@ -198,7 +198,7 @@ Below is an example touching on every setting:
 - **`db`**: (*object*) encapsulating database connection information
 - **`security`**: (*object*) for configuring session and authorization tokens and expiry
 
-```
+```javascript
 const express = require('express');
 const userManager = require('express-user-manager');
 const app = express();
@@ -284,18 +284,18 @@ userManager.listen(expressApp);
 ### Specifying custom API endpoints
 To customize the request paths, either:
 - pass a `routes` property with the API endpoints to `config`:
-  ```
+  ```javascript
   userManager.config({
     routes: customApiEndpoints
   });
 
   userManager.listen(expressApp, apiMountPoint);
   ```
-- pass an object with the API endpoints as the last parameter to `userManager.listen`
+- pass an object with the API endpoints as the last parameter to `userManager.listen`:
   `userManager.listen(expressApp, apiMountPoint, customApiEndpoints)`
 
 Below is the default definition of the API Endpoints, which can be modified for your custom routes:
-```
+```javascript
 const customApiEndpoints = {
   list       : '/',       // Resolves to [apiMountPoint]/
   search     : '/search', // Resolves to [apiMountPoint]/search
@@ -382,7 +382,7 @@ To register a request or response hook:
 
 #### Registering hooks: examples
 - Register a request hook for every route:
-  ```
+  ```javascript
   userManager.addRequestHook('*', function(req, res, next) {
     // Do something interesting here, with the request or the response.
     req.accessTime = Date.now();
@@ -392,25 +392,25 @@ To register a request or response hook:
   });
   ```
 - Register a response hook for the signup route:
-  ```
+  ```javascript
   userManager.addResponseHook('signup', function(req, res, next) {
     // You can for example set/append custom response headers:
     res.append('Access-Control-Allow-Headers', '<CUSTOM_HEADER>');
   });
   ```
 - Register a response hook for multiple (*login* and *signup*) routes:
-  ```
+  ```javascript
   userManager.addResponseHook(['login', 'signup'], function(req, res, next) {
     // Do something tangible
     res.body.data.authenticated = true;
   });
   ```
 - Register a list of request hooks along with their corresponding function identifiers:
-  ```
+  ```javascript
   userManager.addRequestHook(['login', 'signup'], ['loginFnId', 'signupFnId'])
   ```
 - Register multiple response hooks for a single (*signup*) route:
-  ```
+  ```javascript
   userManager.addResponseHook('signup', [callback1, callback2, ...]);
   ```
 
@@ -429,15 +429,15 @@ And you can unregister hooks globally, for only some routes, or for a single rou
 
 #### Unregistering hooks: examples
 - Unregister every request hook:
-  ```
+  ```javascript
   userManager.removeRequestHook('*');
   ```
 - Unregister every response hook for the user signup route:
-  ```
+  ```javascript
   userManager.removeResponseHook('signup');
   ```
 - Unregister only a request callback hook for the signup route:
-  ```
+  ```javascript
   UserManager.removeRequestHook('signup', fn);
   ```
 
@@ -445,15 +445,15 @@ And you can unregister hooks globally, for only some routes, or for a single rou
 
   Anonymous functions cannot be unregistered this way.
 - Unregister a list of request hooks along with their corresponding function identifiers:
-  ```
+  ```javascript
   userManager.removeRequestHook(['login', 'signup'], ['loginFnId', 'signupFnId']);
   ```
 - Unregister every response hook for the passed routes list:
-  ```
+  ```javascript
   userManager.removeRequestHook(['login', 'signup']);
   ```
 - Unregister multiple request hooks for a single (*login*) route:
-  ```
+  ```javascript
   userManager.removeRequestHook('login', [fn1, fn2, ...]);
   ```
 
@@ -536,7 +536,7 @@ The default base API route is **`/api/users`**.
     - request parameters: none
     - request body: `{ firstname, lastname, username, email, password, confirmPassword }`
     - response:
-      ```
+      ```javascript
       {
         "data": {
           "user": { id, firstname, lastname, fullname, email, username, signupDate }
@@ -550,7 +550,7 @@ The default base API route is **`/api/users`**.
     - request parameters: none
     - request body: none
     - response:
-      ```
+      ```javascript
       {
         "data": {
           "user": { id, firstname, lastname, fullname, email, username, signupDate }
@@ -569,7 +569,7 @@ The default base API route is **`/api/users`**.
         - `limit` (number, optional, default = 20)
     - request body: none
     - response:
-      ```
+      ```javascript
       {
         "data": {
           "total": TOTAL_COUNT_OF_MATCHING_RESULTS,
@@ -594,7 +594,7 @@ The default base API route is **`/api/users`**.
         - `limit` (number, optional, default = 20)
     - request body: none
     - response:
-      ```
+      ```javascript
       {
         "data": {
           "total": TOTAL_COUNT_OF_MATCHING_RESULTS,
@@ -626,7 +626,7 @@ The default base API route is **`/api/users`**.
     - request headers: none
     - request parameters: none
     - request body:
-      ```
+      ```javascript
       {
         "login": EMAIL | USERNAME,
         "password": USER_PASSWORD,
@@ -655,7 +655,7 @@ The default base API route is **`/api/users`**.
     - route: `PUT /`
     - protected: `true`
     - request headers:
-      ```
+      ```javascript
       {
         "Authorization": "Bearer TOKEN_STRING"
       }
@@ -663,7 +663,7 @@ The default base API route is **`/api/users`**.
     - request parameters: none
     - request body: `{ id, firstname, lastname, username, email }`
     - response:
-      ```
+      ```javascript
       {
         "data": {
           "user": { id, firstname, lastname, fullname, email, username, signupDate }
@@ -674,13 +674,13 @@ The default base API route is **`/api/users`**.
     - route: `DELETE /user/USER_ID`
     - protected: `true`
     - request headers:
-      ```
+      ```javascript
       {
         "Authorization": "Bearer TOKEN_STRING"
       }
       ```
     - request body:
-      ```
+      ```javascript
       {
         "userId": USER_ID
       }
