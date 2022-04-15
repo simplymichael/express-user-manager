@@ -9,14 +9,9 @@ const EventEmitter = require('events').EventEmitter;
  */
 class UserModule extends EventEmitter {
   constructor(...args) {
-    if (!UserModule.instance) {
-      super(...args);
+    super(...args);
 
-      this.store = new Map();
-      UserModule.instance = this;
-    }
-
-    return UserModule.instance;
+    this.store = new Map();
   }
 
   set(key, value) {
@@ -36,7 +31,11 @@ class UserModule extends EventEmitter {
   }
 
   static getInstance() {
-    return new UserModule();
+    if (!UserModule.instance) {
+      UserModule.instance = new UserModule();
+    }
+
+    return UserModule.instance;
   }
 }
 
