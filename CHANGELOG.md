@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.1](https://github.com/simplymichael/express-user-manager/compare/v3.0.0...v3.0.1) (2022-04-16)
+
+
+### Bug Fixes
+
+* **index.js:** fix mount point and routing configuration issues ([c2a1bb3](https://github.com/simplymichael/express-user-manager/commit/c2a1bb3196861ed7faf952916a133220abd231c7)), closes [#3](https://github.com/simplymichael/express-user-manager/issues/3)
+* **password validator:** fix bug in password validation routine ([2cd3c21](https://github.com/simplymichael/express-user-manager/commit/2cd3c214964fe7d0a27c588f6794e78f89789ead)), closes [#2](https://github.com/simplymichael/express-user-manager/issues/2)
+
 ## [3.0.0](https://github.com/simplymichael/express-user-manager/compare/v2.1.0...v3.0.0) (2021-01-02)
 
 
